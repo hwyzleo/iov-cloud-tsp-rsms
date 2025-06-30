@@ -24,4 +24,12 @@ public interface ClientPlatformDao extends BaseDao<ClientPlatformPo, Long> {
      */
     List<ClientPlatformPo> selectPoByEnabled();
 
+    /**
+     * 批量物理删除客户端平台
+     *
+     * @param ids 服务端平台id数组
+     * @return 影响行数
+     */
+    int batchPhysicalDeletePo(Long[] ids);
+
 }
