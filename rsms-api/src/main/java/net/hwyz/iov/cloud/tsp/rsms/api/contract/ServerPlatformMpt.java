@@ -82,4 +82,9 @@ public class ServerPlatformMpt extends BaseRequest {
      */
     private String encryptKey;
 
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
 }
