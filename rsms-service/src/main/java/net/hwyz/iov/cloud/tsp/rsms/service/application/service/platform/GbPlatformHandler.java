@@ -1,0 +1,91 @@
+package net.hwyz.iov.cloud.tsp.rsms.service.application.service.platform;
+
+import cn.hutool.core.thread.ThreadUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.event.event.NettyClientConnectEvent;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.PlatformHandler;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+
+/**
+ * 国标平台业务处理器
+ *
+ * @author hwyz_leo
+ */
+@Slf4j
+@RequiredArgsConstructor
+@Component("gbPlatformHandler")
+public class GbPlatformHandler implements PlatformHandler {
+
+    private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
+
+    /**
+     * 登录重试短间隔时间
+     */
+    @Value("${biz.gbLoginRetryShortInterval:60}")
+    private Integer loginRetryShortInterval;
+    /**
+     * 登录重试长间隔时间
+     */
+    @Value("${biz.gbLoginRetryShortInterval:1800}")
+    private Integer loginRetryLongInterval;
+
+    @Override
+    public void login(ClientPlatformDo clientPlatform) {
+        clientPlatform.login();
+    }
+
+    @Override
+    public void loginSuccess(ClientPlatformDo clientPlatform) {
+        clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
+    }
+
+    @Override
+    public void loginFailure(ClientPlatformDo clientPlatform) {
+        clientPlatform.loginFailure();
+        clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
+        // 客户端平台在规定时间内未收到应答指令，应每间隔1min重新进行登入；若连续重复3次登人无应答，应间隔30min后，
+        // 继续重新链接，并把链接成功前存储的未成功发送的数据重新上报，重复登入间隔时间可以设置。
+        if (clientPlatform.getFailureCount().get() < 3) {
+            logger.info("等待[{}]秒后重试登录", loginRetryShortInterval);
+            try {
+                Thread.sleep(loginRetryShortInterval * 1000);
+                clientPlatform.login();
+            } catch (InterruptedException e) {
+                logger.warn("等待线程被中断");
+            }
+        } else {
+            ThreadUtil.newExecutor(1).submit(() -> {
+                logger.info("等待[{}]秒后重试登录", loginRetryLongInterval);
+                try {
+                    Thread.sleep(loginRetryLongInterval * 1000);
+                    clientPlatform.resetLogin();
+                } catch (InterruptedException e) {
+                    logger.warn("等待线程被中断");
+                }
+            });
+        }
+    }
+
+    /**
+     * 订阅Netty客户端连接事件
+     *
+     * @param event 客户端平台登录事件
+     */
+    @EventListener
+    public void onNettyClientConnectEvent(NettyClientConnectEvent event) {
+        ClientPlatformDo clientPlatform = event.getClientPlatform();
+        if ("gb".equals(clientPlatform.getServerPlatform().getProtocol())) {
+            if (event.getConnectResult()) {
+                login(clientPlatform);
+            } else {
+                loginFailure(clientPlatform);
+            }
+        }
+    }
+
+}

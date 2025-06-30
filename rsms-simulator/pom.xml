@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.hwyz.iov.cloud.parent</groupId>
+        <artifactId>service</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>net.hwyz.iov.cloud.tsp</groupId>
+    <artifactId>rsms-simulator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <properties>
+        <rsms.version>0.0.1-SNAPSHOT</rsms.version>
+        <netty.version>4.1.86.Final</netty.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.tsp</groupId>
+            <artifactId>rsms-api</artifactId>
+            <version>${rsms.version}</version>
+        </dependency>
+
+        <!-- 框架: 异常 -->
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.framework</groupId>
+            <artifactId>framework-exception-starter</artifactId>
+        </dependency>
+
+        <!-- 框架: MySQL -->
+        <dependency>
+            <groupId>net.hwyz.iov.cloud.framework</groupId>
+            <artifactId>framework-mysql-starter</artifactId>
+        </dependency>
+
+        <!-- Netty -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>maven-snapshots</id>
+            <url>http://nexus-internal.rox-motor.com:8081/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven-snapshots</id>
+            <url>http://nexus-internal.rox-motor.com:8081/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
