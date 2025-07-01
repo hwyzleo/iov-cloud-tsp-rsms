@@ -34,7 +34,7 @@ pipeline {
                 }
             }
         }
-        stage('构建镜像') {
+        stage('构建服务镜像') {
             when { expression { params.DEPLOY_TYPE == "service" } }
             steps {
                 script {
@@ -44,6 +44,8 @@ pipeline {
                     '''
                 }
             }
+        }
+        stage('构建模拟器镜像') {
             when { expression { params.DEPLOY_TYPE == "simulator" } }
             steps {
                 script {
