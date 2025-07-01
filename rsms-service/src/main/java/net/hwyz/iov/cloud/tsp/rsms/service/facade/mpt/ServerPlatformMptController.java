@@ -52,6 +52,20 @@ public class ServerPlatformMptController extends BaseController implements Serve
     }
 
     /**
+     * 获取所有服务端平台
+     *
+     * @return 服务端平台列表
+     */
+    @RequiresPermissions("iov:rsms:serverPlatform:list")
+    @Override
+    @GetMapping(value = "/listAll")
+    public List<ServerPlatformMpt> listAll() {
+        logger.info("管理后台用户[{}]获取所有服务端平台", SecurityUtils.getUsername());
+        List<ServerPlatformPo> serverPlatformPoList = serverPlatformAppService.search(null, null, null, null, null);
+        return ServerPlatformMptAssembler.INSTANCE.fromPoList(serverPlatformPoList);
+    }
+
+    /**
      * 导出服务端平台
      *
      * @param response       响应

@@ -5,6 +5,8 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ServerPlatformMpt;
 
+import java.util.List;
+
 /**
  * 服务端平台相关管理后台接口
  *
@@ -19,6 +21,13 @@ public interface ServerPlatformMptApi {
      * @return 服务端平台列表
      */
     TableDataInfo list(ServerPlatformMpt serverPlatform);
+
+    /**
+     * 获取所有服务端平台
+     *
+     * @return 服务端平台列表
+     */
+    List<ServerPlatformMpt> listAll();
 
     /**
      * 导出服务端平台
