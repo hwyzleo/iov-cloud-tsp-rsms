@@ -1,6 +1,5 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.impl;
 
-import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
@@ -29,12 +28,12 @@ public class CacheServiceImpl implements CacheService {
     public Optional<ClientPlatformDo> getClientPlatform(Long clientPlatformId) {
         logger.debug("获取客户端平台[{}]缓存", clientPlatformId);
         if (clientPlatformCacheMap.contains(clientPlatformId)) {
-            ClientPlatformDo clientPlatformDo = clientPlatformCacheMap.get(clientPlatformId);
+            ClientPlatformDo clientPlatform = clientPlatformCacheMap.get(clientPlatformId);
             if (logger.isDebugEnabled()) {
-                logger.debug("获取客户端平台[{}:{}]缓存[{}]", clientPlatformDo.getServerPlatform().getName(),
-                        clientPlatformDo.getUniqueCode(), JSONUtil.toJsonStr(clientPlatformDo));
+                logger.debug("获取客户端平台[{}:{}]登录[{}]", clientPlatform.getServerPlatform().getName(),
+                        clientPlatform.getUniqueCode(), clientPlatform.isLogin());
             }
-            return Optional.of(clientPlatformDo);
+            return Optional.of(clientPlatform);
         }
         return Optional.empty();
     }
@@ -42,8 +41,8 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public void setClientPlatform(ClientPlatformDo clientPlatform) {
         if (logger.isDebugEnabled()) {
-            logger.debug("设置客户端平台[{}:{}]缓存[{}]", clientPlatform.getServerPlatform().getName(),
-                    clientPlatform.getUniqueCode(), JSONUtil.toJsonStr(clientPlatform));
+            logger.debug("设置客户端平台[{}:{}]登录[{}]", clientPlatform.getServerPlatform().getName(),
+                    clientPlatform.getUniqueCode(), clientPlatform.isLogin());
         }
         clientPlatformCacheMap.put(clientPlatform.getId(), clientPlatform);
     }
