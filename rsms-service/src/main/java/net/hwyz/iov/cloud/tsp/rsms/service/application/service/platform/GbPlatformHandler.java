@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.application.service.platform;
 
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.event.event.NettyClientConnectEvent;
@@ -76,6 +77,22 @@ public class GbPlatformHandler implements PlatformHandler {
         }
     }
 
+    @Override
+    public void logout(ClientPlatformDo clientPlatform) {
+        clientPlatform.login();
+    }
+
+    @Override
+    public void logoutSuccess(ClientPlatformDo clientPlatform) {
+        clientPlatform.logoutSuccess();
+        clientPlatformLoginHistoryAppService.recordLogout(clientPlatform);
+    }
+
+    @Override
+    public void logoutFailure(ClientPlatformDo clientPlatform) {
+        logger.warn("出现未预料的登出失败场景[{}]", JSONUtil.toJsonStr(clientPlatform));
+    }
+
     /**
      * 订阅Netty客户端连接事件
      *
@@ -88,7 +105,7 @@ public class GbPlatformHandler implements PlatformHandler {
             if (event.getConnectResult()) {
                 login(clientPlatform);
             } else {
-                loginFailure(clientPlatform);
+                logout(clientPlatform);
             }
         }
     }

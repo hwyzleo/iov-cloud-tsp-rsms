@@ -25,8 +25,18 @@ public class NettyClientPublish {
      * @param clientPlatform 客户端平台
      */
     public void connectSuccess(ClientPlatformDo clientPlatform) {
-        logger.info("发送Netty客户端建立连接[{}]成功事件", clientPlatform.getUniqueKey());
+        logger.info("发送Netty客户端[{}]建立连接成功事件", clientPlatform.getUniqueKey());
         ctx.publishEvent(new NettyClientConnectEvent(clientPlatform, true));
+    }
+
+    /**
+     * Netty客户端断连
+     *
+     * @param clientPlatform 客户端平台
+     */
+    public void disconnect(ClientPlatformDo clientPlatform) {
+        logger.info("发送Netty客户端[{}]断连事件", clientPlatform.getUniqueKey());
+        ctx.publishEvent(new NettyClientConnectEvent(clientPlatform, false));
     }
 
 }

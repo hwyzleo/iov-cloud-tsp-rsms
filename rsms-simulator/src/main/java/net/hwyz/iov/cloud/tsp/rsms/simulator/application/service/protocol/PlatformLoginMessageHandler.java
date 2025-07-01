@@ -36,7 +36,7 @@ public class PlatformLoginMessageHandler implements GbProtocolHandler {
     public Optional<GbMessage> handle(GbMessage message) {
         GbPlatformLoginDataUnit platformLogin = new GbPlatformLoginDataUnit();
         platformLogin.parse(message.getDataUnitBytes());
-        logger.info("收到客户端平台[{}]今日第[{}]次登录[{}]消息", platformLogin.getUsername(), platformLogin.getLoginSn(), GbUtil.dateTimeBytesToString(platformLogin.getLoginTime()));
+        logger.info("收到客户端平台[{}]今日第[{}]次登录[{}]消息", message.getHeader().getUniqueCode(), platformLogin.getLoginSn(), GbUtil.dateTimeBytesToString(platformLogin.getLoginTime()));
         if (platformLogin.getUsername().equals(username) && platformLogin.getPassword().equals(password)) {
             message.getHeader().setAckFlag(GbAckFlag.SUCCESS);
         } else {
@@ -45,7 +45,8 @@ public class PlatformLoginMessageHandler implements GbProtocolHandler {
         message.setDataUnit(new GbPlatformLoginAckDataUnit(platformLogin.getLoginTime()));
         message.getHeader().setDataUnitLength(message.getDataUnit().toByteArray().length);
         message.calculateCheckCode();
-        logger.info("向客户端平台[{}]发送登录应答", platformLogin.getUsername());
+        logger.info("向客户端平台[{}]发送登录应答", message.getHeader().getUniqueCode());
         return Optional.of(message);
     }
+
 }

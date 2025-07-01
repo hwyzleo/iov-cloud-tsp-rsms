@@ -92,6 +92,7 @@ public class NettyClient {
             this.channel = future.channel();
             // 监听连接关闭事件，自动移除失效连接
             this.channel.closeFuture().addListener(f -> {
+                publish.disconnect(clientPlatform);
                 logger.info("连接[{}:{}]已关闭，尝试第[{}]次重连...", url, port, ++reconnectCount);
                 if (reconnectCount <= MAX_RECONNECT_COUNT) {
                     new Timer().schedule(new TimerTask() {
@@ -99,7 +100,7 @@ public class NettyClient {
                         public void run() {
                             connect(clientPlatform);
                         }
-                    }, 5000);
+                    }, 10000);
                 } else {
                     logger.error("达到最大重连次数，不再尝试");
                     // TODO 发送通知
@@ -111,7 +112,6 @@ public class NettyClient {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.error("连接[{}:{}]被中断", url, port, e);
-            throw new RuntimeException(e);
         }
     }
 

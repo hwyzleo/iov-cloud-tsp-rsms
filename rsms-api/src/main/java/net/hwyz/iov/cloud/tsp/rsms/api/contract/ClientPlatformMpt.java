@@ -53,6 +53,11 @@ public class ClientPlatformMpt extends BaseRequest {
     private Boolean enable;
 
     /**
+     * 是否登录
+     */
+    private Boolean login;
+
+    /**
      * 创建时间
      */
     private Date createTime;

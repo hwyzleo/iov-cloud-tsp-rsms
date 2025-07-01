@@ -178,6 +178,14 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     }
 
     /**
+     * 登出服务端平台成功
+     */
+    public void logoutSuccess() {
+        this.loginState.set(false);
+        this.logoutTime = new Date();
+    }
+
+    /**
      * 发送数据
      *
      * @param data 协议数据

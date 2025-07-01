@@ -11,7 +11,8 @@ public interface PlatformHandler {
 
     /**
      * 登录
-     * @param clientPlatform
+     *
+     * @param clientPlatform 客户端平台
      */
     void login(ClientPlatformDo clientPlatform);
 
@@ -28,5 +29,26 @@ public interface PlatformHandler {
      * @param clientPlatform 客户端平台
      */
     void loginFailure(ClientPlatformDo clientPlatform);
+
+    /**
+     * 登出
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void logout(ClientPlatformDo clientPlatform);
+
+    /**
+     * 登出成功
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void logoutSuccess(ClientPlatformDo clientPlatform);
+
+    /**
+     * 登出失败
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void logoutFailure(ClientPlatformDo clientPlatform);
 
 }

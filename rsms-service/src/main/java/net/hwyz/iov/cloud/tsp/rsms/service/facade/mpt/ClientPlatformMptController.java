@@ -13,6 +13,8 @@ import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.repository.ClientPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +34,7 @@ import java.util.List;
 public class ClientPlatformMptController extends BaseController implements ClientPlatformMptApi {
 
     private final ClientPlatformAppService clientPlatformAppService;
+    private final ClientPlatformRepository clientPlatformRepository;
 
     /**
      * 分页查询客户端平台
@@ -48,6 +51,11 @@ public class ClientPlatformMptController extends BaseController implements Clien
         List<ClientPlatformPo> clientPlatformPoList = clientPlatformAppService.search(clientPlatform.getUniqueCode(),
                 getBeginTime(clientPlatform), getEndTime(clientPlatform));
         List<ClientPlatformMpt> clientPlatformMptList = ClientPlatformMptAssembler.INSTANCE.fromPoList(clientPlatformPoList);
+        clientPlatformMptList.forEach(clientPlatformMpt -> {
+            clientPlatformRepository.getById(clientPlatformMpt.getId()).ifPresent(clientPlatformDo -> {
+                clientPlatformMpt.setLogin(clientPlatformDo.isLogin());
+            });
+        });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
     }
 
@@ -129,4 +137,35 @@ public class ClientPlatformMptController extends BaseController implements Clien
         return toAjax(clientPlatformAppService.deleteClientPlatformByIds(clientPlatformIds));
     }
 
+    /**
+     * 客户端平台登录
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 结果
+     */
+    @Log(title = "客户端平台管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("iov:rsms:clientPlatform:login")
+    @Override
+    @PostMapping("/{clientPlatformId}/action/login")
+    public AjaxResult login(@PathVariable Long clientPlatformId) {
+        logger.info("管理后台用户[{}]操作客户端平台[{}]登录", SecurityUtils.getUsername(), clientPlatformId);
+        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::login);
+        return toAjax(1);
+    }
+
+    /**
+     * 客户端平台登出
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 结果
+     */
+    @Log(title = "客户端平台管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("iov:rsms:clientPlatform:logout")
+    @Override
+    @PostMapping("/{clientPlatformId}/action/logout")
+    public AjaxResult logout(@PathVariable Long clientPlatformId) {
+        logger.info("管理后台用户[{}]操作客户端平台[{}]登出", SecurityUtils.getUsername(), clientPlatformId);
+        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::logout);
+        return toAjax(1);
+    }
 }

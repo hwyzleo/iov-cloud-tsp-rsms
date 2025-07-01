@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.ServerPlatformMpt;
 
 /**
  * 客户端平台相关管理后台接口
@@ -60,5 +59,21 @@ public interface ClientPlatformMptApi {
      * @return 结果
      */
     AjaxResult remove(Long[] clientPlatformIds);
+
+    /**
+     * 客户端平台登录
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 结果
+     */
+    AjaxResult login(Long clientPlatformId);
+
+    /**
+     * 客户端平台登出
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 结果
+     */
+    AjaxResult logout(Long clientPlatformId);
 
 }

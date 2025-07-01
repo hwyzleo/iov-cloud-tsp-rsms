@@ -26,7 +26,7 @@ public class GbPlatformLoginFailureMessageHandler extends BaseGbMessageHandler i
     @Override
     public Optional<ProtocolMessage> handle(ProtocolMessage message, ClientPlatformDo clientPlatform) {
         GbMessage gbMessage = convert(message);
-        logger.info("收到客户端平台[{}]登录失败消息", gbMessage.getHeader().getUniqueCode());
+        logger.info("客户端平台[{}]收到登录失败应答消息", gbMessage.getHeader().getUniqueCode());
         platformHandler.loginFailure(clientPlatform);
         return Optional.empty();
     }
