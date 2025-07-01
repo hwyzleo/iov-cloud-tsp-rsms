@@ -27,7 +27,8 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public Optional<ClientPlatformDo> getClientPlatform(Long clientPlatformId) {
         logger.debug("获取客户端平台[{}]缓存", clientPlatformId);
-        logger.info("客户端平台缓存Map大小[{}][{}]", clientPlatformCacheMap.size(), clientPlatformCacheMap.keys().nextElement());
+        logger.info("客户端平台缓存Map大小[{}][{}]", clientPlatformCacheMap.size(),
+                clientPlatformCacheMap.size() > 0 ? clientPlatformCacheMap.keys().nextElement() : 0);
         if (clientPlatformCacheMap.contains(clientPlatformId)) {
             ClientPlatformDo clientPlatform = clientPlatformCacheMap.get(clientPlatformId);
             if (logger.isDebugEnabled()) {
