@@ -69,3 +69,36 @@ CREATE TABLE `db_rsms`.`tb_client_platform_login_history`
     INDEX `idx_client_platform` (`client_platform_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='客户端平台登录历史';
+
+DROP TABLE IF EXISTS `db_rsms`.`tb_registered_vehicle`;
+CREATE TABLE `db_rsms`.`tb_registered_vehicle`
+(
+    `id`                   BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `server_platform_code` VARCHAR(20) NOT NULL COMMENT '服务端平台代码',
+    `vin`                  VARCHAR(20) NOT NULL COMMENT '车架号',
+    `iccid`                VARCHAR(50)          DEFAULT NULL COMMENT '车载终端所使用SIM卡ICCID编号',
+    `model`                VARCHAR(255)         DEFAULT NULL COMMENT '车辆备案时所用车辆型号',
+    `drive_motor_type`     VARCHAR(255)         DEFAULT NULL COMMENT '驱动电机在整车中的布置型式及位置，如轮边电机、轮毂电机、前后双电机等',
+    `max_speed`            SMALLINT             DEFAULT NULL COMMENT '整车最高车速',
+    `ev_range`             SMALLINT             DEFAULT NULL COMMENT '在纯电行驶状态下的续驶里程（工况法）',
+    `gear_ratio`           VARCHAR(255)         DEFAULT NULL COMMENT '各挡位下的传动比，CVT无此项',
+    `battery_param`        VARCHAR(255)         DEFAULT NULL COMMENT '电池相关参数',
+    `drive_motor_param`    VARCHAR(255)         DEFAULT NULL COMMENT '驱动电机相关参数',
+    `alarm_default`        VARCHAR(255)         DEFAULT NULL COMMENT '通用报警预值',
+    `engine_sn`            VARCHAR(255)         DEFAULT NULL COMMENT '发动机编号',
+    `fuel_type`            VARCHAR(255)         DEFAULT NULL COMMENT '燃油类型',
+    `fuel_mark`            VARCHAR(255)         DEFAULT NULL COMMENT '燃油标号',
+    `engine_max_power`     VARCHAR(255)         DEFAULT NULL COMMENT '最大输出功率',
+    `engine_max_torque`    VARCHAR(255)         DEFAULT NULL COMMENT '最大输出转矩',
+    `description`          VARCHAR(255)         DEFAULT NULL COMMENT '备注',
+    `create_time`          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`            VARCHAR(64)          DEFAULT NULL COMMENT '创建者',
+    `modify_time`          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`            VARCHAR(64)          DEFAULT NULL COMMENT '修改者',
+    `row_version`          INT                  DEFAULT 1 COMMENT '记录版本',
+    `row_valid`            TINYINT              DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`),
+    INDEX `idx_server_platform` (`server_platform_code`),
+    INDEX `idx_vin` (`vin`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='服务端平台已注册车辆';
