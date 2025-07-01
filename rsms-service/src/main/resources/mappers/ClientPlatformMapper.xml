@@ -171,7 +171,7 @@
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
         <if test="uniqueCode != null and uniqueCode != ''">
-            AND t.unique_code = #{uniqueCode},
+            AND t.unique_code = #{uniqueCode}
         </if>
         <if test="beginTime != null">
             AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
