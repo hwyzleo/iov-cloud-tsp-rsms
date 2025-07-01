@@ -138,6 +138,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
         }
         this.loginTime = new Date();
         send(packager.platformLogin(this));
+        stateChange();
     }
 
     /**
@@ -149,6 +150,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
         this.failureReason.set(0);
         this.loginTime = new Date();
         this.logoutTime = null;
+        stateChange();
     }
 
     /**
@@ -157,6 +159,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     public void loginFailure() {
         this.failureCount.incrementAndGet();
         this.failureReason.set(2);
+        stateChange();
     }
 
     /**
@@ -175,6 +178,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
         logger.info("客户端平台[{}]登出服务端平台[{}]", getUniqueKey(), this.serverPlatform.getName());
         this.logoutTime = new Date();
         send(packager.platformLogout(this));
+        stateChange();
     }
 
     /**
@@ -183,6 +187,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     public void logoutSuccess() {
         this.loginState.set(false);
         this.logoutTime = new Date();
+        stateChange();
     }
 
     /**

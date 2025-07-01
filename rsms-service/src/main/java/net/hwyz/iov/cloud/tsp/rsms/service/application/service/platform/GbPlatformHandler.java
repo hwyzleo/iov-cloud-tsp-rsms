@@ -8,6 +8,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.application.event.event.NettyClientCo
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.PlatformHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.repository.ClientPlatformRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 @Component("gbPlatformHandler")
 public class GbPlatformHandler implements PlatformHandler {
 
+    private final ClientPlatformRepository clientPlatformRepository;
     private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
@@ -42,17 +44,20 @@ public class GbPlatformHandler implements PlatformHandler {
     @Override
     public void login(ClientPlatformDo clientPlatform) {
         clientPlatform.login();
+        clientPlatformRepository.save(clientPlatform);
     }
 
     @Override
     public void loginSuccess(ClientPlatformDo clientPlatform) {
         clientPlatform.loginSuccess();
+        clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
     }
 
     @Override
     public void loginFailure(ClientPlatformDo clientPlatform) {
         clientPlatform.loginFailure();
+        clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
         // 客户端平台在规定时间内未收到应答指令，应每间隔1min重新进行登入；若连续重复3次登人无应答，应间隔30min后，
         // 继续重新链接，并把链接成功前存储的未成功发送的数据重新上报，重复登入间隔时间可以设置。
@@ -79,12 +84,14 @@ public class GbPlatformHandler implements PlatformHandler {
 
     @Override
     public void logout(ClientPlatformDo clientPlatform) {
-        clientPlatform.login();
+        clientPlatform.logout();
+        clientPlatformRepository.save(clientPlatform);
     }
 
     @Override
     public void logoutSuccess(ClientPlatformDo clientPlatform) {
         clientPlatform.logoutSuccess();
+        clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogout(clientPlatform);
     }
 
