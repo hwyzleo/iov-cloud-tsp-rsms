@@ -21,6 +21,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,11 +40,23 @@ public class NettyClient {
 
     private final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private Channel channel;
+    /**
+     * 重连次数
+     */
+    private int reconnectCount = 0;
+    /**
+     * 最大重连次数
+     */
+    private static final int MAX_RECONNECT_COUNT = 5;
 
     /**
      * 建立 Netty 连接
      */
     public void connect(ClientPlatformDo clientPlatform) {
+        if (channel != null && channel.isActive()) {
+            logger.warn("已有活动连接，跳过重连");
+            return;
+        }
         String url = clientPlatform.getServerPlatform().getUrl();
         Integer port = clientPlatform.getServerPlatform().getPort();
         String protocol = clientPlatform.getServerPlatform().getProtocol();
@@ -78,7 +92,18 @@ public class NettyClient {
             this.channel = future.channel();
             // 监听连接关闭事件，自动移除失效连接
             this.channel.closeFuture().addListener(f -> {
-                logger.info("连接[{}:{}]已关闭", url, port);
+                logger.info("连接[{}:{}]已关闭，尝试第[{}]次重连...", url, port, ++reconnectCount);
+                if (reconnectCount <= MAX_RECONNECT_COUNT) {
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            connect(clientPlatform);
+                        }
+                    }, 5000);
+                } else {
+                    logger.error("达到最大重连次数，不再尝试");
+                    // TODO 发送通知
+                }
             });
             logger.info("连接[{}:{}]已建立", url, port);
             clientPlatform.bindClient(this);
