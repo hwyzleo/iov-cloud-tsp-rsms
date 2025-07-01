@@ -24,6 +24,10 @@ public class GbPlatformHandler implements PlatformHandler {
     private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
+     * 登录重试最大次数
+     */
+    private final static int MAX_RETRY_COUNT = 3;
+    /**
      * 登录重试短间隔时间
      */
     @Value("${biz.gbLoginRetryShortInterval:60}")
@@ -41,6 +45,7 @@ public class GbPlatformHandler implements PlatformHandler {
 
     @Override
     public void loginSuccess(ClientPlatformDo clientPlatform) {
+        clientPlatform.loginSuccess();
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
     }
 
@@ -50,7 +55,7 @@ public class GbPlatformHandler implements PlatformHandler {
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
         // 客户端平台在规定时间内未收到应答指令，应每间隔1min重新进行登入；若连续重复3次登人无应答，应间隔30min后，
         // 继续重新链接，并把链接成功前存储的未成功发送的数据重新上报，重复登入间隔时间可以设置。
-        if (clientPlatform.getFailureCount().get() < 3) {
+        if (clientPlatform.getFailureCount().get() < MAX_RETRY_COUNT) {
             logger.info("等待[{}]秒后重试登录", loginRetryShortInterval);
             try {
                 Thread.sleep(loginRetryShortInterval * 1000);
