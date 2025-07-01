@@ -7,11 +7,13 @@ pipeline {
         PROJECT_NAME = "${env.JOB_NAME}"
         DIR_API = "${env.DIR_KEY}-api"
         DIR_SERVICE = "${env.DIR_KEY}-service"
+        DIR_SIMULATOR = "${env.DIR_KEY}-simulator"
         IMAGE_NAME = "${env.REGISTRY_URL}/${PROJECT_NAME}:${env.BUILD_NUMBER}"
     }
 
     parameters {
         choice(choices: [true, false], description: '是否发布API', name: 'DEPLOY_API')
+        choice(choices: ['service', 'simulator'], description: '发布服务类型', name: 'DEPLOY_TYPE')
     }
 
     tools {
@@ -33,11 +35,21 @@ pipeline {
             }
         }
         stage('构建镜像') {
+            when { expression { params.DEPLOY_TYPE == "service" } }
             steps {
                 script {
                     sh '''
                         echo '============================== 构建镜像 =============================='
                         docker build -t ${IMAGE_NAME} -f ../Dockerfile ./${DIR_SERVICE}/
+                    '''
+                }
+            }
+            when { expression { params.DEPLOY_TYPE == "simulator" } }
+            steps {
+                script {
+                    sh '''
+                        echo '============================== 构建镜像 =============================='
+                        docker build -t ${IMAGE_NAME} -f ../Dockerfile ./${DIR_SIMULATOR}/
                     '''
                 }
             }
