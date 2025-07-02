@@ -83,6 +83,11 @@ public class ServerPlatformMpt extends BaseRequest {
     private String encryptKey;
 
     /**
+     * 已注册车辆数
+     */
+    private Integer vehicleCount;
+
+    /**
      * 创建时间
      */
     private Date createTime;

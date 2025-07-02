@@ -7,6 +7,7 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ByteUtil;
 import cn.hutool.core.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageHeader;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbAckFlag;
@@ -307,9 +308,10 @@ public class GbUtil {
      * 不解析数据单元
      *
      * @param bytes 国标报文数据
+     * @param vin   车架号
      * @return 国标消息
      */
-    public static Optional<GbMessage> parseMessageWithoutDataUnit(byte[] bytes) {
+    public static Optional<GbMessage> parseMessageWithoutDataUnit(byte[] bytes, String vin) {
         // 识别起始符
         int startPos = 0;
         if (!Arrays.equals(ArrayUtil.sub(bytes, startPos, GB_DATA_STARTING_SYMBOLS.length), GB_DATA_STARTING_SYMBOLS)) {
@@ -318,11 +320,15 @@ public class GbUtil {
         // 解析报文头
         startPos += GB_DATA_STARTING_SYMBOLS.length;
         GbMessage gbMessage = new GbMessage();
+        gbMessage.setVin(vin);
         gbMessage.setStartingSymbols(GB_DATA_STARTING_SYMBOLS);
         byte[] headerBytes = ArrayUtil.sub(bytes, startPos, startPos + GB_DATA_HEADER_LENGTH);
         gbMessage.parseHeader(headerBytes);
         if (ObjUtil.isNull(gbMessage.getHeader())) {
             return Optional.empty();
+        }
+        if (StrUtil.isNotBlank(vin) && !gbMessage.getHeader().getUniqueCode().equalsIgnoreCase(vin)) {
+            logger.warn("解析国标消息车架号[{}]不一致[{}]", vin, gbMessage.getHeader().getUniqueCode());
         }
         // 解析数据单元
         startPos += GB_DATA_HEADER_LENGTH;

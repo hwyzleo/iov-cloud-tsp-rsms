@@ -2,12 +2,11 @@ package net.hwyz.iov.cloud.tsp.rsms.service.domain.factory;
 
 import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ProtocolPackager;
 import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
-import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -28,16 +27,16 @@ public class ClientPlatformFactory {
      * 创建客户端平台领域对象
      *
      * @param clientPlatformPo 客户端平台
-     * @param serverPlatformPo 服务端平台
+     * @param serverPlatformDo 服务端平台
      * @param loginHistory     登录历史
      * @return 客户端平台领域对象
      */
-    public ClientPlatformDo build(ClientPlatformPo clientPlatformPo, ServerPlatformPo serverPlatformPo, ClientPlatformLoginHistoryPo loginHistory) {
-        ProtocolPackager packager = ctx.getBean(serverPlatformPo.getProtocol() + "ProtocolPackager", ProtocolPackager.class);
+    public ClientPlatformDo build(ClientPlatformPo clientPlatformPo, ServerPlatformDo serverPlatformDo,
+                                  ClientPlatformLoginHistoryPo loginHistory) {
+        ProtocolPackager packager = ctx.getBean(serverPlatformDo.getProtocol().getCode() + "ProtocolPackager", ProtocolPackager.class);
         ClientPlatformDo clientPlatform = ClientPlatformDo.builder()
                 .id(clientPlatformPo.getId())
-                .serverPlatform(serverPlatformPo)
-                .dataUnitEncryptType(GbDataUnitEncryptType.valOf((byte) serverPlatformPo.getEncryptType().intValue()))
+                .serverPlatform(serverPlatformDo)
                 .hostname(clientPlatformPo.getHostname())
                 .username(clientPlatformPo.getUsername())
                 .password(clientPlatformPo.getPassword())

@@ -52,9 +52,8 @@ public class GbDataConsumer {
                     String vin = null;
                     try {
                         vin = new String(record.key());
-                        String finalVin = vin;
-                        GbUtil.parseMessageWithoutDataUnit(record.value()).ifPresent(gbMessage -> {
-                            gbMessagePublish.sendVehicleData(finalVin, gbMessage);
+                        GbUtil.parseMessageWithoutDataUnit(record.value(), vin).ifPresent(gbMessage -> {
+                            gbMessagePublish.sendVehicleData(gbMessage.getVin(), gbMessage);
                         });
                     } catch (Exception e) {
                         logger.error("消费车辆[{}]国标数据消息异常", vin, e);

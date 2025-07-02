@@ -243,6 +243,14 @@
         ORDER BY t.id DESC
     </select>
 
+    <!-- 根据服务端平台代码查询已注册车辆 -->
+    <select id="selectVinByServerPlatformCode" parameterType="string" resultType="string">
+        SELECT t.vin
+        FROM tb_registered_vehicle t
+        WHERE t.server_platform_code = #{serverPlatformCode}
+        AND t.row_valid = 1
+    </select>
+
     <!-- 根据代码查询已注册车辆 -->
     <select id="selectPoByServerPlatformCodeAndVin" parameterType="string" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>

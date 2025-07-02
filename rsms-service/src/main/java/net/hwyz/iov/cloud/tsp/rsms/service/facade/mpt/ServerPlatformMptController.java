@@ -13,6 +13,7 @@ import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ServerPlatformMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ServerPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ServerPlatformAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.server.repository.ServerPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ServerPlatformMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +33,7 @@ import java.util.List;
 public class ServerPlatformMptController extends BaseController implements ServerPlatformMptApi {
 
     private final ServerPlatformAppService serverPlatformAppService;
+    private final ServerPlatformRepository serverPlatformRepository;
 
     /**
      * 分页查询服务端平台
@@ -48,6 +50,11 @@ public class ServerPlatformMptController extends BaseController implements Serve
         List<ServerPlatformPo> serverPlatformPoList = serverPlatformAppService.search(serverPlatform.getCode(), serverPlatform.getName(),
                 serverPlatform.getType(), getBeginTime(serverPlatform), getEndTime(serverPlatform));
         List<ServerPlatformMpt> serverPlatformMptList = ServerPlatformMptAssembler.INSTANCE.fromPoList(serverPlatformPoList);
+        serverPlatformMptList.forEach(serverPlatformMpt -> {
+            serverPlatformRepository.getById(serverPlatformMpt.getCode()).ifPresent(serverPlatformDo -> {
+                serverPlatformMpt.setVehicleCount(serverPlatformDo.getVehicleSet().size());
+            });
+        });
         return getDataTable(serverPlatformPoList, serverPlatformMptList);
     }
 

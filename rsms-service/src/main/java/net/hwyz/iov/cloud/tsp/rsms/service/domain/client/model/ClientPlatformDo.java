@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.BaseDo;
 import net.hwyz.iov.cloud.framework.common.domain.DomainObj;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ProtocolMessage;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ProtocolPackager;
-import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
+import net.hwyz.iov.cloud.tsp.rsms.service.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.util.NettyClient;
 
 import java.util.Date;
@@ -29,11 +29,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     /**
      * 服务端平台
      */
-    private ServerPlatformPo serverPlatform;
-    /**
-     * 数据单元加密类型
-     */
-    private GbDataUnitEncryptType dataUnitEncryptType;
+    private ServerPlatformDo serverPlatform;
     /**
      * 客户端平台绑定主机名
      */
@@ -193,13 +189,16 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     /**
      * 发送数据
      *
-     * @param data 协议数据
+     * @param message 协议消息
      */
-    public void send(ProtocolMessage data) {
+    public void send(ProtocolMessage message) {
         if (logger.isDebugEnabled()) {
-            logger.debug("客户端平台[{}]向服务端平台[{}]发送[{}]数据", getUniqueKey(), this.serverPlatform.getName(), data.getCommandFlag());
+            logger.debug("客户端平台[{}]向服务端平台[{}]发送[{}]消息", getUniqueKey(), this.serverPlatform.getName(), message.getCommandFlag());
         }
-        this.client.send(data);
+        if (isVehicleMessage(message) && !this.serverPlatform.isVehicleRegistered(message.getVin())) {
+            return;
+        }
+        this.client.send(message);
     }
 
     /**
@@ -209,6 +208,17 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     private boolean isNewLoginSn() {
         return this.loginTime == null || !DateUtil.formatDate(this.loginTime).equals(DateUtil.today()) || this.loginSn.get() > 65531;
+    }
+
+    /**
+     * 是否是车辆消息
+     *
+     * @param message 协议消息
+     * @return true:是,false:否
+     */
+    private boolean isVehicleMessage(ProtocolMessage message) {
+        return message.getCommandFlag() == CommandFlag.VEHICLE_LOGIN || message.getCommandFlag() == CommandFlag.VEHICLE_LOGOUT
+                || message.getCommandFlag() == CommandFlag.REALTIME_REPORT || message.getCommandFlag() == CommandFlag.REISSUE_REPORT;
     }
 
 }

@@ -15,6 +15,10 @@ public abstract class ProtocolMessage {
      * 命令标识
      */
     private CommandFlag commandFlag;
+    /**
+     * 车架号
+     */
+    private String vin;
 
     /**
      * 转换为字节数组
