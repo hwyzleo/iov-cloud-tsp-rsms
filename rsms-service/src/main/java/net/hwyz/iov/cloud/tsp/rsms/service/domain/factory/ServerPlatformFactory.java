@@ -28,6 +28,7 @@ public class ServerPlatformFactory {
     public ServerPlatformDo build(ServerPlatformPo serverPlatformPo, Set<String> vehicleSet) {
         ServerPlatformDo serverPlatform = ServerPlatformDo.builder()
                 .id(serverPlatformPo.getCode())
+                .code(serverPlatformPo.getCode())
                 .name(serverPlatformPo.getName())
                 .type(serverPlatformPo.getType())
                 .url(serverPlatformPo.getUrl())

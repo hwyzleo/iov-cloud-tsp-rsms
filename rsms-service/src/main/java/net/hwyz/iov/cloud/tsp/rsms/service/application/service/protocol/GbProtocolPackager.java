@@ -1,7 +1,10 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.application.service.protocol;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.*;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataUnit;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageHeader;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.ProtocolMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbPlatformLoginDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbPlatformLogoutDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbAckFlag;
@@ -30,13 +33,13 @@ public class GbProtocolPackager implements ProtocolPackager {
         GbMessageDataUnit dataUnit = new GbPlatformLoginDataUnit(
                 GbUtil.getGbDateTimeBytes(System.currentTimeMillis()), clientPlatform.getLoginSn(),
                 clientPlatform.getUsername(), clientPlatform.getPassword(),
-                clientPlatform.getDataUnitEncryptType());
+                clientPlatform.getServerPlatform().getEncryptType());
         gbData.setDataUnit(dataUnit);
         GbMessageHeader header = GbMessageHeader.builder()
                 .commandFlag(GbCommandFlag.PLATFORM_LOGIN)
                 .ackFlag(GbAckFlag.COMMAND)
                 .uniqueCode(clientPlatform.getUniqueCode())
-                .dataUnitEncryptType(clientPlatform.getDataUnitEncryptType())
+                .dataUnitEncryptType(clientPlatform.getServerPlatform().getEncryptType())
                 .dataUnitLength(dataUnit.toByteArray().length)
                 .build();
         gbData.setHeader(header);
@@ -57,7 +60,7 @@ public class GbProtocolPackager implements ProtocolPackager {
                 .commandFlag(GbCommandFlag.PLATFORM_LOGOUT)
                 .ackFlag(GbAckFlag.COMMAND)
                 .uniqueCode(clientPlatform.getUniqueCode())
-                .dataUnitEncryptType(clientPlatform.getDataUnitEncryptType())
+                .dataUnitEncryptType(clientPlatform.getServerPlatform().getEncryptType())
                 .dataUnitLength(dataUnit.toByteArray().length)
                 .build();
         gbData.setHeader(header);

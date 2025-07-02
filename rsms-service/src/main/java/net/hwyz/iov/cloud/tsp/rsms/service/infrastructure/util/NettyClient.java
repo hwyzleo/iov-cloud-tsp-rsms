@@ -59,7 +59,7 @@ public class NettyClient {
         }
         String url = clientPlatform.getServerPlatform().getUrl();
         Integer port = clientPlatform.getServerPlatform().getPort();
-        String protocol = clientPlatform.getServerPlatform().getProtocol();
+        String protocol = clientPlatform.getServerPlatform().getProtocol().getCode();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
