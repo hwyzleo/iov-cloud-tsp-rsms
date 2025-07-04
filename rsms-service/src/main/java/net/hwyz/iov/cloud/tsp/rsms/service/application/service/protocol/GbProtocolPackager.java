@@ -30,10 +30,9 @@ public class GbProtocolPackager implements ProtocolPackager {
         GbMessage gbData = GbMessage.builder()
                 .startingSymbols(GB_DATA_STARTING_SYMBOLS)
                 .build();
-        GbMessageDataUnit dataUnit = new GbPlatformLoginDataUnit(
-                GbUtil.getGbDateTimeBytes(System.currentTimeMillis()), clientPlatform.getLoginSn(),
-                clientPlatform.getUsername(), clientPlatform.getPassword(),
-                clientPlatform.getServerPlatform().getEncryptType());
+        GbMessageDataUnit dataUnit = new GbPlatformLoginDataUnit(clientPlatform.getLoginSn(), clientPlatform.getUsername(),
+                clientPlatform.getPassword(), clientPlatform.getServerPlatform().getEncryptType());
+        dataUnit.setMessageTime(GbUtil.getGbDateTimeBytes(System.currentTimeMillis()));
         gbData.setDataUnit(dataUnit);
         GbMessageHeader header = GbMessageHeader.builder()
                 .commandFlag(GbCommandFlag.PLATFORM_LOGIN)
@@ -53,8 +52,8 @@ public class GbProtocolPackager implements ProtocolPackager {
         GbMessage gbData = GbMessage.builder()
                 .startingSymbols(GB_DATA_STARTING_SYMBOLS)
                 .build();
-        GbMessageDataUnit dataUnit = new GbPlatformLogoutDataUnit(GbUtil.getGbDateTimeBytes(System.currentTimeMillis()),
-                clientPlatform.getLoginSn());
+        GbMessageDataUnit dataUnit = new GbPlatformLogoutDataUnit(clientPlatform.getLoginSn());
+        dataUnit.setMessageTime(GbUtil.getGbDateTimeBytes(System.currentTimeMillis()));
         gbData.setDataUnit(dataUnit);
         GbMessageHeader header = GbMessageHeader.builder()
                 .commandFlag(GbCommandFlag.PLATFORM_LOGOUT)
