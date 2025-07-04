@@ -1,9 +1,9 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
@@ -20,7 +20,7 @@ import java.util.List;
  */
 @Data
 @Slf4j
-@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbAlarmDataInfo extends GbMessageDataInfo {
 
@@ -92,47 +92,43 @@ public class GbAlarmDataInfo extends GbMessageDataInfo {
      */
     private List<Integer> otherFaultList;
 
-    public GbAlarmDataInfo(byte batteryFaultCount, byte driveMotorFaultCount, byte engineFaultCount, byte otherFaultCount) {
-        this.batteryFaultCount = batteryFaultCount;
-        this.driveMotorFaultCount = driveMotorFaultCount;
-        this.engineFaultCount = engineFaultCount;
-        this.otherFaultCount = otherFaultCount;
-    }
-
     @Override
-    public int getLength() {
-        return 9 + 4 * batteryFaultCount + 4 * driveMotorFaultCount + 4 * engineFaultCount + 4 * otherFaultCount;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标极值数据数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.dataInfoType = GbDataInfoType.ALARM;
         this.maxAlarmLevel = dataInfoBytes[0];
         this.alarmFlag = GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, 1, 5));
+        this.batteryFaultCount = dataInfoBytes[5];
         this.batteryFaultList = new ArrayList<>();
         int startPos = 6;
         for (int i = 0; i < batteryFaultCount; i++) {
-            this.batteryFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos + 4 * i, startPos + 4 * (i + 1))));
+            this.batteryFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos, startPos + 4)));
+            startPos += 4;
         }
+        this.driveMotorFaultCount = dataInfoBytes[startPos];
+        startPos++;
         this.driveMotorFaultList = new ArrayList<>();
-        startPos = 10 + 4 * batteryFaultCount;
         for (int i = 0; i < driveMotorFaultCount; i++) {
-            this.driveMotorFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos + 4 * i, startPos + 4 * (i + 1))));
+            this.driveMotorFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos, startPos + 4)));
+            startPos += 4;
         }
+        this.engineFaultCount = dataInfoBytes[startPos];
+        startPos++;
         this.engineFaultList = new ArrayList<>();
-        startPos = 14 + 4 * batteryFaultCount + 4 * driveMotorFaultCount;
         for (int i = 0; i < engineFaultCount; i++) {
-            this.engineFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos + 4 * i, startPos + 4 * (i + 1))));
+            this.engineFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos, startPos + 4)));
+            startPos += 4;
         }
+        this.otherFaultCount = dataInfoBytes[startPos];
+        startPos++;
         this.otherFaultList = new ArrayList<>();
-        startPos = 18 + 4 * batteryFaultCount + 4 * driveMotorFaultCount + 4 * engineFaultCount;
         for (int i = 0; i < otherFaultCount; i++) {
-            this.otherFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos + 4 * i, startPos + 4 * (i + 1))));
+            this.otherFaultList.add(GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, startPos, startPos + 4)));
+            startPos += 4;
         }
+        return startPos;
     }
 
     @Override

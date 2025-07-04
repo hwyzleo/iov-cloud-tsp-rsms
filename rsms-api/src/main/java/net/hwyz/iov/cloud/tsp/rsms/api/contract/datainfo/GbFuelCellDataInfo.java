@@ -1,7 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -19,7 +18,7 @@ import java.util.Arrays;
  */
 @Data
 @Slf4j
-@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbFuelCellDataInfo extends GbMessageDataInfo {
 
@@ -87,20 +86,10 @@ public class GbFuelCellDataInfo extends GbMessageDataInfo {
      */
     private byte highPressureDcdcState;
 
-    public GbFuelCellDataInfo(int temperatureProbeCount) {
-        this.temperatureProbeCount = temperatureProbeCount;
-    }
-
     @Override
-    public int getLength() {
-        return 18 + this.temperatureProbeCount;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标燃料电池数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.dataInfoType = GbDataInfoType.FUEL_CELL;
         this.voltage = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 0, 2));
@@ -115,6 +104,7 @@ public class GbFuelCellDataInfo extends GbMessageDataInfo {
         this.hydrogenMaxPressure = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 15 + temperatureProbeCount, 17 + temperatureProbeCount));
         this.hydrogenMaxPressureSensor = dataInfoBytes[18 + temperatureProbeCount];
         this.highPressureDcdcState = dataInfoBytes[19 + temperatureProbeCount];
+        return 18 + this.temperatureProbeCount;
     }
 
     @Override

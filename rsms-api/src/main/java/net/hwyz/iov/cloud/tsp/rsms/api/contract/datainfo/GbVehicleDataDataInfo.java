@@ -1,7 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.Arrays;
 @Data
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbVehicleDataDataInfo extends GbMessageDataInfo {
 
@@ -84,20 +82,21 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
      */
     private int insulationResistance;
     /**
-     * 预留位
+     * 加速踏板行程值
+     * 有效值范围：0 ~ 100（表示0% ~ 100%），最小计量单元：1%，“0xFE”表示异常，“0xFF”表示无效
      */
-    private int reserved;
+    private byte acceleratorPedalPosition;
+    /**
+     * 制动踏板状态
+     * 有效值范围：0 ~ 100（表示0% ~ 100%），最小计量单元：1%，“0”表示制动关的状态，
+     * 在无具体行程值情祝下，用“0x65”即“101”表示制动有效状态，“0xFE”表示异常，“0xFF”表示无效
+     */
+    private byte brakePedalPosition;
 
     @Override
-    public int getLength() {
-        return 20;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标整车数据数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.dataInfoType = GbDataInfoType.VEHICLE;
         this.vehicleState = dataInfoBytes[0];
@@ -111,7 +110,9 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
         this.dcdcState = dataInfoBytes[14];
         this.gear = dataInfoBytes[15];
         this.insulationResistance = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 16, 18));
-        this.reserved = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 18, 20));
+        this.acceleratorPedalPosition = dataInfoBytes[18];
+        this.brakePedalPosition = dataInfoBytes[19];
+        return 20;
     }
 
     @Override
@@ -120,6 +121,7 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
                 new byte[]{this.chargerState}, new byte[]{this.runMode}, GbUtil.wordToBytes(this.speed),
                 GbUtil.dwordToBytes(this.totalOdometer), GbUtil.wordToBytes(this.totalVoltage),
                 GbUtil.wordToBytes(this.totalCurrent), new byte[]{this.soc}, new byte[]{this.dcdcState},
-                new byte[]{this.gear}, GbUtil.wordToBytes(this.insulationResistance), GbUtil.wordToBytes(this.reserved));
+                new byte[]{this.gear}, GbUtil.wordToBytes(this.insulationResistance),
+                new byte[]{this.acceleratorPedalPosition}, new byte[]{this.brakePedalPosition});
     }
 }

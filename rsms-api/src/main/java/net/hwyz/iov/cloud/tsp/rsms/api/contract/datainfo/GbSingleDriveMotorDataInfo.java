@@ -1,7 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -19,13 +18,12 @@ import java.util.Arrays;
 @Data
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbSingleDriveMotorDataInfo extends GbMessageDataInfo {
 
     /**
      * 驱动电机顺序号
-     * 有效值范圃1~253
+     * 有效值范围:1~253
      */
     private byte sn;
     /**
@@ -68,24 +66,19 @@ public class GbSingleDriveMotorDataInfo extends GbMessageDataInfo {
     private int controllerDcBusCurrent;
 
     @Override
-    public int getLength() {
-        return 12;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标单个驱动电机数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.sn = dataInfoBytes[0];
         this.state = dataInfoBytes[1];
         this.controllerTemperature = dataInfoBytes[2];
         this.speed = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 3, 5));
-        this.torque = GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, 5, 7));
+        this.torque = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 5, 7));
         this.temperature = dataInfoBytes[7];
         this.controllerInputVoltage = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 8, 10));
         this.controllerDcBusCurrent = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 10, 12));
+        return 12;
     }
 
     @Override

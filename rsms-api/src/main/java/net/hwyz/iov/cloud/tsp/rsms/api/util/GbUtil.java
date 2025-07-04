@@ -9,7 +9,9 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageHeader;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbAckFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbCommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
@@ -18,6 +20,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 
 import static net.hwyz.iov.cloud.tsp.rsms.api.contract.constant.GbConstants.*;
@@ -57,7 +61,7 @@ public class GbUtil {
      * @return 日期时间字符串
      */
     public static String dateTimeBytesToString(byte[] bytes) {
-        if (ArrayUtil.isEmpty(bytes) && bytes.length != 0) {
+        if (ArrayUtil.isEmpty(bytes) && bytes.length != 6) {
             return "";
         }
         StringBuilder sb = new StringBuilder("20");
@@ -69,6 +73,27 @@ public class GbUtil {
             sb.append(bytes[i]);
         }
         return sb.toString();
+    }
+
+    /**
+     * 日期时间字节数组转换成Date对象
+     *
+     * @param bytes 日期时间字节数组(6位)
+     * @return Date对象
+     */
+    public static Date dateTimeBytesToDate(byte[] bytes) {
+        if (ArrayUtil.isEmpty(bytes) || bytes.length != 6) {
+            return null;
+        }
+        int year = 2000 + (bytes[0] & 0xFF);
+        int month = bytes[1] & 0xFF;
+        int day = bytes[2] & 0xFF;
+        int hour = bytes[3] & 0xFF;
+        int minute = bytes[4] & 0xFF;
+        int second = bytes[5] & 0xFF;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, day, hour, minute, second);
+        return calendar.getTime();
     }
 
     /**
@@ -290,6 +315,7 @@ public class GbUtil {
      * 解析数据头
      *
      * @param headerBytes 数据头字节数组
+     * @return 数据头对象
      */
     public static GbMessageHeader parseHeader(byte[] headerBytes) {
         return GbMessageHeader.builder()
@@ -304,14 +330,47 @@ public class GbUtil {
     }
 
     /**
+     * 解析数据单元
+     *
+     * @param commandFlag   命令标志
+     * @param dataUnitBytes 数据单元字节数组
+     * @return 数据单元对象
+     */
+    public static GbMessageDataUnit parseDataUnit(GbCommandFlag commandFlag, byte[] dataUnitBytes) {
+        GbMessageDataUnit dataUnit = null;
+        switch (commandFlag) {
+            case VEHICLE_LOGIN -> dataUnit = new GbVehicleLoginDataUnit();
+            case VEHICLE_LOGOUT -> dataUnit = new GbVehicleLogoutDataUnit();
+            case REALTIME_REPORT -> dataUnit = new GbRealtimeReportDataUnit();
+            case REISSUE_REPORT -> dataUnit = new GbReissueReportDataUnit();
+            case PLATFORM_LOGIN -> dataUnit = new GbPlatformLoginDataUnit();
+            case PLATFORM_LOGOUT -> dataUnit = new GbPlatformLogoutDataUnit();
+        }
+        if (ObjUtil.isNotNull(dataUnit)) {
+            dataUnit.parse(dataUnitBytes);
+        }
+        return dataUnit;
+    }
+
+    /**
      * 解析国标消息
-     * 不解析数据单元
      *
      * @param bytes 国标报文数据
-     * @param vin   车架号
      * @return 国标消息
      */
-    public static Optional<GbMessage> parseMessageWithoutDataUnit(byte[] bytes, String vin) {
+    public static Optional<GbMessage> parseMessage(byte[] bytes) {
+        return parseMessage(bytes, null, true);
+    }
+
+    /**
+     * 解析国标消息
+     *
+     * @param bytes         国标报文数据
+     * @param vin           车架号
+     * @param parseDataUnit 是否解析数据单元
+     * @return 国标消息
+     */
+    public static Optional<GbMessage> parseMessage(byte[] bytes, String vin, boolean parseDataUnit) {
         // 识别起始符
         int startPos = 0;
         if (!Arrays.equals(ArrayUtil.sub(bytes, startPos, GB_DATA_STARTING_SYMBOLS.length), GB_DATA_STARTING_SYMBOLS)) {
@@ -334,7 +393,11 @@ public class GbUtil {
         startPos += GB_DATA_HEADER_LENGTH;
         int dataUnitLength = gbMessage.getHeader().getDataUnitLength();
         byte[] dataUnitBytes = ArrayUtil.sub(bytes, startPos, startPos + dataUnitLength);
-        gbMessage.setDataUnitBytes(dataUnitBytes);
+        if (parseDataUnit) {
+            gbMessage.parseDataUnit(dataUnitBytes);
+        } else {
+            gbMessage.setDataUnitBytes(dataUnitBytes);
+        }
         // 验证校验码
         startPos += dataUnitLength;
         byte checkCode = bytes[startPos];

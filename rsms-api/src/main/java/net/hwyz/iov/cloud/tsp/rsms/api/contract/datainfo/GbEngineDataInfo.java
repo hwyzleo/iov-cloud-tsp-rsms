@@ -1,7 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.Arrays;
 @Data
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbEngineDataInfo extends GbMessageDataInfo {
 
@@ -45,20 +43,15 @@ public class GbEngineDataInfo extends GbMessageDataInfo {
     private int consumptionRate;
 
     @Override
-    public int getLength() {
-        return 5;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标发动机数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.dataInfoType = GbDataInfoType.ENGINE;
         this.state = dataInfoBytes[0];
         this.crankshaftSpeed = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 1, 3));
         this.consumptionRate = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 3, 5));
+        return 5;
     }
 
     @Override

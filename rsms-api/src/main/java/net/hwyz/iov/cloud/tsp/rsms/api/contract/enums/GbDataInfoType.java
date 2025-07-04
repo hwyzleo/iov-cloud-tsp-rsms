@@ -27,7 +27,11 @@ public enum GbDataInfoType {
     /** 极值数据 **/
     EXTREMUM((byte) 0x06),
     /** 报警数据 **/
-    ALARM((byte) 0x07),;
+    ALARM((byte) 0x07),
+    /** 可充电储能装置电压数据 **/
+    BATTERY_VOLTAGE((byte) 0x08),
+    /** 可充电储能装置温度数据 **/
+    BATTERY_TEMPERATURE((byte) 0x09);
 
     private final byte code;
 

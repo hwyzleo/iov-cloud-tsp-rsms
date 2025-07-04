@@ -43,14 +43,25 @@ public class GbMessage extends ProtocolMessage {
     private byte checkCode;
 
 
-
     /**
      * 解析数据头
+     *
+     * @param headerBytes 数据头字节数组
      */
     public void parseHeader(byte[] headerBytes) {
         this.headerBytes = headerBytes;
         this.header = GbUtil.parseHeader(headerBytes);
         this.setCommandFlag(this.header.getCommandFlag().getCommandFlag());
+    }
+
+    /**
+     * 解析数据单元
+     *
+     * @param dataUnitBytes 数据单元字节数组
+     */
+    public void parseDataUnit(byte[] dataUnitBytes) {
+        this.dataUnitBytes = dataUnitBytes;
+        this.dataUnit = GbUtil.parseDataUnit(this.header.getCommandFlag(), dataUnitBytes);
     }
 
     /**

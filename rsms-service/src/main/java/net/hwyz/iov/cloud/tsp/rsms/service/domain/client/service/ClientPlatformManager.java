@@ -73,7 +73,7 @@ public class ClientPlatformManager {
      * @param event 车辆国标消息事件
      */
     @EventListener
-    public void onGbVehicleDataEvent(VehicleGbMessageEvent event) {
+    public void onVehicleGbMessageEvent(VehicleGbMessageEvent event) {
         clientPlatformRepository.getAllStarted().forEach(clientPlatform -> {
             if (clientPlatform.isLogin()) {
                 clientPlatform.send(event.getGbMessage());

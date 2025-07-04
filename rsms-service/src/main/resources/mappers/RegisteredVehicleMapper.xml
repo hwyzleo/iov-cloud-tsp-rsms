@@ -240,6 +240,18 @@
         FROM tb_registered_vehicle t
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
+        <if test="vin != null and vin != ''">
+            AND t.vin = #{vin}
+        </if>
+        <if test="serverPlatformCode != null and serverPlatformCode != ''">
+            AND t.server_platform_code = #{serverPlatformCode}
+        </if>
+        <if test="beginTime != null">
+            AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
+        </if>
+        <if test="endTime != null">
+            AND date_format(t.create_time,'%Y%m%d') &lt;= date_format(#{endTime},'%Y%m%d')
+        </if>
         ORDER BY t.id DESC
     </select>
 

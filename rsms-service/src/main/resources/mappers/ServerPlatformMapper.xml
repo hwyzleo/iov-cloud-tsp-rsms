@@ -231,10 +231,10 @@
             AND t.type = #{type}
         </if>
         <if test="beginTime != null">
-            and date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
+            AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
         </if>
         <if test="endTime != null">
-            and date_format(t.create_time,'%Y%m%d') &lt;= date_format(#{endTime},'%Y%m%d')
+            AND date_format(t.create_time,'%Y%m%d') &lt;= date_format(#{endTime},'%Y%m%d')
         </if>
         ORDER BY t.id DESC
     </select>

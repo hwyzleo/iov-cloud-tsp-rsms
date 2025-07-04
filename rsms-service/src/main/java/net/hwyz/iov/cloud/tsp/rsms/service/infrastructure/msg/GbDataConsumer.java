@@ -52,7 +52,7 @@ public class GbDataConsumer {
                     String vin = null;
                     try {
                         vin = new String(record.key());
-                        GbUtil.parseMessageWithoutDataUnit(record.value(), vin).ifPresent(gbMessage -> {
+                        GbUtil.parseMessage(record.value(), vin, false).ifPresent(gbMessage -> {
                             gbMessagePublish.sendVehicleData(gbMessage.getVin(), gbMessage);
                         });
                     } catch (Exception e) {

@@ -11,18 +11,12 @@ import lombok.Data;
 public abstract class GbMessageDataInfo {
 
     /**
-     * 获取数据信息长度
-     *
-     * @return 数据信息长度
-     */
-    abstract public int getLength();
-
-    /**
      * 解析数据信息
      *
      * @param dataInfoBytes 数据信息字节数组
+     * @return 解析结果长度
      */
-    abstract public void parse(byte[] dataInfoBytes);
+    abstract public int parse(byte[] dataInfoBytes);
 
     /**
      * 转为字节数组

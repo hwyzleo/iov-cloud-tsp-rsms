@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit;
 
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +11,6 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
-import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -44,56 +44,22 @@ public class GbRealtimeReportDataUnit extends GbMessageDataUnit {
         while (startPos < dataUnitBytes.length) {
             GbDataInfoType dataInfoType = GbDataInfoType.valOf(dataUnitBytes[startPos]);
             startPos++;
+            GbMessageDataInfo dataInfo = null;
             switch (dataInfoType) {
-                case VEHICLE -> {
-                    GbVehicleDataDataInfo vehicleData = new GbVehicleDataDataInfo();
-                    vehicleData.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + vehicleData.getLength()));
-                    dataInfoList.add(vehicleData);
-                    startPos += vehicleData.getLength();
-                }
-                case DRIVE_MOTOR -> {
-                    byte driveMotorCount = dataUnitBytes[startPos];
-                    startPos++;
-                    GbDriveMotorDataInfo driveMotor = new GbDriveMotorDataInfo(driveMotorCount);
-                    driveMotor.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + driveMotor.getLength()));
-                    dataInfoList.add(driveMotor);
-                    startPos += driveMotor.getLength();
-                }
-                case FUEL_CELL -> {
-                    int temperatureProbeCount = GbUtil.bytesToWord(Arrays.copyOfRange(dataUnitBytes, startPos + 6, startPos + 8));
-                    GbFuelCellDataInfo fuelCell = new GbFuelCellDataInfo(temperatureProbeCount);
-                    fuelCell.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + fuelCell.getLength()));
-                    dataInfoList.add(fuelCell);
-                    startPos += fuelCell.getLength();
-                }
-                case ENGINE -> {
-                    GbEngineDataInfo engine = new GbEngineDataInfo();
-                    engine.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + engine.getLength()));
-                    dataInfoList.add(engine);
-                    startPos += engine.getLength();
-                }
-                case POSITION -> {
-                    GbPositionDataInfo engine = new GbPositionDataInfo();
-                    engine.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + engine.getLength()));
-                    dataInfoList.add(engine);
-                    startPos += engine.getLength();
-                }
-                case EXTREMUM -> {
-                    GbExtremumDataInfo extremum = new GbExtremumDataInfo();
-                    extremum.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + extremum.getLength()));
-                    dataInfoList.add(extremum);
-                    startPos += extremum.getLength();
-                }
-                case ALARM -> {
-                    byte batteryFaultCount = dataUnitBytes[startPos + 5];
-                    byte driveMotorFaultCount = dataUnitBytes[startPos + 6 + batteryFaultCount * 4];
-                    byte engineFaultCount = dataUnitBytes[startPos + 7 + batteryFaultCount * 4 + driveMotorFaultCount * 4];
-                    byte otherFaultCount = dataUnitBytes[startPos + 8 + batteryFaultCount * 4 + driveMotorFaultCount * 4 + engineFaultCount * 4];
-                    GbAlarmDataInfo alarm = new GbAlarmDataInfo(batteryFaultCount, driveMotorFaultCount, engineFaultCount, otherFaultCount);
-                    alarm.parse(Arrays.copyOfRange(dataUnitBytes, startPos, startPos + alarm.getLength()));
-                    dataInfoList.add(alarm);
-                    startPos += alarm.getLength();
-                }
+                case VEHICLE -> dataInfo = new GbVehicleDataDataInfo();
+                case DRIVE_MOTOR -> dataInfo = new GbDriveMotorDataInfo();
+                case FUEL_CELL -> dataInfo = new GbFuelCellDataInfo();
+                case ENGINE -> dataInfo = new GbEngineDataInfo();
+                case POSITION -> dataInfo = new GbPositionDataInfo();
+                case EXTREMUM -> dataInfo = new GbExtremumDataInfo();
+                case ALARM -> dataInfo = new GbAlarmDataInfo();
+                case BATTERY_VOLTAGE -> dataInfo = new GbBatteryVoltageDataInfo();
+                case BATTERY_TEMPERATURE -> dataInfo = new GbBatteryTemperatureDataInfo();
+            }
+            if (ObjUtil.isNotNull(dataInfo)) {
+                int length = dataInfo.parse(Arrays.copyOfRange(dataUnitBytes, startPos, dataUnitBytes.length));
+                dataInfoList.add(dataInfo);
+                startPos += length;
             }
         }
     }

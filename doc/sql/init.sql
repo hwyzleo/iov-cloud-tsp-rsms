@@ -102,3 +102,24 @@ CREATE TABLE `db_rsms`.`tb_registered_vehicle`
     INDEX `idx_vin` (`vin`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='服务端平台已注册车辆';
+
+DROP TABLE IF EXISTS `db_rsms`.`tb_vehicle_gb_message`;
+CREATE TABLE `db_rsms`.`tb_vehicle_gb_message`
+(
+    `id`           BIGINT        NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `vin`          VARCHAR(20)   NOT NULL COMMENT '车架号',
+    `parse_time`   TIMESTAMP     NOT NULL COMMENT '解析时间',
+    `message_time` TIMESTAMP     NOT NULL COMMENT '消息时间',
+    `command_flag` VARCHAR(50)   NOT NULL COMMENT '命令标识',
+    `message_data` VARCHAR(2048) NOT NULL COMMENT '消息数据',
+    `description`  VARCHAR(255)           DEFAULT NULL COMMENT '备注',
+    `create_time`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`    VARCHAR(64)            DEFAULT NULL COMMENT '创建者',
+    `modify_time`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`    VARCHAR(64)            DEFAULT NULL COMMENT '修改者',
+    `row_version`  INT                    DEFAULT 1 COMMENT '记录版本',
+    `row_valid`    TINYINT                DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`),
+    INDEX `idx_vin` (`vin`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='车辆国标消息';

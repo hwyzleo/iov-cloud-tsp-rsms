@@ -1,7 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.Arrays;
 @Data
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbExtremumDataInfo extends GbMessageDataInfo {
 
@@ -90,15 +88,9 @@ public class GbExtremumDataInfo extends GbMessageDataInfo {
     private byte minTemperature;
 
     @Override
-    public int getLength() {
-        return 14;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标极值数据数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.dataInfoType = GbDataInfoType.EXTREMUM;
         this.maxVoltageBatteryDeviceNo = dataInfoBytes[0];
@@ -113,6 +105,7 @@ public class GbExtremumDataInfo extends GbMessageDataInfo {
         this.minTemperatureDeviceNo = dataInfoBytes[11];
         this.minTemperatureProbeNo = dataInfoBytes[12];
         this.minTemperature = dataInfoBytes[13];
+        return 14;
     }
 
     @Override

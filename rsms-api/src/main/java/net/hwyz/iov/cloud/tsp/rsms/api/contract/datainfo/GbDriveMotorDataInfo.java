@@ -1,9 +1,9 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
@@ -18,7 +18,7 @@ import java.util.LinkedList;
  */
 @Data
 @Slf4j
-@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbDriveMotorDataInfo extends GbMessageDataInfo {
 
@@ -36,30 +36,22 @@ public class GbDriveMotorDataInfo extends GbMessageDataInfo {
      */
     private LinkedList<GbSingleDriveMotorDataInfo> driveMotorList;
 
-    public GbDriveMotorDataInfo(byte driveMotorCount) {
-        this.driveMotorCount = driveMotorCount;
-    }
-
     @Override
-    public int getLength() {
-        return this.driveMotorCount * 12;
-    }
-
-    @Override
-    public void parse(byte[] dataInfoBytes) {
-        if (dataInfoBytes == null || dataInfoBytes.length != getLength()) {
-            logger.warn("国标驱动电机数据信息[{}]异常", Arrays.toString(dataInfoBytes));
-            return;
+    public int parse(byte[] dataInfoBytes) {
+        if (dataInfoBytes == null || dataInfoBytes.length == 0) {
+            return 0;
         }
         this.dataInfoType = GbDataInfoType.DRIVE_MOTOR;
+        this.driveMotorCount = dataInfoBytes[0];
         this.driveMotorList = new LinkedList<>();
         int startPos = 1;
-        while (startPos < dataInfoBytes.length) {
+        for (int i = 0; i < driveMotorCount; i++) {
             GbSingleDriveMotorDataInfo singleDriveMotor = new GbSingleDriveMotorDataInfo();
-            singleDriveMotor.parse(Arrays.copyOfRange(dataInfoBytes, startPos, startPos + singleDriveMotor.getLength()));
+            int length = singleDriveMotor.parse(Arrays.copyOfRange(dataInfoBytes, startPos, dataInfoBytes.length));
             driveMotorList.add(singleDriveMotor);
-            startPos += singleDriveMotor.getLength();
+            startPos += length;
         }
+        return 1 + this.driveMotorCount * 12;
     }
 
     @Override
