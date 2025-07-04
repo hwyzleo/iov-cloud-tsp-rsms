@@ -5,6 +5,8 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 
+import java.util.Date;
+
 /**
  * 国标消息
  *
@@ -34,6 +36,10 @@ public class GbMessage extends ProtocolMessage {
      */
     private byte[] dataUnitBytes;
     /**
+     * 消息时间
+     */
+    private Date messageTime;
+    /**
      * 数据单元
      */
     private GbMessageDataUnit dataUnit;
@@ -62,6 +68,17 @@ public class GbMessage extends ProtocolMessage {
     public void parseDataUnit(byte[] dataUnitBytes) {
         this.dataUnitBytes = dataUnitBytes;
         this.dataUnit = GbUtil.parseDataUnit(this.header.getCommandFlag(), dataUnitBytes);
+        this.messageTime = GbUtil.dateTimeBytesToDate(this.dataUnit.getMessageTime());
+    }
+
+    /**
+     * 仅解析数据单元消息时间
+     *
+     * @param dataUnitBytes 数据单元字节数组
+     */
+    public void parseDataUnitMessageTime(byte[] dataUnitBytes) {
+        this.dataUnitBytes = dataUnitBytes;
+        this.messageTime = GbUtil.dateTimeBytesToDate(ArrayUtil.sub(dataUnitBytes, 0, 6));
     }
 
     /**

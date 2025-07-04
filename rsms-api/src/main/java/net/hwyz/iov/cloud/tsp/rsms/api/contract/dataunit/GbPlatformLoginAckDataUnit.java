@@ -1,7 +1,9 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataUnit;
 
@@ -15,14 +17,8 @@ import java.util.Arrays;
 @Data
 @Slf4j
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class GbPlatformLoginAckDataUnit extends GbMessageDataUnit {
-
-    /**
-     * 登入时间
-     */
-    private byte[] loginTime;
 
     @Override
     public void parse(byte[] dataUnitBytes) {
@@ -30,11 +26,11 @@ public class GbPlatformLoginAckDataUnit extends GbMessageDataUnit {
             logger.warn("国标平台登录应答数据单元[{}]异常", Arrays.toString(dataUnitBytes));
             return;
         }
-        this.loginTime = dataUnitBytes;
+        this.messageTime = dataUnitBytes;
     }
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(this.loginTime);
+        return ArrayUtil.addAll(this.messageTime);
     }
 }

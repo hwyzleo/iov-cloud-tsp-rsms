@@ -24,10 +24,6 @@ import java.util.Arrays;
 public class GbVehicleLoginDataUnit extends GbMessageDataUnit {
 
     /**
-     * 数据采集时间
-     */
-    private byte[] collectTime;
-    /**
      * 登入流水号
      */
     private int loginSn;
@@ -50,7 +46,7 @@ public class GbVehicleLoginDataUnit extends GbMessageDataUnit {
 
     @Override
     public void parse(byte[] dataUnitBytes) {
-        this.collectTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
+        this.messageTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
         this.loginSn = GbUtil.bytesToWord(Arrays.copyOfRange(dataUnitBytes, 6, 8));
         this.iccid = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 8, 28));
         this.deviceCount = dataUnitBytes[28];
@@ -60,7 +56,7 @@ public class GbVehicleLoginDataUnit extends GbMessageDataUnit {
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(this.collectTime, GbUtil.wordToBytes(this.loginSn), GbUtil.stringToBytes(this.iccid, 20),
+        return ArrayUtil.addAll(this.messageTime, GbUtil.wordToBytes(this.loginSn), GbUtil.stringToBytes(this.iccid, 20),
                 new byte[]{this.deviceCount}, new byte[]{this.deviceCodeLength},
                 GbUtil.stringToBytes(this.deviceCode, this.deviceCount * this.deviceCodeLength));
     }

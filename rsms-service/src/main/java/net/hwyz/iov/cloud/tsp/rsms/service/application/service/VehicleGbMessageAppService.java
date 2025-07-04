@@ -4,7 +4,6 @@ import cn.hutool.core.util.HexUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
-import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.event.event.VehicleGbMessageEvent;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.VehicleGbMessageDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;
@@ -99,8 +98,8 @@ public class VehicleGbMessageAppService {
         vehicleGbMessageDao.insertPo(VehicleGbMessagePo.builder()
                 .vin(event.getVin())
                 .parseTime(new Date())
-                .messageTime(GbUtil.dateTimeBytesToDate(gbMessage.getMessageTime()))
-                .commandFlag(gbMessage.getCommandFlag().name())
+                .messageTime(gbMessage.getMessageTime())
+                .commandFlag(gbMessage.getHeader().getCommandFlag().name())
                 .messageData(HexUtil.encodeHexStr(gbMessage.toByteArray()))
                 .build());
     }

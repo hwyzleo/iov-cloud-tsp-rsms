@@ -28,17 +28,13 @@ import java.util.LinkedList;
 public class GbReissueReportDataUnit extends GbMessageDataUnit {
 
     /**
-     * 数据采集时间
-     */
-    private byte[] collectTime;
-    /**
      * 数据信息列表
      */
     private LinkedList<GbMessageDataInfo> dataInfoList;
 
     @Override
     public void parse(byte[] dataUnitBytes) {
-        this.collectTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
+        this.messageTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
         this.dataInfoList = new LinkedList<>();
         int startPos = 6;
         while (startPos < dataUnitBytes.length) {
@@ -66,7 +62,7 @@ public class GbReissueReportDataUnit extends GbMessageDataUnit {
 
     @Override
     public byte[] toByteArray() {
-        byte[] bytes = this.collectTime;
+        byte[] bytes = this.messageTime;
         for (GbMessageDataInfo dataInfo : dataInfoList) {
             bytes = ArrayUtil.addAll(bytes, dataInfo.toByteArray());
         }

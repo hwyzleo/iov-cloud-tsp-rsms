@@ -25,10 +25,6 @@ import java.util.Arrays;
 public class GbPlatformLoginDataUnit extends GbMessageDataUnit {
 
     /**
-     * 登入时间
-     */
-    private byte[] loginTime;
-    /**
      * 登入流水号
      */
     private int loginSn;
@@ -51,7 +47,7 @@ public class GbPlatformLoginDataUnit extends GbMessageDataUnit {
             logger.warn("国标平台登录数据单元[{}]异常", Arrays.toString(dataUnitBytes));
             return;
         }
-        this.loginTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
+        this.messageTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
         this.loginSn = GbUtil.bytesToWord(Arrays.copyOfRange(dataUnitBytes, 6, 8));
         this.username = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 8, 20));
         this.password = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 20, 40));
@@ -60,7 +56,7 @@ public class GbPlatformLoginDataUnit extends GbMessageDataUnit {
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(this.loginTime, GbUtil.wordToBytes(this.loginSn), GbUtil.stringToBytes(this.username, 12),
+        return ArrayUtil.addAll(this.messageTime, GbUtil.wordToBytes(this.loginSn), GbUtil.stringToBytes(this.username, 12),
                 GbUtil.stringToBytes(this.password, 20), new byte[]{this.encryptType.getCode()});
     }
 }

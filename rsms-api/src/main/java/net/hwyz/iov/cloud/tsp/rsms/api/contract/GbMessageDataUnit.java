@@ -11,6 +11,11 @@ import lombok.Data;
 public abstract class GbMessageDataUnit {
 
     /**
+     * 消息时间
+     */
+    protected byte[] messageTime;
+
+    /**
      * 解析数据单元
      *
      * @param dataUnitBytes 数据单元字节数组

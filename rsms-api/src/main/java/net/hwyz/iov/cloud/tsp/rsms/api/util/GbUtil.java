@@ -396,7 +396,7 @@ public class GbUtil {
         if (parseDataUnit) {
             gbMessage.parseDataUnit(dataUnitBytes);
         } else {
-            gbMessage.setDataUnitBytes(dataUnitBytes);
+            gbMessage.parseDataUnitMessageTime(dataUnitBytes);
         }
         // 验证校验码
         startPos += dataUnitLength;

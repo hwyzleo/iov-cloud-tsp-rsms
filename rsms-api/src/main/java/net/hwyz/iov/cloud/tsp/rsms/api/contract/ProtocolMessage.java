@@ -16,10 +16,6 @@ public abstract class ProtocolMessage {
      */
     private CommandFlag commandFlag;
     /**
-     * 消息事件
-     */
-    private byte[] messageTime;
-    /**
      * 车架号
      */
     private String vin;
