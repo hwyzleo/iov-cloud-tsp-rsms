@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ByteUtil;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
@@ -15,14 +16,12 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbAckFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbCommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbGear;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 import static net.hwyz.iov.cloud.tsp.rsms.api.contract.constant.GbConstants.*;
 
@@ -407,6 +406,139 @@ public class GbUtil {
             return Optional.empty();
         }
         return Optional.of(gbMessage);
+    }
+
+    /**
+     * 根据挡位字节获取是否在行驶
+     *
+     * @param gearByte 挡位字节
+     * @return 是否在行驶
+     */
+    public static Boolean isDriving(byte gearByte) {
+        return ((gearByte >> 5) & 1) == 1;
+    }
+
+    /**
+     * 根据挡位字节获取是否在制动
+     *
+     * @param gearByte 挡位字节
+     * @return 是否在制动
+     */
+    public static Boolean isBraking(byte gearByte) {
+        return ((gearByte >> 4) & 1) == 1;
+    }
+
+    /**
+     * 根据挡位字节获取挡位
+     *
+     * @param gearByte 挡位字节
+     * @return 挡位
+     */
+    public static GbGear getGear(byte gearByte) {
+        return GbGear.valOf(gearByte & 0x0F);
+    }
+
+    /**
+     * 根据定位字节获取是否是有效定位
+     *
+     * @param positionByte 定位字节
+     * @return 是否是有效定位
+     */
+    public static Boolean isPositionValid(byte positionByte) {
+        return ((positionByte >> 7) & 1) == 1;
+    }
+
+    /**
+     * 组合挡位字节
+     *
+     * @param isDriving 是否驱动
+     * @param isBraking 是否制动
+     * @param gear      挡位
+     * @return 挡位字节
+     */
+    public static byte combineGearByte(boolean isDriving, boolean isBraking, GbGear gear) {
+        return (byte) (((isDriving ? 1 : 0) << 5) | ((isBraking ? 1 : 0) << 4) | gear.getCode());
+    }
+
+    /**
+     * 根据定位字节获取是否是南纬
+     *
+     * @param positionByte 定位字节
+     * @return 是否是南纬
+     */
+    public static Boolean isSouthLatitude(byte positionByte) {
+        return ((positionByte >> 6) & 1) == 1;
+    }
+
+    /**
+     * 根据定位字节获取是否是西经
+     *
+     * @param positionByte 定位字节
+     * @return 是否是西经
+     */
+    public static Boolean isWestLongitude(byte positionByte) {
+        return ((positionByte >> 5) & 1) == 1;
+    }
+
+    /**
+     * 组合定位字节
+     *
+     * @param isPositionValid 是否有效定位
+     * @param isSouthLatitude 是否南纬
+     * @param isWestLongitude 是否西经
+     * @return 定位字节
+     */
+    public static byte combinePositionByte(boolean isPositionValid, boolean isSouthLatitude, boolean isWestLongitude) {
+        return (byte) (((isPositionValid ? 1 : 0) << 7) | ((isSouthLatitude ? 1 : 0) << 6) | ((isWestLongitude ? 1 : 0) << 5));
+    }
+
+    /**
+     * 解析报警标志
+     * 位0：1：温度差异报警；0：正常
+     * 位1：1：电池高温报警；0：正常
+     * 位2：1：车载储能装置类型过压报警；0：正常
+     * 位3：1：车载储能装置类型欠压报警；0：正常
+     * 位4：1：SOC低报警；0：正常
+     * 位5：1：单体电池过压报警；0：正常
+     * 位6：1：单体电池欠压报警；0：正常
+     * 位7：1：SOC过高报警；0：正常
+     * 位8：1：SOC跳变报警；0：正常
+     * 位9：1：可充电储能系统不匹配报警；0：正常
+     * 位10：1：电池单体一致性差报警；0：正常
+     * 位11：1：绝缘报警；0：正常
+     * 位12：1：DC-DC温度报警；0：正常
+     * 位13：1：制动系统报警；0：正常
+     * 位14：1：DC-DC状态报警；0：正常
+     * 位15：1：驱动电机控制器温度报警；0：正常
+     * 位16：1：高压互锁状态报警；0：正常
+     * 位17：1：驱动电机温度报警；0：正常
+     * 位18：1：车载储能装置类型过充；0：正常
+     *
+     * @param alarmFlagBytes 报警标志字节数组
+     * @return 报警标志
+     */
+    public static Map<Integer, Boolean> parseAlarmFlag(byte[] alarmFlagBytes) {
+        Map<Integer, Boolean> alarmFlagMap = new LinkedHashMap<>(19);
+        for (int i = 0; i <= 18; i++) {
+            alarmFlagMap.put(i, (alarmFlagBytes[i / 8] & (1 << (i % 8))) != 0);
+        }
+        return alarmFlagMap;
+    }
+
+    /**
+     * 组装报警标志
+     *
+     * @param alarmFlagMap 报警标志
+     * @return 报警标志字节数组
+     */
+    public static byte[] packageAlarmFlag(Map<Integer, Boolean> alarmFlagMap) {
+        byte[] alarmFlagBytes = new byte[4];
+        for (Map.Entry<Integer, Boolean> entry : alarmFlagMap.entrySet()) {
+            if (entry.getValue()) {
+                alarmFlagBytes[entry.getKey() / 8] |= (1 << (entry.getKey() % 8));
+            }
+        }
+        return alarmFlagBytes;
     }
 
     public static void main(String[] args) throws Exception {

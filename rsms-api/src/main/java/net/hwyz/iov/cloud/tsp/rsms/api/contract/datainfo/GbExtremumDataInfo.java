@@ -28,62 +28,62 @@ public class GbExtremumDataInfo extends GbMessageDataInfo {
     private GbDataInfoType dataInfoType;
     /**
      * 最高电压电池子系统号
-     * 有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte maxVoltageBatteryDeviceNo;
     /**
      * 最高电压电池单体代号
-     * 有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte maxVoltageCellNo;
     /**
      * 电池单体电压最高值
-     * 有效值范围：0~15000（表示0V~15V),最小计量单元：0.001V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
+     * 有效值范围：0 ~ 15000（表示0V ~ 15V),最小计量单元：0.001V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */
     private int cellMaxVoltage;
     /**
      * 最低电压电池子系统号
-     * 有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte minVoltageBatteryDeviceNo;
     /**
      * 最低电压电池单体代号
-     * 有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte minVoltageCellNo;
     /**
      * 电池单体电压最低值
-     * 有效值范围：0~15000（表示0V~15V),最小计量单元：0.001V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
+     * 有效值范围：0 ~ 15000（表示0V ~ 15V),最小计量单元：0.001V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */
     private int cellMinVoltage;
     /**
      * 最高温度子系统号
-     * 有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte maxTemperatureDeviceNo;
     /**
      * 最高温度探针序号
-     * 有效值范圃：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范圃：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte maxTemperatureProbeNo;
     /**
      * 最高温度值
-     * 有效值范围：0一250（数值偏移量40℃，表示-40℃ ~ +210℃)，最小计量单元：1℃，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：0 ~ 250（数值偏移量40℃，表示-40℃ ~ +210℃)，最小计量单元：1℃，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte maxTemperature;
     /**
      * 最低温度子系统号
-     * 有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte minTemperatureDeviceNo;
     /**
      * 最低温度探针序号
-     * 有效值范圃：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范圃：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte minTemperatureProbeNo;
     /**
      * 最低温度值
-     * 有效值范围：0一250（数值偏移量40℃，表示-40℃ ~ +210℃)，最小计量单元：1℃，“0xFE”表示异常，“0xFF”表示无效
+     * 有效值范围：0 ~ 250（数值偏移量40℃，表示-40℃ ~ +210℃)，最小计量单元：1℃，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte minTemperature;
 

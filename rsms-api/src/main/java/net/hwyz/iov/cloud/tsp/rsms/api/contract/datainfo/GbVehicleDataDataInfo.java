@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 
 import java.util.Arrays;
@@ -28,54 +28,58 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
     private GbDataInfoType dataInfoType;
     /**
      * 车辆状态
-     * 0x01:车辆启动状态；0x02:熄火；0x03:其他状态，“0xFE”表示异常，“0xFF”表示无效
      */
-    private byte vehicleState;
+    private GbVehicleState vehicleState;
     /**
      * 充电状态
-     * 0x01:停车充电0x02:行驶充电；0x03:未充电状态30x04:充电完成；“0xFE”表示异常，“0xFF”表示无效
      */
-    private byte chargerState;
+    private GbChargingState chargerState;
     /**
      * 运行模式
-     * 0x01:纯电0x02:混动；0x03:燃油；0xFE表示异常；0xFF表示无效
      */
-    private byte runMode;
+    private GbRunningMode runningMode;
     /**
      * 车速
-     * 有效值范围：0~2200（表示0km/h~220km/h),最小计量单元：0.1km/h,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
+     * 有效值范围：0 ~ 2200（表示0km/h ~ 220km/h),最小计量单元：0.1km/h,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */
     private int speed;
     /**
      * 累计里程
-     * 有效值范围：0~9999999（表示0km~999999.9km),最小计量单元：0.1km。
+     * 有效值范围：0 ~ 9999999（表示0km ~ 999999.9km),最小计量单元：0.1km。
      * “0xFF,0xFF,0xFF,0xFE”表示异常，“0xFF,0xFF,0xFF,0xFF”表示无效
      */
     private int totalOdometer;
     /**
      * 总电压
-     * 有效值范围：0~10000（表示0V~1000V),最小计量单元：0.1V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
+     * 有效值范围：0 ~ 10000（表示0V ~ 1000V),最小计量单元：0.1V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */
     private int totalVoltage;
     /**
      * 总电流
-     * 有效值范围：0心20000（偏移量1000A,表示-1000A ~ +1000A),最小计量单元：0.1A,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
+     * 有效值范围：0 ~ 20000（偏移量1000A,表示-1000A ~ +1000A),最小计量单元：0.1A,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */
     private int totalCurrent;
     /**
      * SOC
-     * 有效值范圃：0~100（表示0%100%），最小计量单元：1%，“0xFE”表示异常，“OxFF”表示无效
+     * 有效值范圃：0 ~ 100（表示0% ~ 100%），最小计量单元：1%，“0xFE”表示异常，“OxFF”表示无效
      */
     private byte soc;
     /**
-     * DC-DC状态
-     * 0x01:工作；0x02:断开，“0xFE”表示异常，“0xFF”表示无效
+     * DC/DC状态
      */
-    private byte dcdcState;
+    private GbDcDcState dcdcState;
+    /**
+     * 有驱动力
+     */
+    private Boolean driving;
+    /**
+     * 有制动力
+     */
+    private Boolean braking;
     /**
      * 挡位
      */
-    private byte gear;
+    private GbGear gear;
     /**
      * 绝缘电阻
      * 有效范围 0 ~ 60000（表示 0 kΩ ~ 60000 kΩ),最小计量单元：1 kΩ
@@ -99,16 +103,18 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
             return 0;
         }
         this.dataInfoType = GbDataInfoType.VEHICLE;
-        this.vehicleState = dataInfoBytes[0];
-        this.chargerState = dataInfoBytes[1];
-        this.runMode = dataInfoBytes[2];
+        this.vehicleState = GbVehicleState.valOf(dataInfoBytes[0]);
+        this.chargerState = GbChargingState.valOf(dataInfoBytes[1]);
+        this.runningMode = GbRunningMode.valOf(dataInfoBytes[2]);
         this.speed = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 3, 5));
         this.totalOdometer = GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, 5, 9));
         this.totalVoltage = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 9, 11));
         this.totalCurrent = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 11, 13));
         this.soc = dataInfoBytes[13];
-        this.dcdcState = dataInfoBytes[14];
-        this.gear = dataInfoBytes[15];
+        this.dcdcState = GbDcDcState.valOf(dataInfoBytes[14]);
+        this.driving = GbUtil.isDriving(dataInfoBytes[15]);
+        this.braking = GbUtil.isBraking(dataInfoBytes[15]);
+        this.gear = GbUtil.getGear(dataInfoBytes[15]);
         this.insulationResistance = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 16, 18));
         this.acceleratorPedalPosition = dataInfoBytes[18];
         this.brakePedalPosition = dataInfoBytes[19];
@@ -117,11 +123,11 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(new byte[]{this.dataInfoType.getCode()}, new byte[]{this.vehicleState},
-                new byte[]{this.chargerState}, new byte[]{this.runMode}, GbUtil.wordToBytes(this.speed),
+        return ArrayUtil.addAll(new byte[]{this.dataInfoType.getCode()}, new byte[]{this.vehicleState.getCode()},
+                new byte[]{this.chargerState.getCode()}, new byte[]{this.runningMode.getCode()}, GbUtil.wordToBytes(this.speed),
                 GbUtil.dwordToBytes(this.totalOdometer), GbUtil.wordToBytes(this.totalVoltage),
-                GbUtil.wordToBytes(this.totalCurrent), new byte[]{this.soc}, new byte[]{this.dcdcState},
-                new byte[]{this.gear}, GbUtil.wordToBytes(this.insulationResistance),
+                GbUtil.wordToBytes(this.totalCurrent), new byte[]{this.soc}, new byte[]{this.dcdcState.getCode()},
+                new byte[]{GbUtil.combineGearByte(this.driving, this.braking, this.gear)}, GbUtil.wordToBytes(this.insulationResistance),
                 new byte[]{this.acceleratorPedalPosition}, new byte[]{this.brakePedalPosition});
     }
 }
