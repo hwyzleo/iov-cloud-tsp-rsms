@@ -14,6 +14,8 @@ import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ProtocolPackager;
 import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 import static net.hwyz.iov.cloud.tsp.rsms.api.contract.constant.GbConstants.GB_DATA_STARTING_SYMBOLS;
 
 /**
@@ -32,7 +34,7 @@ public class GbProtocolPackager implements ProtocolPackager {
                 .build();
         GbMessageDataUnit dataUnit = new GbPlatformLoginDataUnit(clientPlatform.getLoginSn(), clientPlatform.getUsername(),
                 clientPlatform.getPassword(), clientPlatform.getServerPlatform().getEncryptType());
-        dataUnit.setMessageTime(GbUtil.getGbDateTimeBytes(System.currentTimeMillis()));
+        dataUnit.setMessageTime(new Date());
         gbData.setDataUnit(dataUnit);
         GbMessageHeader header = GbMessageHeader.builder()
                 .commandFlag(GbCommandFlag.PLATFORM_LOGIN)
@@ -53,7 +55,7 @@ public class GbProtocolPackager implements ProtocolPackager {
                 .startingSymbols(GB_DATA_STARTING_SYMBOLS)
                 .build();
         GbMessageDataUnit dataUnit = new GbPlatformLogoutDataUnit(clientPlatform.getLoginSn());
-        dataUnit.setMessageTime(GbUtil.getGbDateTimeBytes(System.currentTimeMillis()));
+        dataUnit.setMessageTime(new Date());
         gbData.setDataUnit(dataUnit);
         GbMessageHeader header = GbMessageHeader.builder()
                 .commandFlag(GbCommandFlag.PLATFORM_LOGOUT)

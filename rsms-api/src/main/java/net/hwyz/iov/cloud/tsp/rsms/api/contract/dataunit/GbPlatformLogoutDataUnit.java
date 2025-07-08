@@ -35,12 +35,12 @@ public class GbPlatformLogoutDataUnit extends GbMessageDataUnit {
             logger.warn("国标平台登出数据单元[{}]异常", Arrays.toString(dataUnitBytes));
             return;
         }
-        this.messageTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
+        this.messageTime = GbUtil.dateTimeBytesToDate(Arrays.copyOfRange(dataUnitBytes, 0, 6));
         this.loginSn = GbUtil.bytesToWord(Arrays.copyOfRange(dataUnitBytes, 6, 8));
     }
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(this.messageTime, GbUtil.wordToBytes(this.loginSn));
+        return ArrayUtil.addAll(GbUtil.getGbDateTimeBytes(this.messageTime.getTime()), GbUtil.wordToBytes(this.loginSn));
     }
 }

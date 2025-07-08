@@ -2,6 +2,8 @@ package net.hwyz.iov.cloud.tsp.rsms.api.contract;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * 国标数据单元
  *
@@ -13,7 +15,7 @@ public abstract class GbMessageDataUnit {
     /**
      * 消息时间
      */
-    protected byte[] messageTime;
+    protected Date messageTime;
 
     /**
      * 解析数据单元

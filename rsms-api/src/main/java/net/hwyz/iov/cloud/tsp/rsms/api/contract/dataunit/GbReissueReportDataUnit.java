@@ -11,6 +11,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
+import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -34,7 +35,7 @@ public class GbReissueReportDataUnit extends GbMessageDataUnit {
 
     @Override
     public void parse(byte[] dataUnitBytes) {
-        this.messageTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
+        this.messageTime = GbUtil.dateTimeBytesToDate(Arrays.copyOfRange(dataUnitBytes, 0, 6));
         this.dataInfoList = new LinkedList<>();
         int startPos = 6;
         while (startPos < dataUnitBytes.length) {
@@ -62,7 +63,7 @@ public class GbReissueReportDataUnit extends GbMessageDataUnit {
 
     @Override
     public byte[] toByteArray() {
-        byte[] bytes = this.messageTime;
+        byte[] bytes = GbUtil.getGbDateTimeBytes(this.messageTime.getTime());
         for (GbMessageDataInfo dataInfo : dataInfoList) {
             bytes = ArrayUtil.addAll(bytes, dataInfo.toByteArray());
         }

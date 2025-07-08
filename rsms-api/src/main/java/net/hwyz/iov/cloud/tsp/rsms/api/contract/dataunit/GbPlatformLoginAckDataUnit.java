@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataUnit;
+import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 
 import java.util.Arrays;
 
@@ -26,11 +27,11 @@ public class GbPlatformLoginAckDataUnit extends GbMessageDataUnit {
             logger.warn("国标平台登录应答数据单元[{}]异常", Arrays.toString(dataUnitBytes));
             return;
         }
-        this.messageTime = dataUnitBytes;
+        this.messageTime = GbUtil.dateTimeBytesToDate(dataUnitBytes);
     }
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(this.messageTime);
+        return ArrayUtil.addAll(GbUtil.getGbDateTimeBytes(this.messageTime.getTime()));
     }
 }

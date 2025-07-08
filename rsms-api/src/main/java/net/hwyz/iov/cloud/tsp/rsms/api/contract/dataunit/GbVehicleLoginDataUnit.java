@@ -46,7 +46,7 @@ public class GbVehicleLoginDataUnit extends GbMessageDataUnit {
 
     @Override
     public void parse(byte[] dataUnitBytes) {
-        this.messageTime = Arrays.copyOfRange(dataUnitBytes, 0, 6);
+        this.messageTime = GbUtil.dateTimeBytesToDate(Arrays.copyOfRange(dataUnitBytes, 0, 6));
         this.loginSn = GbUtil.bytesToWord(Arrays.copyOfRange(dataUnitBytes, 6, 8));
         this.iccid = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 8, 28));
         this.deviceCount = dataUnitBytes[28];
@@ -56,8 +56,8 @@ public class GbVehicleLoginDataUnit extends GbMessageDataUnit {
 
     @Override
     public byte[] toByteArray() {
-        return ArrayUtil.addAll(this.messageTime, GbUtil.wordToBytes(this.loginSn), GbUtil.stringToBytes(this.iccid, 20),
-                new byte[]{this.deviceCount}, new byte[]{this.deviceCodeLength},
+        return ArrayUtil.addAll(GbUtil.getGbDateTimeBytes(this.messageTime.getTime()), GbUtil.wordToBytes(this.loginSn),
+                GbUtil.stringToBytes(this.iccid, 20), new byte[]{this.deviceCount}, new byte[]{this.deviceCodeLength},
                 GbUtil.stringToBytes(this.deviceCode, this.deviceCount * this.deviceCodeLength));
     }
 }

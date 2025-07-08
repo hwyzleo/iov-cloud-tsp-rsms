@@ -68,7 +68,7 @@ public class GbMessage extends ProtocolMessage {
     public void parseDataUnit(byte[] dataUnitBytes) {
         this.dataUnitBytes = dataUnitBytes;
         this.dataUnit = GbUtil.parseDataUnit(this.header.getCommandFlag(), dataUnitBytes);
-        this.messageTime = GbUtil.dateTimeBytesToDate(this.dataUnit.getMessageTime());
+        this.messageTime = this.dataUnit.getMessageTime();
     }
 
     /**
