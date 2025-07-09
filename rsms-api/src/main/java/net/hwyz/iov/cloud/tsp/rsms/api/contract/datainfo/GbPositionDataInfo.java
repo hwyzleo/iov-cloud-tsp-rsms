@@ -23,10 +23,6 @@ import java.util.Arrays;
 public class GbPositionDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 定位是否有效
      * true：有效定位
      * false：无效定位（当数据通信正常，而不能获取定位信息时，发送最后一次有效定位信息，并将定位状态置位无效）

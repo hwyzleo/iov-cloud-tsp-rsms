@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.facade.mpt;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.json.JSONObject;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,15 +13,21 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.VehicleGbMessageMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.GbVehicleDataDataInfo;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbRealtimeReportDataUnit;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbReissueReportDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.VehicleGbMessageMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.VehicleGbMessageAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.GbVehicleDataMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.VehicleGbMessageMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType.VEHICLE;
 
 /**
  * 车辆国标消息历史相关管理接口实现类
@@ -94,8 +101,30 @@ public class VehicleGbMessageMptController extends BaseController implements Veh
     public AjaxResult parse(@PathVariable Long vehicleGbMessageId) {
         logger.info("管理后台用户[{}]解析车辆国标消息[{}]", SecurityUtils.getUsername(), vehicleGbMessageId);
         VehicleGbMessagePo vehicleGbMessagePo = vehicleGbMessageAppService.getVehicleGbMessageById(vehicleGbMessageId);
-        return success(GbUtil.parseMessage(HexUtil.decodeHex(vehicleGbMessagePo.getMessageData()), vehicleGbMessagePo.getVin(), true)
-                .orElse(null));
+        JSONObject jsonObject = new JSONObject();
+        GbUtil.parseMessage(HexUtil.decodeHex(vehicleGbMessagePo.getMessageData()), vehicleGbMessagePo.getVin(), true).ifPresent(gbMessage -> {
+            switch (gbMessage.getHeader().getCommandFlag()) {
+                case REALTIME_REPORT -> {
+                    GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
+                    dataUnit.getDataInfoList().forEach(dataInfo -> {
+                        switch (dataInfo.getDataInfoType()) {
+                            case VEHICLE ->
+                                    jsonObject.set(VEHICLE.name(), GbVehicleDataMptAssembler.INSTANCE.fromDataInfo((GbVehicleDataDataInfo) dataInfo));
+                        }
+                    });
+                }
+                case REISSUE_REPORT -> {
+                    GbReissueReportDataUnit dataUnit = (GbReissueReportDataUnit) gbMessage.getDataUnit();
+                    dataUnit.getDataInfoList().forEach(dataInfo -> {
+                        switch (dataInfo.getDataInfoType()) {
+                            case VEHICLE ->
+                                    jsonObject.set(VEHICLE.name(), GbVehicleDataMptAssembler.INSTANCE.fromDataInfo((GbVehicleDataDataInfo) dataInfo));
+                        }
+                    });
+                }
+            }
+        });
+        return success(jsonObject);
     }
 
     /**

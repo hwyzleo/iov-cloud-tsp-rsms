@@ -23,10 +23,6 @@ import java.util.Arrays;
 public class GbExtremumDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 最高电压电池子系统号
      * 有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */

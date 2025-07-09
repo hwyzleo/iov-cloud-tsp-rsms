@@ -27,10 +27,6 @@ import java.util.Map;
 public class GbAlarmDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 最高报警等级
      */
     private GbAlarmLevel maxAlarmLevel;

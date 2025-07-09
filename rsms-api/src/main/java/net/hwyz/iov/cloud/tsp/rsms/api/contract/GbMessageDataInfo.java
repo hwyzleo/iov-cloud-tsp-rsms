@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.contract;
 
 import lombok.Data;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
 
 /**
  * 国标数据信息
@@ -9,6 +10,11 @@ import lombok.Data;
  */
 @Data
 public abstract class GbMessageDataInfo {
+
+    /**
+     * 数据信息类型
+     */
+    protected GbDataInfoType dataInfoType;
 
     /**
      * 解析数据信息

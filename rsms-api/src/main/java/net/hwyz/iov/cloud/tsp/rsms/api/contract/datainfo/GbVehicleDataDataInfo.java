@@ -23,10 +23,6 @@ import java.util.Arrays;
 public class GbVehicleDataDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 车辆状态
      */
     private GbVehicleState vehicleState;

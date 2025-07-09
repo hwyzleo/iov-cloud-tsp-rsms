@@ -24,10 +24,6 @@ import java.util.Arrays;
 public class GbFuelCellDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 燃料电池电压
      * 有效值范围：0 ~ 20000（表示0V ~ 2000V),最小计量单元：0.1V,“0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */

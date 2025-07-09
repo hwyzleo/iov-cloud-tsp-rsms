@@ -24,10 +24,6 @@ import java.util.Arrays;
 public class GbEngineDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 发动机状态
      */
     private GbEngineState state;

@@ -23,10 +23,6 @@ import java.util.LinkedList;
 public class GbDriveMotorDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 驱动电机个数
      */
     private byte driveMotorCount;

@@ -23,12 +23,8 @@ import java.util.LinkedList;
 public class GbBatteryTemperatureDataInfo extends GbMessageDataInfo {
 
     /**
-     * 数据信息类型
-     */
-    private GbDataInfoType dataInfoType;
-    /**
      * 可充电储能子系统个数
-     * N个可充电储能子系统，有效值范围：1~250，“0xFE”表示异常，“0xFF”表示无效
+     * N个可充电储能子系统，有效值范围：1 ~ 250，“0xFE”表示异常，“0xFF”表示无效
      */
     private byte batteryCount;
     /**
