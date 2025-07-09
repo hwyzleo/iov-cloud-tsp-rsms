@@ -25,7 +25,7 @@ public class GbAlarmMpt {
     /**
      * 通用报警标志
      */
-    private Map<Integer, Boolean> alarmFlagMap;
+    private Map<Integer, String> alarmFlagMap;
     /**
      * 可充电储能装置故障总数N1
      * N1个可充电储能装置故障，有效值范围：0~252，“0xFE”表示异常，“0xFF”表示无效
