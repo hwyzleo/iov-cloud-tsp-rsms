@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public interface GbBatteryVoltageMptAssembler {
             @Mapping(target = "cellCount", source = "cellCount"),
             @Mapping(target = "frameStartCellSn", source = "frameStartCellSn"),
             @Mapping(target = "frameCellCount", source = "frameCellCount"),
-            @Mapping(target = "cellVoltageList", source = "cellVoltageList")
+            @Mapping(target = "cellVoltageList", expression = "java(net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.GbBatteryVoltageMptAssembler.intListToBigDecimal(gbBatteryVoltageDataInfo.getCellVoltageList()))")
     })
     GbBatteryVoltageMpt fromDataInfo(GbSingleBatteryVoltageDataInfo gbBatteryVoltageDataInfo);
 
@@ -43,5 +44,9 @@ public interface GbBatteryVoltageMptAssembler {
      * @return 数据传输对象列表
      */
     List<GbBatteryVoltageMpt> fromDataInfoList(List<GbSingleBatteryVoltageDataInfo> gbBatteryVoltageDataInfoList);
+
+    static List<BigDecimal> intListToBigDecimal(List<Integer> list) {
+        return list.stream().map(i -> BigDecimal.valueOf(i).divide(BigDecimal.valueOf(1000))).toList();
+    }
 
 }

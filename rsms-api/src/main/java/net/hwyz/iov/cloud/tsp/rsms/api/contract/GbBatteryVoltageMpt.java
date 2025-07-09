@@ -53,6 +53,6 @@ public class GbBatteryVoltageMpt {
      * 有效值范围：0~60000（表示0V~60.000V),最小计量单元：0.001V,单体电池电压个数等于本帧单体电池总数m,
      * “0xFF,0xFE”表示异常，“0xFF,0xFF”表示无效
      */
-    private List<Integer> cellVoltageList;
+    private List<BigDecimal> cellVoltageList;
 
 }
