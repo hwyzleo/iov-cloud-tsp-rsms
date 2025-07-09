@@ -12,22 +12,22 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.VehicleGbMessageMpt;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.GbVehicleDataDataInfo;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.*;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.*;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbRealtimeReportDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbReissueReportDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.VehicleGbMessageMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.VehicleGbMessageAppService;
-import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.GbVehicleDataMptAssembler;
-import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.VehicleGbMessageMptAssembler;
+import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.*;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
-import static net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType.VEHICLE;
+import static net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType.*;
 
 /**
  * 车辆国标消息历史相关管理接口实现类
@@ -106,25 +106,65 @@ public class VehicleGbMessageMptController extends BaseController implements Veh
             switch (gbMessage.getHeader().getCommandFlag()) {
                 case REALTIME_REPORT -> {
                     GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
-                    dataUnit.getDataInfoList().forEach(dataInfo -> {
-                        switch (dataInfo.getDataInfoType()) {
-                            case VEHICLE ->
-                                    jsonObject.set(VEHICLE.name(), GbVehicleDataMptAssembler.INSTANCE.fromDataInfo((GbVehicleDataDataInfo) dataInfo));
-                        }
-                    });
+                    dataUnit.getDataInfoList().forEach(dataInfo -> assembleParams(dataInfo, jsonObject));
                 }
                 case REISSUE_REPORT -> {
                     GbReissueReportDataUnit dataUnit = (GbReissueReportDataUnit) gbMessage.getDataUnit();
-                    dataUnit.getDataInfoList().forEach(dataInfo -> {
-                        switch (dataInfo.getDataInfoType()) {
-                            case VEHICLE ->
-                                    jsonObject.set(VEHICLE.name(), GbVehicleDataMptAssembler.INSTANCE.fromDataInfo((GbVehicleDataDataInfo) dataInfo));
-                        }
-                    });
+                    dataUnit.getDataInfoList().forEach(dataInfo -> assembleParams(dataInfo, jsonObject));
                 }
             }
         });
         return success(jsonObject);
+    }
+
+    /**
+     * 组装参数
+     *
+     * @param dataInfo   数据信息
+     * @param jsonObject json对象
+     */
+    private void assembleParams(GbMessageDataInfo dataInfo, JSONObject jsonObject) {
+        switch (dataInfo.getDataInfoType()) {
+            case VEHICLE -> {
+                GbVehicleDataMpt vehicleData = GbVehicleDataMptAssembler.INSTANCE.fromDataInfo((GbVehicleDataDataInfo) dataInfo);
+                jsonObject.set(VEHICLE.name(), vehicleData);
+            }
+            case DRIVE_MOTOR -> {
+                LinkedList<GbSingleDriveMotorDataInfo> driveMotorList = ((GbDriveMotorDataInfo) dataInfo).getDriveMotorList();
+                List<GbDriveMotorMpt> driveMotorMptList = GbDriveMotorMptAssembler.INSTANCE.fromDataInfoList(driveMotorList);
+                jsonObject.set(DRIVE_MOTOR.name(), driveMotorMptList);
+            }
+            case FUEL_CELL -> {
+                GbFuelCellMpt fuelCell = GbFuelCellMptAssembler.INSTANCE.fromDataInfo((GbFuelCellDataInfo) dataInfo);
+                jsonObject.set(FUEL_CELL.name(), fuelCell);
+            }
+            case ENGINE -> {
+                GbEngineMpt engine = GbEngineMptAssembler.INSTANCE.fromDataInfo((GbEngineDataInfo) dataInfo);
+                jsonObject.set(ENGINE.name(), engine);
+            }
+            case POSITION -> {
+                GbPositionMpt position = GbPositionMptAssembler.INSTANCE.fromDataInfo((GbPositionDataInfo) dataInfo);
+                jsonObject.set(POSITION.name(), position);
+            }
+            case EXTREMUM -> {
+                GbExtremumMpt extremum = GbExtremumMptAssembler.INSTANCE.fromDataInfo((GbExtremumDataInfo) dataInfo);
+                jsonObject.set(EXTREMUM.name(), extremum);
+            }
+            case ALARM -> {
+                GbAlarmMpt alarm = GbAlarmMptAssembler.INSTANCE.fromDataInfo((GbAlarmDataInfo) dataInfo);
+                jsonObject.set(ALARM.name(), alarm);
+            }
+            case BATTERY_VOLTAGE -> {
+                LinkedList<GbSingleBatteryVoltageDataInfo> batteryVoltageList = ((GbBatteryVoltageDataInfo) dataInfo).getBatteryVoltageList();
+                List<GbBatteryVoltageMpt> batteryVoltageMptList = GbBatteryVoltageMptAssembler.INSTANCE.fromDataInfoList(batteryVoltageList);
+                jsonObject.set(BATTERY_VOLTAGE.name(), batteryVoltageMptList);
+            }
+            case BATTERY_TEMPERATURE -> {
+                LinkedList<GbSingleBatteryTemperatureDataInfo> batteryTemperatureList = ((GbBatteryTemperatureDataInfo) dataInfo).getBatteryTemperatureList();
+                List<GbBatteryTemperatureMpt> batteryTemperatureMptList = GbBatteryTemperatureMptAssembler.INSTANCE.fromDataInfoList(batteryTemperatureList);
+                jsonObject.set(BATTERY_TEMPERATURE.name(), batteryTemperatureMptList);
+            }
+        }
     }
 
     /**
