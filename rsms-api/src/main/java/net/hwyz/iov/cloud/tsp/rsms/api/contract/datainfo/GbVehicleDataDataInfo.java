@@ -29,7 +29,7 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
     /**
      * 充电状态
      */
-    private GbChargingState chargerState;
+    private GbChargingState chargingState;
     /**
      * 运行模式
      */
@@ -100,7 +100,7 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
         }
         this.dataInfoType = GbDataInfoType.VEHICLE;
         this.vehicleState = GbVehicleState.valOf(dataInfoBytes[0]);
-        this.chargerState = GbChargingState.valOf(dataInfoBytes[1]);
+        this.chargingState = GbChargingState.valOf(dataInfoBytes[1]);
         this.runningMode = GbRunningMode.valOf(dataInfoBytes[2]);
         this.speed = GbUtil.bytesToWord(Arrays.copyOfRange(dataInfoBytes, 3, 5));
         this.totalOdometer = GbUtil.bytesToDword(Arrays.copyOfRange(dataInfoBytes, 5, 9));
@@ -120,7 +120,7 @@ public class GbVehicleDataDataInfo extends GbMessageDataInfo {
     @Override
     public byte[] toByteArray() {
         return ArrayUtil.addAll(new byte[]{this.dataInfoType.getCode()}, new byte[]{this.vehicleState.getCode()},
-                new byte[]{this.chargerState.getCode()}, new byte[]{this.runningMode.getCode()}, GbUtil.wordToBytes(this.speed),
+                new byte[]{this.chargingState.getCode()}, new byte[]{this.runningMode.getCode()}, GbUtil.wordToBytes(this.speed),
                 GbUtil.dwordToBytes(this.totalOdometer), GbUtil.wordToBytes(this.totalVoltage),
                 GbUtil.wordToBytes(this.totalCurrent), new byte[]{this.soc}, new byte[]{this.dcdcState.getCode()},
                 new byte[]{GbUtil.combineGearByte(this.driving, this.braking, this.gear)}, GbUtil.wordToBytes(this.insulationResistance),

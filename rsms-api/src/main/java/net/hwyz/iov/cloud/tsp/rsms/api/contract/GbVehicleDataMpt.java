@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Slf4j
 @NoArgsConstructor
 public class GbVehicleDataMpt {
-    
+
     /**
      * 车辆状态
      */
@@ -23,7 +23,7 @@ public class GbVehicleDataMpt {
     /**
      * 充电状态
      */
-    private String chargerState;
+    private String chargingState;
     /**
      * 运行模式
      */

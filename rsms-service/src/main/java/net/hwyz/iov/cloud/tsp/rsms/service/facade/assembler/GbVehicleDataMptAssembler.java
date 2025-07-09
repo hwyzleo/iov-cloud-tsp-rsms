@@ -25,7 +25,7 @@ public interface GbVehicleDataMptAssembler {
      */
     @Mappings({
             @Mapping(target = "vehicleState", source = "vehicleState.name"),
-            @Mapping(target = "chargerState", source = "chargerState.name"),
+            @Mapping(target = "chargingState", source = "chargingState.name"),
             @Mapping(target = "runningMode", source = "runningMode.name"),
             @Mapping(target = "speed", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getSpeed()).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "totalOdometer", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getTotalOdometer()).divide(java.math.BigDecimal.TEN))"),
