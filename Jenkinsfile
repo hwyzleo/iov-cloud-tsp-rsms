@@ -30,7 +30,7 @@ pipeline {
                     dir(DIR_API) {
                         sh '''
                             echo '============================== 构建并发布 =============================='
-                            mvn clean deploy -DBUILD_NUMBER=${BUILD_NUMBER}' -DaltDeploymentRepository=${REPO_ID}::default::${REPO_URL}
+                            mvn clean deploy -DBUILD_NUMBER=${BUILD_NUMBER} -DaltDeploymentRepository=${REPO_ID}::default::${REPO_URL}
                         '''
                     }
                 }
