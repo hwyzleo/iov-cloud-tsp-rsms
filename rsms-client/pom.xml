@@ -17,6 +17,7 @@
     <properties>
         <rsms.version>0.0.1-SNAPSHOT</rsms.version>
         <netty.version>4.1.86.Final</netty.version>
+        <build.number>${env.BUILD_NUMBER}</build.number>
     </properties>
 
     <dependencies>
