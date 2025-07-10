@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class CacheServiceImpl implements CacheService {
 
+    private static BuildProperties buildProperties;
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -48,12 +49,6 @@ public class CacheServiceImpl implements CacheService {
      * Redis Key前缀：客户端平台登录状态
      */
     private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE = "rsms:clientPlatformLoginState:";
-
-    /**
-     * Jenkins发布流水号
-     */
-    @Value("${env.BUILD_NUMBER:unknown}")
-    private String buildNumber;
 
     @Override
     public Optional<ServerPlatformDo> getServerPlatform(String serverPlatformCode) {
@@ -90,6 +85,7 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public void resetClientPlatformState() {
         String sn = redisTemplate.opsForValue().get(REDIS_KEY_CLIENT_PLATFORM_STATE_SN);
+        String buildNumber = buildProperties.get("jenkins.buildNumber");
         if (!buildNumber.equalsIgnoreCase(sn)) {
             logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber);
             redisTemplate.opsForHash().entries(REDIS_KEY_CLIENT_PLATFORM_STATE).forEach((key, value) -> {
@@ -108,7 +104,7 @@ public class CacheServiceImpl implements CacheService {
             redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
         redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + clientPlatform.getUniqueKey(),
-                clientPlatform.getCurrentHostname(), clientPlatform.isConnect());
+                clientPlatform.getCurrentHostname(), String.valueOf(clientPlatform.isConnect()));
     }
 
     @Override
@@ -118,6 +114,6 @@ public class CacheServiceImpl implements CacheService {
             redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
         redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + clientPlatform.getUniqueKey(),
-                clientPlatform.getCurrentHostname(), clientPlatform.isLogin());
+                clientPlatform.getCurrentHostname(), String.valueOf(clientPlatform.isLogin()));
     }
 }
