@@ -10,6 +10,7 @@ pipeline {
         DIR_SIMULATOR = "${env.DIR_KEY}-simulator"
         DIR_CLIENT = "${env.DIR_KEY}-client"
         IMAGE_NAME = "${env.REGISTRY_URL}/${PROJECT_NAME}:${env.BUILD_NUMBER}"
+        BUILD_NUMBER = "${env.BUILD_NUMBER}"
     }
 
     parameters {
@@ -29,7 +30,7 @@ pipeline {
                     dir(DIR_API) {
                         sh '''
                             echo '============================== 构建并发布 =============================='
-                            mvn clean deploy -DaltDeploymentRepository=${REPO_ID}::default::${REPO_URL}
+                            mvn clean deploy -DBUILD_NUMBER=${BUILD_NUMBER}' -DaltDeploymentRepository=${REPO_ID}::default::${REPO_URL}
                         '''
                     }
                 }
