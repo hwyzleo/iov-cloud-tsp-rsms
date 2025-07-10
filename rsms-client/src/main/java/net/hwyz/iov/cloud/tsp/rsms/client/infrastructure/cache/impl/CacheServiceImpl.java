@@ -50,7 +50,7 @@ public class CacheServiceImpl implements CacheService {
      */
     private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE = "rsms:clientPlatformLoginState:";
 
-    @Value("${env.BUILD_NUMBER:0}")
+    @Value("${BUILD_NUMBER:0}")
     private String buildNumber;
 
     @Override
