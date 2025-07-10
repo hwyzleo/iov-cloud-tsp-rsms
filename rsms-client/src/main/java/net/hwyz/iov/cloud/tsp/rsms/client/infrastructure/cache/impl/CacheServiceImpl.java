@@ -6,6 +6,7 @@ import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.util.BuildInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,9 @@ public class CacheServiceImpl implements CacheService {
      */
     private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE = "rsms:clientPlatformLoginState:";
 
+    @Value("${env.BUILD_NUMBER:0}")
+    private String buildNumber;
+
     @Override
     public Optional<ServerPlatformDo> getServerPlatform(String serverPlatformCode) {
         logger.debug("获取服务端平台[{}]缓存", serverPlatformCode);
@@ -84,7 +88,6 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public void resetClientPlatformState() {
         String sn = redisTemplate.opsForValue().get(REDIS_KEY_CLIENT_PLATFORM_STATE_SN);
-        String buildNumber = BuildInfo.getBuildNumber();
         logger.warn("======={}", buildNumber);
         if (!buildNumber.equalsIgnoreCase(sn)) {
             logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber);
