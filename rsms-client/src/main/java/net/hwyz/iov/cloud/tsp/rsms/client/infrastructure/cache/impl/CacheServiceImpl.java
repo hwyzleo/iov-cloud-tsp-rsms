@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
-import org.springframework.beans.factory.annotation.Value;
+import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.util.BuildInfo;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -49,17 +49,6 @@ public class CacheServiceImpl implements CacheService {
      */
     private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE = "rsms:clientPlatformLoginState:";
 
-    /**
-     * Jenkins发布流水号
-     */
-    @Value("${env.BUILD_NUMBER:unknown}")
-    private String buildNumber1;
-    /**
-     * Jenkins发布流水号
-     */
-    @Value("${BUILD_NUMBER:unknown}")
-    private String buildNumber2;
-
     @Override
     public Optional<ServerPlatformDo> getServerPlatform(String serverPlatformCode) {
         logger.debug("获取服务端平台[{}]缓存", serverPlatformCode);
@@ -94,16 +83,17 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public void resetClientPlatformState() {
-        logger.warn("{} - {}", buildNumber1, buildNumber2);
         String sn = redisTemplate.opsForValue().get(REDIS_KEY_CLIENT_PLATFORM_STATE_SN);
-        if (!buildNumber2.equalsIgnoreCase(sn)) {
-            logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber2);
+        String buildNumber = BuildInfo.getBuildNumber();
+        logger.warn("======={}", buildNumber);
+        if (!buildNumber.equalsIgnoreCase(sn)) {
+            logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber);
             redisTemplate.opsForHash().entries(REDIS_KEY_CLIENT_PLATFORM_STATE).forEach((key, value) -> {
                 redisTemplate.delete(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + key);
                 redisTemplate.delete(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + key);
             });
             redisTemplate.delete(REDIS_KEY_CLIENT_PLATFORM_STATE);
-            redisTemplate.opsForValue().set(REDIS_KEY_CLIENT_PLATFORM_STATE_SN, buildNumber2);
+            redisTemplate.opsForValue().set(REDIS_KEY_CLIENT_PLATFORM_STATE_SN, buildNumber);
         }
     }
 
