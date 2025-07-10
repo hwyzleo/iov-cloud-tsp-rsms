@@ -57,7 +57,7 @@ pipeline {
                 }
             }
         }
-        stage('构建模拟器镜像') {
+        stage('构建客户端镜像') {
             when { expression { params.DEPLOY_TYPE == "client" } }
             steps {
                 script {
