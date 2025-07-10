@@ -53,7 +53,12 @@ public class CacheServiceImpl implements CacheService {
      * Jenkins发布流水号
      */
     @Value("${env.BUILD_NUMBER:unknown}")
-    private String buildNumber;
+    private String buildNumber1;
+    /**
+     * Jenkins发布流水号
+     */
+    @Value("${BUILD_NUMBER:unknown}")
+    private String buildNumber2;
 
     @Override
     public Optional<ServerPlatformDo> getServerPlatform(String serverPlatformCode) {
@@ -89,15 +94,16 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public void resetClientPlatformState() {
+        logger.warn("{} - {}", buildNumber1, buildNumber2);
         String sn = redisTemplate.opsForValue().get(REDIS_KEY_CLIENT_PLATFORM_STATE_SN);
-        if (!buildNumber.equalsIgnoreCase(sn)) {
-            logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber);
+        if (!buildNumber2.equalsIgnoreCase(sn)) {
+            logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber2);
             redisTemplate.opsForHash().entries(REDIS_KEY_CLIENT_PLATFORM_STATE).forEach((key, value) -> {
                 redisTemplate.delete(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + key);
                 redisTemplate.delete(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + key);
             });
             redisTemplate.delete(REDIS_KEY_CLIENT_PLATFORM_STATE);
-            redisTemplate.opsForValue().set(REDIS_KEY_CLIENT_PLATFORM_STATE_SN, buildNumber);
+            redisTemplate.opsForValue().set(REDIS_KEY_CLIENT_PLATFORM_STATE_SN, buildNumber2);
         }
     }
 
