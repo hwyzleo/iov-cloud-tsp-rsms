@@ -52,7 +52,7 @@ public class CacheServiceImpl implements CacheService {
     /**
      * Jenkins发布流水号
      */
-    @Value("${BUILD_NUMBER:unknown}")
+    @Value("${env.BUILD_NUMBER:unknown}")
     private String buildNumber;
 
     @Override
@@ -105,7 +105,7 @@ public class CacheServiceImpl implements CacheService {
     public void setClientPlatformConnectState(ClientPlatformDo clientPlatform) {
         logger.debug("设置客户端平台[{}]连接状态", clientPlatform.getUniqueKey());
         if (!redisTemplate.opsForHash().hasKey(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey())) {
-            redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), System.currentTimeMillis());
+            redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
         redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + clientPlatform.getUniqueKey(),
                 clientPlatform.getCurrentHostname(), clientPlatform.isConnect());
@@ -115,7 +115,7 @@ public class CacheServiceImpl implements CacheService {
     public void setClientPlatformLoginState(ClientPlatformDo clientPlatform) {
         logger.debug("设置客户端平台[{}]登录状态", clientPlatform.getUniqueKey());
         if (!redisTemplate.opsForHash().hasKey(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey())) {
-            redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), System.currentTimeMillis());
+            redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
         redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + clientPlatform.getUniqueKey(),
                 clientPlatform.getCurrentHostname(), clientPlatform.isLogin());
