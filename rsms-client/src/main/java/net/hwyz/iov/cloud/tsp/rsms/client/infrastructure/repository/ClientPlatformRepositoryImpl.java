@@ -71,18 +71,17 @@ public class ClientPlatformRepositoryImpl extends AbstractRepository<Long, Clien
     public List<ClientPlatformDo> getAllEnabled() {
         List<ClientPlatformDo> list = new ArrayList<>();
         clientPlatformDao.selectPoByEnabled().forEach(po ->
-                list.add(cacheService.getClientPlatform(po.getId())
-                        .orElseGet(() -> {
-                            Optional<ServerPlatformDo> serverPlatformDoOptional = serverPlatformRepository.getById(po.getServerPlatformCode());
-                            if (serverPlatformDoOptional.isEmpty()) {
-                                logger.warn("未找到服务端平台[{}]", po.getServerPlatformCode());
-                                return null;
-                            }
-                            ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(po.getId());
-                            ClientPlatformDo clientPlatform = factory.build(po, serverPlatformDoOptional.get(), loginHistory);
-                            save(clientPlatform);
-                            return clientPlatform;
-                        }))
+                list.add(cacheService.getClientPlatform(po.getId()).orElseGet(() -> {
+                    Optional<ServerPlatformDo> serverPlatformDoOptional = serverPlatformRepository.getById(po.getServerPlatformCode());
+                    if (serverPlatformDoOptional.isEmpty()) {
+                        logger.warn("未找到服务端平台[{}]", po.getServerPlatformCode());
+                        return null;
+                    }
+                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(po.getId());
+                    ClientPlatformDo clientPlatform = factory.build(po, serverPlatformDoOptional.get(), loginHistory);
+                    save(clientPlatform);
+                    return clientPlatform;
+                }))
         );
         return list;
     }

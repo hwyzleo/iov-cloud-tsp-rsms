@@ -42,4 +42,23 @@ public interface CacheService {
      */
     void setClientPlatform(ClientPlatformDo clientPlatform);
 
+    /**
+     * 重置客户端平台相关状态
+     */
+    void resetClientPlatformState();
+
+    /**
+     * 设置客户端平台连接状态
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void setClientPlatformConnectState(ClientPlatformDo clientPlatform);
+
+    /**
+     * 设置客户端平台登录状态
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void setClientPlatformLoginState(ClientPlatformDo clientPlatform);
+
 }

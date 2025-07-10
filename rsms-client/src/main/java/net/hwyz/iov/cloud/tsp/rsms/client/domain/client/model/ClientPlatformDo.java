@@ -35,6 +35,10 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     private String hostname;
     /**
+     * 当前客户端平台绑定主机名
+     */
+    private String currentHostname;
+    /**
      * 客户端平台用户名
      */
     private String username;
@@ -50,6 +54,10 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      * Netty客户端
      */
     private NettyClient client;
+    /**
+     * 连接状态
+     */
+    private AtomicBoolean connectState;
     /**
      * 登录状态
      */
@@ -83,6 +91,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      * 初始化
      */
     public void init() {
+        this.connectState = new AtomicBoolean(false);
         this.loginState = new AtomicBoolean(false);
         stateInit();
     }
@@ -94,6 +103,15 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     public String getUniqueKey() {
         return this.serverPlatform.getCode() + "-" + this.uniqueCode;
+    }
+
+    /**
+     * 是否已连接服务端平台
+     *
+     * @return true:已连接,false:未连接
+     */
+    public boolean isConnect() {
+        return this.connectState.get();
     }
 
     /**
@@ -119,6 +137,32 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     public void bindClient(NettyClient client) {
         this.client = client;
+        stateChange();
+    }
+
+    /**
+     * 绑定主机名
+     *
+     * @param hostname 主机名
+     */
+    public void bindHostname(String hostname) {
+        this.currentHostname = hostname;
+        stateChange();
+    }
+
+    /**
+     * 服务端平台连接成功
+     */
+    public void connectSuccess() {
+        this.connectState.set(true);
+        stateChange();
+    }
+
+    /**
+     * 服务端平台连接失败
+     */
+    public void connectFailure() {
+        this.connectState.set(false);
         stateChange();
     }
 

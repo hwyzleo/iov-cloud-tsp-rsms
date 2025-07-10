@@ -11,6 +11,18 @@ import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 public interface PlatformHandler {
 
     /**
+     * 连接成功
+     * @param clientPlatform 客户端平台
+     */
+    void connectSuccess(ClientPlatformDo clientPlatform);
+
+    /**
+     * 连接失败
+     * @param clientPlatform 客户端平台
+     */
+    void connectFailure(ClientPlatformDo clientPlatform);
+
+    /**
      * 登录
      *
      * @param clientPlatform 客户端平台

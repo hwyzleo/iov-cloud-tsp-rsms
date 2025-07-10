@@ -10,6 +10,7 @@ import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ClientPlatformLogi
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.PlatformHandler;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
+import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Component("gbPlatformHandler")
 public class GbPlatformHandler implements PlatformHandler {
 
+    private final CacheService cacheService;
     private final ClientPlatformRepository clientPlatformRepository;
     private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
@@ -43,9 +45,22 @@ public class GbPlatformHandler implements PlatformHandler {
     private Integer loginRetryLongInterval;
 
     @Override
+    public void connectSuccess(ClientPlatformDo clientPlatform) {
+        clientPlatform.connectSuccess();
+        clientPlatformRepository.save(clientPlatform);
+    }
+
+    @Override
+    public void connectFailure(ClientPlatformDo clientPlatform) {
+        clientPlatform.connectFailure();
+        clientPlatformRepository.save(clientPlatform);
+    }
+
+    @Override
     public void login(ClientPlatformDo clientPlatform) {
         clientPlatform.login();
         clientPlatformRepository.save(clientPlatform);
+        cacheService.setClientPlatformLoginState(clientPlatform);
     }
 
     @Override
@@ -111,9 +126,11 @@ public class GbPlatformHandler implements PlatformHandler {
         ClientPlatformDo clientPlatform = event.getClientPlatform();
         if (ProtocolType.GB == clientPlatform.getServerPlatform().getProtocol()) {
             if (event.getConnectResult()) {
+                connectSuccess(clientPlatform);
                 login(clientPlatform);
             } else {
                 logout(clientPlatform);
+                connectFailure(clientPlatform);
             }
         }
     }
