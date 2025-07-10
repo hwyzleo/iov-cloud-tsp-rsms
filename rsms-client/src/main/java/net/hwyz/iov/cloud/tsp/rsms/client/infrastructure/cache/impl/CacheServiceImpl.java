@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.util.BuildInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -50,6 +49,9 @@ public class CacheServiceImpl implements CacheService {
      */
     private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE = "rsms:clientPlatformLoginState:";
 
+    /**
+     * Jenkins发布流水号
+     */
     @Value("${BUILD_NUMBER:0}")
     private String buildNumber;
 
@@ -88,7 +90,6 @@ public class CacheServiceImpl implements CacheService {
     @Override
     public void resetClientPlatformState() {
         String sn = redisTemplate.opsForValue().get(REDIS_KEY_CLIENT_PLATFORM_STATE_SN);
-        logger.warn("======={}", buildNumber);
         if (!buildNumber.equalsIgnoreCase(sn)) {
             logger.debug("重置所有客户端平台相关状态[{}->{}]", sn, buildNumber);
             redisTemplate.opsForHash().entries(REDIS_KEY_CLIENT_PLATFORM_STATE).forEach((key, value) -> {
