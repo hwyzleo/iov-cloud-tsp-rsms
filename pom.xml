@@ -9,6 +9,7 @@
         <module>rsms-api</module>
         <module>rsms-service</module>
         <module>rsms-simulator</module>
+        <module>rsms-client</module>
     </modules>
 
     <groupId>net.hwyz.iov.cloud.tsp</groupId>

@@ -4,13 +4,14 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.ParamHelper;
-import net.hwyz.iov.cloud.tsp.rsms.service.domain.server.repository.ServerPlatformRepository;
-import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ServerPlatformDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 服务端平台应用服务类
@@ -23,8 +24,6 @@ import java.util.*;
 public class ServerPlatformAppService {
 
     private final ServerPlatformDao serverPlatformDao;
-    private final RegisteredVehicleDao registeredVehicleDao;
-    private final ServerPlatformRepository serverPlatformRepository;
 
     /**
      * 查询服务端平台
@@ -109,17 +108,6 @@ public class ServerPlatformAppService {
      */
     public int deleteServerPlatformByIds(Long[] ids) {
         return serverPlatformDao.batchPhysicalDeletePo(ids);
-    }
-
-    /**
-     * 同步所有平台已注册车辆集合
-     */
-    public void syncVehicleSet() {
-        serverPlatformRepository.getAll().forEach(serverPlatform -> {
-            Set<String> vehicleSet = registeredVehicleDao.selectVinByServerPlatformCode(serverPlatform.getCode());
-            serverPlatform.syncVehicleSet(vehicleSet);
-            serverPlatformRepository.save(serverPlatform);
-        });
     }
 
 }
