@@ -11,10 +11,12 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
 
     private final CacheService cacheService;
     private final ClientPlatformAppService clientPlatformAppService;
+    private final ClientPlatformCmdProducer clientPlatformCmdProducer;
 
     /**
      * 分页查询客户端平台
@@ -54,8 +57,10 @@ public class ClientPlatformMptController extends BaseController implements Clien
         clientPlatformMptList.forEach(clientPlatformMpt -> {
             String uniqueKey = clientPlatformMpt.getServerPlatformCode() + "-" + clientPlatformMpt.getUniqueCode();
             Map<String, Boolean> connectState = cacheService.getClientPlatformConnectState(uniqueKey);
+            clientPlatformMpt.setConnectState(connectState);
             clientPlatformMpt.setConnectStat(connectState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + connectState.size());
             Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
+            clientPlatformMpt.setLoginState(loginState);
             clientPlatformMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
         });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
@@ -143,15 +148,16 @@ public class ClientPlatformMptController extends BaseController implements Clien
      * 客户端平台登录
      *
      * @param clientPlatformId 客户端平台ID
+     * @param hostname         主机名
      * @return 结果
      */
     @Log(title = "客户端平台管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("iov:rsms:clientPlatform:login")
     @Override
     @PostMapping("/{clientPlatformId}/action/login")
-    public AjaxResult login(@PathVariable Long clientPlatformId) {
-        logger.info("管理后台用户[{}]操作客户端平台[{}]登录", SecurityUtils.getUsername(), clientPlatformId);
-//        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::login);
+    public AjaxResult login(@PathVariable Long clientPlatformId, @RequestParam String hostname) {
+        logger.info("管理后台用户[{}]操作客户端平台[{}:{}]登录", SecurityUtils.getUsername(), clientPlatformId, hostname);
+        clientPlatformCmdProducer.send(clientPlatformId, hostname, CommandFlag.PLATFORM_LOGIN);
         return toAjax(1);
     }
 
@@ -159,15 +165,16 @@ public class ClientPlatformMptController extends BaseController implements Clien
      * 客户端平台登出
      *
      * @param clientPlatformId 客户端平台ID
+     * @param hostname         主机名
      * @return 结果
      */
     @Log(title = "客户端平台管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("iov:rsms:clientPlatform:logout")
     @Override
     @PostMapping("/{clientPlatformId}/action/logout")
-    public AjaxResult logout(@PathVariable Long clientPlatformId) {
-        logger.info("管理后台用户[{}]操作客户端平台[{}]登出", SecurityUtils.getUsername(), clientPlatformId);
-//        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::logout);
+    public AjaxResult logout(@PathVariable Long clientPlatformId, @RequestParam String hostname) {
+        logger.info("管理后台用户[{}]操作客户端平台[{}:{}]登出", SecurityUtils.getUsername(), clientPlatformId, hostname);
+        clientPlatformCmdProducer.send(clientPlatformId, hostname, CommandFlag.PLATFORM_LOGOUT);
         return toAjax(1);
     }
 }

@@ -64,16 +64,18 @@ public interface ClientPlatformMptApi {
      * 客户端平台登录
      *
      * @param clientPlatformId 客户端平台ID
+     * @param hostname         主机名
      * @return 结果
      */
-    AjaxResult login(Long clientPlatformId);
+    AjaxResult login(Long clientPlatformId, String hostname);
 
     /**
      * 客户端平台登出
      *
      * @param clientPlatformId 客户端平台ID
+     * @param hostname         主机名
      * @return 结果
      */
-    AjaxResult logout(Long clientPlatformId);
+    AjaxResult logout(Long clientPlatformId, String hostname);
 
 }

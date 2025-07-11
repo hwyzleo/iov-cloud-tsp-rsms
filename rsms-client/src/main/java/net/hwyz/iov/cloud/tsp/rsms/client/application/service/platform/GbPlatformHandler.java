@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ProtocolType;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.NettyClientConnectEvent;
+import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.ClientPlatformCmdEvent;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ClientPlatformLoginHistoryAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.PlatformHandler;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
@@ -135,6 +136,22 @@ public class GbPlatformHandler implements PlatformHandler {
             } else {
                 logout(clientPlatform);
                 connectFailure(clientPlatform);
+            }
+        }
+    }
+
+    /**
+     * 订阅客户端平台命令事件
+     *
+     * @param event 客户端平台命令事件
+     */
+    @EventListener
+    public void onClientPlatformCmdEvent(ClientPlatformCmdEvent event) {
+        ClientPlatformDo clientPlatform = event.getClientPlatform();
+        if (ProtocolType.GB == clientPlatform.getServerPlatform().getProtocol()) {
+            switch (event.getCommandFlag()) {
+                case PLATFORM_LOGIN -> login(clientPlatform);
+                case PLATFORM_LOGOUT -> logout(clientPlatform);
             }
         }
     }
