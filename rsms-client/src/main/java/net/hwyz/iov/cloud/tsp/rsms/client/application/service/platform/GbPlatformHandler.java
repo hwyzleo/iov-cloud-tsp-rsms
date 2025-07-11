@@ -48,19 +48,20 @@ public class GbPlatformHandler implements PlatformHandler {
     public void connectSuccess(ClientPlatformDo clientPlatform) {
         clientPlatform.connectSuccess();
         clientPlatformRepository.save(clientPlatform);
+        cacheService.setClientPlatformConnectState(clientPlatform);
     }
 
     @Override
     public void connectFailure(ClientPlatformDo clientPlatform) {
         clientPlatform.connectFailure();
         clientPlatformRepository.save(clientPlatform);
+        cacheService.setClientPlatformConnectState(clientPlatform);
     }
 
     @Override
     public void login(ClientPlatformDo clientPlatform) {
         clientPlatform.login();
         clientPlatformRepository.save(clientPlatform);
-        cacheService.setClientPlatformLoginState(clientPlatform);
     }
 
     @Override
@@ -68,6 +69,7 @@ public class GbPlatformHandler implements PlatformHandler {
         clientPlatform.loginSuccess();
         clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
+        cacheService.setClientPlatformLoginState(clientPlatform);
     }
 
     @Override
@@ -75,6 +77,7 @@ public class GbPlatformHandler implements PlatformHandler {
         clientPlatform.loginFailure();
         clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
+        cacheService.setClientPlatformLoginState(clientPlatform);
         // 客户端平台在规定时间内未收到应答指令，应每间隔1min重新进行登入；若连续重复3次登人无应答，应间隔30min后，
         // 继续重新链接，并把链接成功前存储的未成功发送的数据重新上报，重复登入间隔时间可以设置。
         if (clientPlatform.getFailureCount().get() < MAX_RETRY_COUNT) {
@@ -109,6 +112,7 @@ public class GbPlatformHandler implements PlatformHandler {
         clientPlatform.logoutSuccess();
         clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogout(clientPlatform);
+        cacheService.setClientPlatformLoginState(clientPlatform);
     }
 
     @Override

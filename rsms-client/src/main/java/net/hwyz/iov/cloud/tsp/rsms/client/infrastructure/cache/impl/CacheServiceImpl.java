@@ -103,7 +103,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public void setClientPlatformConnectState(ClientPlatformDo clientPlatform) {
-        logger.debug("设置客户端平台[{}]连接状态", clientPlatform.getUniqueKey());
+        logger.debug("设置客户端平台[{}]连接状态[{}]", clientPlatform.getUniqueKey(), clientPlatform.isConnect());
         if (!redisTemplate.opsForHash().hasKey(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey())) {
             redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
@@ -113,7 +113,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public void setClientPlatformLoginState(ClientPlatformDo clientPlatform) {
-        logger.debug("设置客户端平台[{}]登录状态", clientPlatform.getUniqueKey());
+        logger.debug("设置客户端平台[{}]登录状态[{}]", clientPlatform.getUniqueKey(), clientPlatform.isLogin());
         if (!redisTemplate.opsForHash().hasKey(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey())) {
             redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
