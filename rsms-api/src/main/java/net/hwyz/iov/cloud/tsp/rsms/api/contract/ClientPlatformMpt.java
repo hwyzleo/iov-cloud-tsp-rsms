@@ -53,9 +53,14 @@ public class ClientPlatformMpt extends BaseRequest {
     private Boolean enable;
 
     /**
-     * 是否登录
+     * 连接统计
      */
-    private Boolean login;
+    private String connectStat;
+
+    /**
+     * 登录统计
+     */
+    private String loginStat;
 
     /**
      * 创建时间

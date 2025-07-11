@@ -13,14 +13,14 @@ import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
-import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.model.ClientPlatformDo;
-import net.hwyz.iov.cloud.tsp.rsms.service.domain.client.repository.ClientPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 客户端平台相关管理接口实现类
@@ -33,8 +33,8 @@ import java.util.List;
 @RequestMapping(value = "/mpt/clientPlatform")
 public class ClientPlatformMptController extends BaseController implements ClientPlatformMptApi {
 
+    private final CacheService cacheService;
     private final ClientPlatformAppService clientPlatformAppService;
-    private final ClientPlatformRepository clientPlatformRepository;
 
     /**
      * 分页查询客户端平台
@@ -52,9 +52,11 @@ public class ClientPlatformMptController extends BaseController implements Clien
                 getBeginTime(clientPlatform), getEndTime(clientPlatform));
         List<ClientPlatformMpt> clientPlatformMptList = ClientPlatformMptAssembler.INSTANCE.fromPoList(clientPlatformPoList);
         clientPlatformMptList.forEach(clientPlatformMpt -> {
-            clientPlatformRepository.getById(clientPlatformMpt.getId()).ifPresent(clientPlatformDo -> {
-                clientPlatformMpt.setLogin(clientPlatformDo.isLogin());
-            });
+            String uniqueKey = clientPlatformMpt.getServerPlatformCode() + "-" + clientPlatformMpt.getUniqueCode();
+            Map<String, Boolean> connectState = cacheService.getClientPlatformConnectState(uniqueKey);
+            clientPlatformMpt.setConnectStat(connectState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + connectState.size());
+            Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
+            clientPlatformMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
         });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
     }
@@ -149,7 +151,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @PostMapping("/{clientPlatformId}/action/login")
     public AjaxResult login(@PathVariable Long clientPlatformId) {
         logger.info("管理后台用户[{}]操作客户端平台[{}]登录", SecurityUtils.getUsername(), clientPlatformId);
-        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::login);
+//        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::login);
         return toAjax(1);
     }
 
@@ -165,7 +167,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @PostMapping("/{clientPlatformId}/action/logout")
     public AjaxResult logout(@PathVariable Long clientPlatformId) {
         logger.info("管理后台用户[{}]操作客户端平台[{}]登出", SecurityUtils.getUsername(), clientPlatformId);
-        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::logout);
+//        clientPlatformRepository.getById(clientPlatformId).ifPresent(ClientPlatformDo::logout);
         return toAjax(1);
     }
 }
