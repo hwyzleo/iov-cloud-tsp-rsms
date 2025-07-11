@@ -34,7 +34,7 @@ public class CacheServiceImpl implements CacheService {
     public Map<String, Boolean> getClientPlatformConnectState(String clientPlatformUniqueKey) {
         logger.debug("获取客户端平台[{}]连接状态", clientPlatformUniqueKey);
         Map<String, Boolean> map = new HashMap<>();
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + clientPlatformUniqueKey))) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + clientPlatformUniqueKey))) {
             redisTemplate.opsForHash().entries(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + clientPlatformUniqueKey)
                     .forEach((key, value) -> map.put(key.toString(), Boolean.valueOf(value.toString())));
         }
@@ -45,7 +45,7 @@ public class CacheServiceImpl implements CacheService {
     public Map<String, Boolean> getClientPlatformLoginState(String clientPlatformUniqueKey) {
         logger.debug("获取客户端平台[{}]登录状态", clientPlatformUniqueKey);
         Map<String, Boolean> map = new HashMap<>();
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + clientPlatformUniqueKey))) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + clientPlatformUniqueKey))) {
             redisTemplate.opsForHash().entries(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + clientPlatformUniqueKey)
                     .forEach((key, value) -> map.put(key.toString(), Boolean.valueOf(value.toString())));
         }
