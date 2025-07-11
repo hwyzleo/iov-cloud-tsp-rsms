@@ -44,6 +44,12 @@ public class ClientPlatformLoginHistoryPo extends BasePo {
     private Long clientPlatformId;
 
     /**
+     * 主机名
+     */
+    @TableField("hostname")
+    private String hostname;
+
+    /**
      * 登录时间
      */
     @TableField("login_time")

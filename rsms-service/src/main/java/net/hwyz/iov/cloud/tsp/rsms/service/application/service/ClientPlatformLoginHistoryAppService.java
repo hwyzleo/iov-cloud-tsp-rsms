@@ -6,6 +6,8 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ClientP
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 客户端平台登录历史应用服务类
  *
@@ -26,6 +28,18 @@ public class ClientPlatformLoginHistoryAppService {
      */
     public ClientPlatformLoginHistoryPo getLastLoginHistory(Long clientPlatformId) {
         return clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatformId);
+    }
+
+    /**
+     * 获取客户端平台登录历史
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 登录历史
+     */
+    public List<ClientPlatformLoginHistoryPo> listLoginHistory(Long clientPlatformId) {
+        return clientPlatformLoginHistoryDao.selectPoByExample(ClientPlatformLoginHistoryPo.builder()
+                .clientPlatformId(clientPlatformId)
+                .build());
     }
 
 }

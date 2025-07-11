@@ -21,6 +21,14 @@ public interface ClientPlatformMptApi {
     TableDataInfo list(ClientPlatformMpt clientPlatform);
 
     /**
+     * 分页查询客户端平台登录历史
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 客户端平台登录历史列表
+     */
+    TableDataInfo listLoginHistory(Long clientPlatformId);
+
+    /**
      * 导出客户端平台
      *
      * @param response       响应

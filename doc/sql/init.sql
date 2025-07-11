@@ -52,6 +52,7 @@ CREATE TABLE `db_rsms`.`tb_client_platform_login_history`
 (
     `id`                 BIGINT    NOT NULL AUTO_INCREMENT COMMENT '主键',
     `client_platform_id` BIGINT    NOT NULL COMMENT '客户端平台主键',
+    `hostname`           VARCHAR(255)       DEFAULT NULL COMMENT '主机名',
     `login_time`         TIMESTAMP          DEFAULT NULL COMMENT '登录时间',
     `login_sn`           INT                DEFAULT NULL COMMENT '登录流水号',
     `login_result`       TINYINT            DEFAULT NULL COMMENT '登录结果',

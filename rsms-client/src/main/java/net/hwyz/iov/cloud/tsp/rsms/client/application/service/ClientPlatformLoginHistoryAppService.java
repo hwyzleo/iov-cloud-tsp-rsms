@@ -31,6 +31,7 @@ public class ClientPlatformLoginHistoryAppService {
         if (ObjUtil.isNull(history) || history.getLoginSn() != clientPlatform.getLoginSn()) {
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
                     .clientPlatformId(clientPlatform.getId())
+                    .hostname(clientPlatform.getCurrentHostname())
                     .loginTime(clientPlatform.getLoginTime())
                     .loginSn(clientPlatform.getLoginSn())
                     .loginResult(clientPlatform.getLoginState().get())
@@ -55,6 +56,7 @@ public class ClientPlatformLoginHistoryAppService {
             logger.warn("记录客户端平台[{}]登出历史异常[无对应登录记录]", clientPlatform.getUniqueKey());
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
                     .clientPlatformId(clientPlatform.getId())
+                    .hostname(clientPlatform.getCurrentHostname())
                     .loginTime(clientPlatform.getLoginTime())
                     .loginSn(clientPlatform.getLoginSn())
                     .loginResult(clientPlatform.getLoginState().get())
@@ -62,16 +64,6 @@ public class ClientPlatformLoginHistoryAppService {
                     .failureCount(clientPlatform.getFailureCount().get())
                     .build());
         }
-    }
-
-    /**
-     * 获取客户端平台最后登录历史
-     *
-     * @param clientPlatformId 客户端平台ID
-     * @return 客户端平台登录历史
-     */
-    public ClientPlatformLoginHistoryPo getLastLoginHistory(Long clientPlatformId) {
-        return clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatformId);
     }
 
 }

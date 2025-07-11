@@ -10,13 +10,17 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformLoginHistoryMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformLoginHistoryMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +42,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     private final CacheService cacheService;
     private final ClientPlatformAppService clientPlatformAppService;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
+    private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
      * 分页查询客户端平台
@@ -64,6 +69,23 @@ public class ClientPlatformMptController extends BaseController implements Clien
             clientPlatformMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
         });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
+    }
+
+    /**
+     * 分页查询客户端平台登录历史
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 客户端平台登录历史列表
+     */
+    @RequiresPermissions("iov:rsms:clientPlatform:listLoginHistory")
+    @Override
+    @GetMapping(value = "/{clientPlatformId}/loginHistory")
+    public TableDataInfo listLoginHistory(@PathVariable Long clientPlatformId) {
+        logger.info("管理后台用户[{}]分页查询客户端平台登录历史", SecurityUtils.getUsername());
+        startPage();
+        List<ClientPlatformLoginHistoryPo> loginHistoryPoList = clientPlatformLoginHistoryAppService.listLoginHistory(clientPlatformId);
+        List<ClientPlatformLoginHistoryMpt> clientPlatformLoginHistoryMptList = ClientPlatformLoginHistoryMptAssembler.INSTANCE.fromPoList(loginHistoryPoList);
+        return getDataTable(loginHistoryPoList, clientPlatformLoginHistoryMptList);
     }
 
     /**
