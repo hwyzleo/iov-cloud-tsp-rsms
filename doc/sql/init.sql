@@ -77,6 +77,7 @@ CREATE TABLE `db_rsms`.`tb_registered_vehicle`
     `id`                   BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
     `server_platform_code` VARCHAR(20) NOT NULL COMMENT '服务端平台代码',
     `vin`                  VARCHAR(20) NOT NULL COMMENT '车架号',
+    `report_state`         SMALLINT    NOT NULL DEFAULT 0 COMMENT '上报状态：0-正常上报，1-维修保养',
     `iccid`                VARCHAR(50)          DEFAULT NULL COMMENT '车载终端所使用SIM卡ICCID编号',
     `model`                VARCHAR(255)         DEFAULT NULL COMMENT '车辆备案时所用车辆型号',
     `drive_motor_type`     VARCHAR(255)         DEFAULT NULL COMMENT '驱动电机在整车中的布置型式及位置，如轮边电机、轮毂电机、前后双电机等',

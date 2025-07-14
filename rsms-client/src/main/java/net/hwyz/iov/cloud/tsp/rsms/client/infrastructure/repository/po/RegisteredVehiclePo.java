@@ -46,6 +46,12 @@ public class RegisteredVehiclePo extends BasePo {
     private String vin;
 
     /**
+     * 上报状态
+     */
+    @TableField("report_state")
+    private Integer reportState;
+
+    /**
      * 车载终端所使用SIM卡ICCID编号
      */
     @TableField("iccid")

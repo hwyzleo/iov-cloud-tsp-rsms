@@ -26,7 +26,7 @@ public class ServerPlatformAppService {
      */
     public void syncVehicleSet() {
         serverPlatformRepository.getAll().forEach(serverPlatform -> {
-            Set<String> vehicleSet = registeredVehicleDao.selectVinByServerPlatformCode(serverPlatform.getCode());
+            Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(serverPlatform.getCode());
             serverPlatform.syncVehicleSet(vehicleSet);
             serverPlatformRepository.save(serverPlatform);
         });

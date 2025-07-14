@@ -3,14 +3,14 @@ package net.hwyz.iov.cloud.tsp.rsms.service.application.service;
 import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.VehicleReportState;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 服务端平台已注册车辆应用服务类
@@ -23,6 +23,8 @@ import java.util.Map;
 public class RegisteredVehicleAppService {
 
     private final RegisteredVehicleDao registeredVehicleDao;
+    private final ClientPlatformAppService clientPlatformAppService;
+    private final ClientPlatformCmdProducer clientPlatformCmdProducer;
 
     /**
      * 查询已注册车辆
@@ -107,6 +109,26 @@ public class RegisteredVehicleAppService {
      */
     public int deleteRegisteredVehicleByIds(Long[] ids) {
         return registeredVehicleDao.batchPhysicalDeletePo(ids);
+    }
+
+    /**
+     * 修改车辆上报状态
+     *
+     * @param vin                车架号
+     * @param vehicleReportState 车辆上报状态
+     */
+    public void changeReportState(String vin, VehicleReportState vehicleReportState) {
+        Set<String> serverPlatformCodes = new HashSet<>();
+        registeredVehicleDao.selectPoByExample(RegisteredVehiclePo.builder().vin(vin).build()).forEach(vehicle -> {
+            vehicle.setReportState(vehicleReportState.getCode());
+            registeredVehicleDao.updatePo(vehicle);
+            serverPlatformCodes.add(vehicle.getServerPlatformCode());
+        });
+        serverPlatformCodes.forEach(serverPlatformCode -> {
+            clientPlatformAppService.listByServerPlatformCode(serverPlatformCode).forEach(clientPlatform -> {
+                clientPlatformCmdProducer.send(clientPlatform.getId(), ClientPlatformCmd.SYNC_VEHICLE);
+            });
+        });
     }
 
 }

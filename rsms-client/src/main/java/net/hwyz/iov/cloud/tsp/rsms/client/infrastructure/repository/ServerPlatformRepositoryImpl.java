@@ -43,7 +43,7 @@ public class ServerPlatformRepositoryImpl extends AbstractRepository<String, Ser
                         logger.warn("未找到服务端平台[{}]", code);
                         return null;
                     }
-                    Set<String> vehicleSet = registeredVehicleDao.selectVinByServerPlatformCode(code);
+                    Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(code);
                     ServerPlatformDo serverPlatform = factory.build(serverPlatformPo, vehicleSet);
                     save(serverPlatform);
                     return serverPlatform;
@@ -65,7 +65,7 @@ public class ServerPlatformRepositoryImpl extends AbstractRepository<String, Ser
         serverPlatformDao.selectPoByExample(ServerPlatformPo.builder().build()).forEach(po -> {
             list.add(cacheService.getServerPlatform(po.getCode())
                     .orElseGet(() -> {
-                        Set<String> vehicleSet = registeredVehicleDao.selectVinByServerPlatformCode(po.getCode());
+                        Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(po.getCode());
                         ServerPlatformDo serverPlatform = factory.build(po, vehicleSet);
                         save(serverPlatform);
                         return serverPlatform;

@@ -14,6 +14,7 @@
         <result column="row_valid" property="rowValid" />
         <result column="server_platform_code" property="serverPlatformCode" />
         <result column="vin" property="vin" />
+        <result column="report_state" property="reportState" />
         <result column="iccid" property="iccid" />
         <result column="model" property="model" />
         <result column="drive_motor_type" property="driveMotorType" />
@@ -32,18 +33,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, server_platform_code, vin, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque, 
+        id, server_platform_code, vin, report_state, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_registered_vehicle (
-            id, server_platform_code, vin, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque, 
+            id, server_platform_code, vin, report_state, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{serverPlatformCode}, #{vin}, #{iccid}, #{model}, #{driveMotorType}, #{maxSpeed}, #{evRange}, #{gearRatio}, #{batteryParam}, #{driveMotorParam}, #{alarmDefault}, #{engineSn}, #{fuelType}, #{fuelMark}, #{engineMaxPower}, #{engineMaxTorque}, 
+            #{id}, #{serverPlatformCode}, #{vin}, #{reportState}, #{iccid}, #{model}, #{driveMotorType}, #{maxSpeed}, #{evRange}, #{gearRatio}, #{batteryParam}, #{driveMotorParam}, #{alarmDefault}, #{engineSn}, #{fuelType}, #{fuelMark}, #{engineMaxPower}, #{engineMaxTorque},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -51,13 +52,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_registered_vehicle (
-            id, server_platform_code, vin, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque, 
+            id, server_platform_code, vin, report_state, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.serverPlatformCode}, #{item.vin}, #{item.iccid}, #{item.model}, #{item.driveMotorType}, #{item.maxSpeed}, #{item.evRange}, #{item.gearRatio}, #{item.batteryParam}, #{item.driveMotorParam}, #{item.alarmDefault}, #{item.engineSn}, #{item.fuelType}, #{item.fuelMark}, #{item.engineMaxPower}, #{item.engineMaxTorque}, 
+            #{item.id}, #{item.serverPlatformCode}, #{item.vin}, #{item.reportState}, #{item.iccid}, #{item.model}, #{item.driveMotorType}, #{item.maxSpeed}, #{item.evRange}, #{item.gearRatio}, #{item.batteryParam}, #{item.driveMotorParam}, #{item.alarmDefault}, #{item.engineSn}, #{item.fuelType}, #{item.fuelMark}, #{item.engineMaxPower}, #{item.engineMaxTorque},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -71,6 +72,9 @@
         </if>
         <if test="vin != null and vin != ''">
             t.vin = #{vin},
+        </if>
+        <if test="reportState != null">
+            t.report_state = #{reportState},
         </if>
         <if test="iccid != null and iccid != ''">
             t.iccid = #{iccid},
@@ -171,6 +175,9 @@
         <if test="vin != null and vin != ''">
             AND t.vin = #{vin}
         </if>
+        <if test="reportState != null">
+            AND t.report_state = #{reportState}
+        </if>
         <if test="iccid != null and iccid != ''">
             AND t.iccid = #{iccid}
         </if>
@@ -255,11 +262,12 @@
         ORDER BY t.id DESC
     </select>
 
-    <!-- 根据服务端平台代码查询已注册车辆 -->
-    <select id="selectVinByServerPlatformCode" parameterType="string" resultType="string">
+    <!-- 根据服务端平台代码查询可上报的已注册车辆 -->
+    <select id="selectReportVinByServerPlatformCode" parameterType="string" resultType="string">
         SELECT t.vin
         FROM tb_registered_vehicle t
         WHERE t.server_platform_code = #{serverPlatformCode}
+        AND t.report_state = 0
         AND t.row_valid = 1
     </select>
 

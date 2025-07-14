@@ -95,7 +95,7 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     @Override
     public void syncVehicle(ClientPlatformDo clientPlatform) {
         ServerPlatformDo serverPlatform = clientPlatform.getServerPlatform();
-        Set<String> vehicleSet = registeredVehicleDao.selectVinByServerPlatformCode(serverPlatform.getCode());
+        Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(serverPlatform.getCode());
         serverPlatform.syncVehicleSet(vehicleSet);
         serverPlatformRepository.save(serverPlatform);
     }
