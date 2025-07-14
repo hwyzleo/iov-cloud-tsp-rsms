@@ -5,7 +5,7 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.system.SystemUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.publish.ClientPlatformCmdPublish;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,8 +61,8 @@ public class ClientPlatformCmdConsumer {
                         clientPlatformId = Long.valueOf(new String(record.key()));
                         clientPlatformRepository.getById(clientPlatformId).ifPresent(clientPlatform -> {
                             JSONObject json = JSONUtil.parseObj(new String(record.value()));
-                            if (clientPlatform.getCurrentHostname().equalsIgnoreCase(json.getStr("hostname"))) {
-                                clientPlatformCmdPublish.sendPlatformCmd(clientPlatform, CommandFlag.valOf(json.getStr("commandFlag")));
+                            if (clientPlatform.matchHostname(json.getStr("hostname"))) {
+                                clientPlatformCmdPublish.sendPlatformCmd(clientPlatform, ClientPlatformCmd.valOf(json.getStr("cmd")));
                             }
                         });
                     } catch (Exception e) {

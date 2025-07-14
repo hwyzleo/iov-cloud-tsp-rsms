@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.client.application.event.event;
 
 import lombok.Getter;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 
 /**
@@ -17,14 +17,14 @@ public class ClientPlatformCmdEvent extends BaseEvent {
      */
     private final ClientPlatformDo clientPlatform;
     /**
-     * 命令标识
+     * 客户端平台命令
      */
-    private final CommandFlag commandFlag;
+    private final ClientPlatformCmd cmd;
 
-    public ClientPlatformCmdEvent(ClientPlatformDo clientPlatform, CommandFlag commandFlag) {
+    public ClientPlatformCmdEvent(ClientPlatformDo clientPlatform, ClientPlatformCmd cmd) {
         super();
         this.clientPlatform = clientPlatform;
-        this.commandFlag = commandFlag;
+        this.cmd = cmd;
     }
 
 }

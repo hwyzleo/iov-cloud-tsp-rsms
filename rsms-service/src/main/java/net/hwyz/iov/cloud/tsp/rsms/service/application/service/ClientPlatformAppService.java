@@ -24,16 +24,28 @@ public class ClientPlatformAppService {
     private final ClientPlatformDao clientPlatformDao;
 
     /**
-     * 查询客户端平台
+     * 根据服务端平台编码查询客户端平台
      *
-     * @param uniqueCode 唯一识别码
-     * @param beginTime  开始时间
-     * @param endTime    结束时间
+     * @param serverPlatformCode 服务端平台编码
      * @return 客户端平台列表
      */
-    public List<ClientPlatformPo> search(String uniqueCode, Date beginTime, Date endTime) {
+    public List<ClientPlatformPo> listByServerPlatformCode(String serverPlatformCode) {
+        return search(null, serverPlatformCode, null, null);
+    }
+
+    /**
+     * 查询客户端平台
+     *
+     * @param uniqueCode         唯一识别码
+     * @param serverPlatformCode 服务端平台编码
+     * @param beginTime          开始时间
+     * @param endTime            结束时间
+     * @return 客户端平台列表
+     */
+    public List<ClientPlatformPo> search(String uniqueCode, String serverPlatformCode, Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("uniqueCode", uniqueCode);
+        map.put("serverPlatformCode", serverPlatformCode);
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);
         return clientPlatformDao.selectPoByMap(map);

@@ -6,6 +6,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.BaseDo;
 import net.hwyz.iov.cloud.framework.common.domain.DomainObj;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ProtocolMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ProtocolPackager;
@@ -148,6 +149,37 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     public void bindHostname(String hostname) {
         this.currentHostname = hostname;
         stateChange();
+    }
+
+    /**
+     * 检查传入主机名是否满足当前主机名绑定限制主机名范围
+     *
+     * @param hostname 主机名
+     * @return true:满足,false:不满足
+     */
+    public boolean checkHostname(String hostname) {
+        boolean isMatch = true;
+        if (StrUtil.isNotBlank(this.hostname)) {
+            isMatch = false;
+            for (String h : this.hostname.split(",")) {
+                if (h.equalsIgnoreCase(hostname)) {
+                    isMatch = true;
+                    break;
+                }
+            }
+        }
+        return isMatch;
+    }
+
+    /**
+     * 检查传入主机名是否匹配当前主机名
+     * this.hostname或hostname为空时说明无需匹配
+     *
+     * @param hostname 主机名
+     * @return true:匹配成功,false:匹配失败
+     */
+    public boolean matchHostname(String hostname) {
+        return StrUtil.isBlank(this.hostname) || StrUtil.isBlank(hostname) || this.currentHostname.equalsIgnoreCase(hostname);
     }
 
     /**

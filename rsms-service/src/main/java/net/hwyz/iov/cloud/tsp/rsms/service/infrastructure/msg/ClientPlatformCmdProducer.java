@@ -3,7 +3,7 @@ package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
 
@@ -31,16 +31,26 @@ public class ClientPlatformCmdProducer {
      * 发送客户端平台指令
      *
      * @param clientPlatformId 客户端平台ID
-     * @param hostname         客户端平台主机名
-     * @param commandFlag      指令标识
+     * @param cmd              客户端平台指令
      */
-    public void send(Long clientPlatformId, String hostname, CommandFlag commandFlag) {
+    public void send(Long clientPlatformId, ClientPlatformCmd cmd) {
+        send(clientPlatformId, null, cmd);
+    }
+
+    /**
+     * 发送客户端平台指令
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @param hostname         客户端平台主机名
+     * @param cmd              客户端平台指令
+     */
+    public void send(Long clientPlatformId, String hostname, ClientPlatformCmd cmd) {
         Map<String, Object> map = new HashMap<>();
         map.put("clientPlatformId", clientPlatformId);
         map.put("hostname", hostname);
-        map.put("commandFlag", commandFlag.name());
+        map.put("cmd", cmd.name());
         String jsonStr = JSONUtil.toJsonStr(map);
-        logger.debug("发送客户端平台[{}:{}]指令[{}]", clientPlatformId, hostname, commandFlag);
+        logger.debug("发送客户端平台[{}:{}]指令[{}]", clientPlatformId, hostname, cmd);
         stringReactiveKafkaProducerTemplate.send(TOPIC_CLIENT_PLATFORM_CMD, String.valueOf(clientPlatformId), jsonStr)
                 .doOnError(throwable -> logger.error("发送客户端平台[{}:{}]指令[{}]异常[{}]", clientPlatformId, hostname, jsonStr, throwable.getMessage()))
                 .subscribe();

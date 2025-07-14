@@ -24,10 +24,12 @@ public class GbMessagePublish {
     /**
      * 发送车辆国标消息
      *
-     * @param gbMessage 国标消息
+     * @param clientPlatformId 客户端平台ID
+     * @param vin              车架号
+     * @param gbMessage        国标消息
      */
-    public void sendVehicleData(String vin, GbMessage gbMessage) {
-        ctx.publishEvent(new VehicleGbMessageEvent(vin, gbMessage));
+    public void sendVehicleData(Long clientPlatformId, String vin, GbMessage gbMessage) {
+        ctx.publishEvent(new VehicleGbMessageEvent(clientPlatformId, vin, gbMessage));
     }
 
 }

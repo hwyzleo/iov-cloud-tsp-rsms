@@ -4,7 +4,6 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.system.SystemUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.VehicleGbMessageEvent;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
@@ -45,8 +44,7 @@ public class ClientPlatformManager {
      */
     private void start(ClientPlatformDo clientPlatform) {
         String hostname = SystemUtil.getHostInfo().getName();
-        if (!checkHostname(hostname, clientPlatform.getHostname())) {
-            // 主机名不匹配则跳过
+        if (!clientPlatform.checkHostname(hostname)) {
             return;
         }
         clientPlatform.bindHostname(hostname);
@@ -76,34 +74,13 @@ public class ClientPlatformManager {
     }
 
     /**
-     * 检查主机名
-     *
-     * @param localHostname 本地主机名
-     * @param bindHostname  绑定主机名
-     * @return true:匹配成功
-     */
-    private boolean checkHostname(String localHostname, String bindHostname) {
-        boolean isMatch = true;
-        if (StrUtil.isNotBlank(bindHostname)) {
-            isMatch = false;
-            for (String hostname : bindHostname.split(",")) {
-                if (hostname.equalsIgnoreCase(localHostname)) {
-                    isMatch = true;
-                    break;
-                }
-            }
-        }
-        return isMatch;
-    }
-
-    /**
      * 订阅车辆国标消息事件
      *
      * @param event 车辆国标消息事件
      */
     @EventListener
     public void onVehicleGbMessageEvent(VehicleGbMessageEvent event) {
-        clientPlatformRepository.getAllStarted().forEach(clientPlatform -> {
+        clientPlatformRepository.getById(event.getClientPlatformId()).ifPresent(clientPlatform -> {
             if (clientPlatform.isLogin()) {
                 clientPlatform.send(event.getGbMessage());
             }

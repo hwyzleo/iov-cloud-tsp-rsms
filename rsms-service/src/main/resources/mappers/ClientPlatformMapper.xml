@@ -173,6 +173,9 @@
         <if test="uniqueCode != null and uniqueCode != ''">
             AND t.unique_code = #{uniqueCode}
         </if>
+        <if test="serverPlatformCode != null and serverPlatformCode != ''">
+            AND t.server_platform_code = #{serverPlatformCode}
+        </if>
         <if test="beginTime != null">
             AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
         </if>

@@ -12,6 +12,10 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 public class VehicleGbMessageEvent extends BaseEvent {
 
     /**
+     * 客户端平台ID
+     */
+    private final Long clientPlatformId;
+    /**
      * 车架号
      */
     private final String vin;
@@ -20,8 +24,9 @@ public class VehicleGbMessageEvent extends BaseEvent {
      */
     private final GbMessage gbMessage;
 
-    public VehicleGbMessageEvent(String vin, GbMessage gbMessage) {
+    public VehicleGbMessageEvent(Long clientPlatformId, String vin, GbMessage gbMessage) {
         super();
+        this.clientPlatformId = clientPlatformId;
         this.vin = vin;
         this.gbMessage = gbMessage;
     }

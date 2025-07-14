@@ -5,21 +5,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.audit.annotation.Log;
 import net.hwyz.iov.cloud.framework.audit.enums.BusinessType;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.framework.common.web.controller.BaseController;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ServerPlatformMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ServerPlatformMptApi;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.RegisteredVehicleAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ServerPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ServerPlatformMptAssembler;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 服务端平台相关管理接口实现类
@@ -33,6 +39,8 @@ import java.util.List;
 public class ServerPlatformMptController extends BaseController implements ServerPlatformMptApi {
 
     private final ServerPlatformAppService serverPlatformAppService;
+    private final ClientPlatformAppService clientPlatformAppService;
+    private final ClientPlatformCmdProducer clientPlatformCmdProducer;
     private final RegisteredVehicleAppService registeredVehicleAppService;
 
     /**
@@ -95,8 +103,11 @@ public class ServerPlatformMptController extends BaseController implements Serve
     @GetMapping(value = "/{serverPlatformId}")
     public AjaxResult getInfo(@PathVariable Long serverPlatformId) {
         logger.info("管理后台用户[{}]根据服务端平台ID[{}]获取服务端平台", SecurityUtils.getUsername(), serverPlatformId);
-        ServerPlatformPo serverPlatformPo = serverPlatformAppService.getServerPlatformById(serverPlatformId);
-        return success(ServerPlatformMptAssembler.INSTANCE.fromPo(serverPlatformPo));
+        Optional<ServerPlatformPo> serverPlatformOptional = serverPlatformAppService.getServerPlatformById(serverPlatformId);
+        if (serverPlatformOptional.isEmpty()) {
+            return error(StrUtil.format("服务端平台[{}]不存在", serverPlatformId));
+        }
+        return success(ServerPlatformMptAssembler.INSTANCE.fromPo(serverPlatformOptional.get()));
     }
 
     /**
@@ -112,7 +123,7 @@ public class ServerPlatformMptController extends BaseController implements Serve
     public AjaxResult add(@Validated @RequestBody ServerPlatformMpt serverPlatform) {
         logger.info("管理后台用户[{}]新增服务端平台[{}]", SecurityUtils.getUsername(), serverPlatform.getCode());
         if (!serverPlatformAppService.checkCodeUnique(serverPlatform.getId(), serverPlatform.getCode())) {
-            return error("新增服务端平台'" + serverPlatform.getCode() + "'失败，服务端平台代码已存在");
+            return error(StrUtil.format("新增服务端平台[{}]失败，服务端平台代码已存在", serverPlatform.getCode()));
         }
         ServerPlatformPo serverPlatformPo = ServerPlatformMptAssembler.INSTANCE.toPo(serverPlatform);
         serverPlatformPo.setCreateBy(SecurityUtils.getUserId().toString());
@@ -132,7 +143,7 @@ public class ServerPlatformMptController extends BaseController implements Serve
     public AjaxResult edit(@Validated @RequestBody ServerPlatformMpt serverPlatform) {
         logger.info("管理后台用户[{}]修改保存服务端平台[{}]", SecurityUtils.getUsername(), serverPlatform.getCode());
         if (!serverPlatformAppService.checkCodeUnique(serverPlatform.getId(), serverPlatform.getCode())) {
-            return error("修改保存服务端平台'" + serverPlatform.getCode() + "'失败，服务端平台代码已存在");
+            return error(StrUtil.format("修改保存服务端平台[{}]失败，服务端平台代码已存在", serverPlatform.getCode()));
         }
         ServerPlatformPo serverPlatformPo = ServerPlatformMptAssembler.INSTANCE.toPo(serverPlatform);
         serverPlatformPo.setModifyBy(SecurityUtils.getUserId().toString());
@@ -154,4 +165,23 @@ public class ServerPlatformMptController extends BaseController implements Serve
         return toAjax(serverPlatformAppService.deleteServerPlatformByIds(serverPlatformIds));
     }
 
+    /**
+     * 同步已注册车辆
+     *
+     * @param serverPlatformId 服务端平台ID
+     * @return 结果
+     */
+    @RequiresPermissions("iov:rsms:serverPlatform:syncVehicle")
+    @Override
+    @PostMapping("/{serverPlatformId}/action/syncVehicle")
+    public AjaxResult syncVehicle(@PathVariable Long serverPlatformId) {
+        logger.info("管理后台用户[{}]同步服务端平台[{}]已注册车辆", SecurityUtils.getUsername(), serverPlatformId);
+        Optional<ServerPlatformPo> serverPlatformOptional = serverPlatformAppService.getServerPlatformById(serverPlatformId);
+        if (serverPlatformOptional.isEmpty()) {
+            return error(StrUtil.format("服务端平台[{}]不存在", serverPlatformId));
+        }
+        List<ClientPlatformPo> clientPlatformList = clientPlatformAppService.listByServerPlatformCode(serverPlatformOptional.get().getCode());
+        clientPlatformList.forEach(clientPlatformPo -> clientPlatformCmdProducer.send(clientPlatformPo.getId(), ClientPlatformCmd.SYNC_VEHICLE));
+        return toAjax(clientPlatformList.size());
+    }
 }

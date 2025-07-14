@@ -8,10 +8,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ServerP
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 服务端平台应用服务类
@@ -56,8 +53,8 @@ public class ServerPlatformAppService {
         if (ObjUtil.isNull(serverPlatformId)) {
             serverPlatformId = -1L;
         }
-        ServerPlatformPo serverPlatformPo = getServerPlatformByCode(code);
-        return !ObjUtil.isNotNull(serverPlatformPo) || serverPlatformPo.getId().longValue() == serverPlatformId.longValue();
+        Optional<ServerPlatformPo> serverPlatformPo = getServerPlatformByCode(code);
+        return serverPlatformPo.isEmpty() || serverPlatformPo.get().getId().longValue() == serverPlatformId.longValue();
     }
 
     /**
@@ -66,8 +63,8 @@ public class ServerPlatformAppService {
      * @param id 主键ID
      * @return 服务端平台
      */
-    public ServerPlatformPo getServerPlatformById(Long id) {
-        return serverPlatformDao.selectPoById(id);
+    public Optional<ServerPlatformPo> getServerPlatformById(Long id) {
+        return Optional.ofNullable(serverPlatformDao.selectPoById(id));
     }
 
     /**
@@ -76,8 +73,8 @@ public class ServerPlatformAppService {
      * @param code 服务端平台代码
      * @return 服务端平台
      */
-    public ServerPlatformPo getServerPlatformByCode(String code) {
-        return serverPlatformDao.selectPoByCode(code);
+    public Optional<ServerPlatformPo> getServerPlatformByCode(String code) {
+        return Optional.ofNullable(serverPlatformDao.selectPoByCode(code));
     }
 
     /**

@@ -12,7 +12,7 @@ import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformLoginHistoryMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
@@ -57,7 +57,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
         logger.info("管理后台用户[{}]分页查询客户端平台", SecurityUtils.getUsername());
         startPage();
         List<ClientPlatformPo> clientPlatformPoList = clientPlatformAppService.search(clientPlatform.getUniqueCode(),
-                getBeginTime(clientPlatform), getEndTime(clientPlatform));
+                clientPlatform.getServerPlatformCode(), getBeginTime(clientPlatform), getEndTime(clientPlatform));
         List<ClientPlatformMpt> clientPlatformMptList = ClientPlatformMptAssembler.INSTANCE.fromPoList(clientPlatformPoList);
         clientPlatformMptList.forEach(clientPlatformMpt -> {
             String uniqueKey = clientPlatformMpt.getServerPlatformCode() + "-" + clientPlatformMpt.getUniqueCode();
@@ -179,7 +179,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @PostMapping("/{clientPlatformId}/action/login")
     public AjaxResult login(@PathVariable Long clientPlatformId, @RequestParam String hostname) {
         logger.info("管理后台用户[{}]操作客户端平台[{}:{}]登录", SecurityUtils.getUsername(), clientPlatformId, hostname);
-        clientPlatformCmdProducer.send(clientPlatformId, hostname, CommandFlag.PLATFORM_LOGIN);
+        clientPlatformCmdProducer.send(clientPlatformId, hostname, ClientPlatformCmd.LOGIN);
         return toAjax(1);
     }
 
@@ -196,7 +196,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @PostMapping("/{clientPlatformId}/action/logout")
     public AjaxResult logout(@PathVariable Long clientPlatformId, @RequestParam String hostname) {
         logger.info("管理后台用户[{}]操作客户端平台[{}:{}]登出", SecurityUtils.getUsername(), clientPlatformId, hostname);
-        clientPlatformCmdProducer.send(clientPlatformId, hostname, CommandFlag.PLATFORM_LOGOUT);
+        clientPlatformCmdProducer.send(clientPlatformId, hostname, ClientPlatformCmd.LOGOUT);
         return toAjax(1);
     }
 }

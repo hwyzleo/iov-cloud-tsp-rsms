@@ -12,12 +12,14 @@ public interface PlatformHandler {
 
     /**
      * 连接成功
+     *
      * @param clientPlatform 客户端平台
      */
     void connectSuccess(ClientPlatformDo clientPlatform);
 
     /**
      * 连接失败
+     *
      * @param clientPlatform 客户端平台
      */
     void connectFailure(ClientPlatformDo clientPlatform);
@@ -63,5 +65,12 @@ public interface PlatformHandler {
      * @param clientPlatform 客户端平台
      */
     void logoutFailure(ClientPlatformDo clientPlatform);
+
+    /**
+     * 同步车辆
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void syncVehicle(ClientPlatformDo clientPlatform);
 
 }
