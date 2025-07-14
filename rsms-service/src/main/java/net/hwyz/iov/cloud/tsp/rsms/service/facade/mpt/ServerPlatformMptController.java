@@ -166,6 +166,26 @@ public class ServerPlatformMptController extends BaseController implements Serve
     }
 
     /**
+     * 同步平台信息
+     *
+     * @param serverPlatformId 服务端平台ID
+     * @return 结果
+     */
+    @RequiresPermissions("iov:rsms:serverPlatform:syncPlatform")
+    @Override
+    @PostMapping("/{serverPlatformId}/action/syncPlatform")
+    public AjaxResult syncPlatform(@PathVariable Long serverPlatformId) {
+        logger.info("管理后台用户[{}]同步服务端平台[{}]平台信息", SecurityUtils.getUsername(), serverPlatformId);
+        Optional<ServerPlatformPo> serverPlatformOptional = serverPlatformAppService.getServerPlatformById(serverPlatformId);
+        if (serverPlatformOptional.isEmpty()) {
+            return error(StrUtil.format("服务端平台[{}]不存在", serverPlatformId));
+        }
+        List<ClientPlatformPo> clientPlatformList = clientPlatformAppService.listByServerPlatformCode(serverPlatformOptional.get().getCode());
+        clientPlatformList.forEach(clientPlatformPo -> clientPlatformCmdProducer.send(clientPlatformPo.getId(), ClientPlatformCmd.SYNC_PLATFORM));
+        return toAjax(clientPlatformList.size());
+    }
+
+    /**
      * 同步已注册车辆
      *
      * @param serverPlatformId 服务端平台ID

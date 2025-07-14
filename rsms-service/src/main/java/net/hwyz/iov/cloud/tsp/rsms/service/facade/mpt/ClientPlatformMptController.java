@@ -167,6 +167,21 @@ public class ClientPlatformMptController extends BaseController implements Clien
     }
 
     /**
+     * 同步平台信息
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 结果
+     */
+    @RequiresPermissions("iov:rsms:clientPlatform:syncPlatform")
+    @Override
+    @PostMapping(value = "/{clientPlatformId}/action/syncPlatform")
+    public AjaxResult syncPlatform(@PathVariable Long clientPlatformId) {
+        logger.info("管理后台用户[{}]同步客户端平台[{}]平台信息", SecurityUtils.getUsername(), clientPlatformId);
+        clientPlatformCmdProducer.send(clientPlatformId, ClientPlatformCmd.SYNC_PLATFORM);
+        return toAjax(1);
+    }
+
+    /**
      * 客户端平台登录
      *
      * @param clientPlatformId 客户端平台ID

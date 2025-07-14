@@ -67,6 +67,13 @@ public interface PlatformHandler {
     void logoutFailure(ClientPlatformDo clientPlatform);
 
     /**
+     * 同步平台信息
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void syncPlatform(ClientPlatformDo clientPlatform);
+
+    /**
      * 同步车辆
      *
      * @param clientPlatform 客户端平台

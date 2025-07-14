@@ -6,11 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ProtocolType;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.ClientPlatformCmdEvent;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.NettyClientConnectEvent;
-import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ClientPlatformLoginHistoryAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.PlatformHandler;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
-import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -24,10 +21,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component("gbPlatformHandler")
 public class GbPlatformHandler extends AbstractPlatformHandler implements PlatformHandler {
-
-    private final CacheService cacheService;
-    private final ClientPlatformRepository clientPlatformRepository;
-    private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
      * 登录重试最大次数
@@ -101,6 +94,7 @@ public class GbPlatformHandler extends AbstractPlatformHandler implements Platfo
             switch (event.getCmd()) {
                 case LOGIN -> login(clientPlatform);
                 case LOGOUT -> logout(clientPlatform);
+                case SYNC_PLATFORM -> syncPlatform(clientPlatform);
                 case SYNC_VEHICLE -> syncVehicle(clientPlatform);
             }
         }

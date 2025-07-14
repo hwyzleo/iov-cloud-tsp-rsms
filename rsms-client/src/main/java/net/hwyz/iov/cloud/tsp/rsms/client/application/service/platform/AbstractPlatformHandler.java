@@ -87,6 +87,12 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     }
 
     @Override
+    public void syncPlatform(ClientPlatformDo clientPlatform) {
+        cacheService.resetServerPlatform(clientPlatform.getServerPlatform().getCode());
+        cacheService.resetClientPlatform(clientPlatform.getId());
+    }
+
+    @Override
     public void syncVehicle(ClientPlatformDo clientPlatform) {
         ServerPlatformDo serverPlatform = clientPlatform.getServerPlatform();
         Set<String> vehicleSet = registeredVehicleDao.selectVinByServerPlatformCode(serverPlatform.getCode());

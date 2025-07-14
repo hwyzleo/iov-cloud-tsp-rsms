@@ -72,6 +72,12 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
+    public void resetServerPlatform(String serverPlatformCode) {
+        logger.debug("重置服务端平台[{}]缓存", serverPlatformCode);
+        serverPlatformCacheMap.remove(serverPlatformCode);
+    }
+
+    @Override
     public Optional<ClientPlatformDo> getClientPlatform(Long clientPlatformId) {
         logger.debug("获取客户端平台[{}]缓存", clientPlatformId);
         if (clientPlatformCacheMap.containsKey(clientPlatformId)) {
@@ -85,6 +91,12 @@ public class CacheServiceImpl implements CacheService {
     public void setClientPlatform(ClientPlatformDo clientPlatform) {
         logger.debug("设置客户端平台[{}]缓存", clientPlatform.getId());
         clientPlatformCacheMap.put(clientPlatform.getId(), clientPlatform);
+    }
+
+    @Override
+    public void resetClientPlatform(Long clientPlatformId) {
+        logger.debug("重置客户端平台[{}]缓存", clientPlatformId);
+        clientPlatformCacheMap.remove(clientPlatformId);
     }
 
     @Override

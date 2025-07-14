@@ -28,6 +28,13 @@ public interface CacheService {
     void setServerPlatform(ServerPlatformDo serverPlatform);
 
     /**
+     * 重置服务端平台
+     *
+     * @param serverPlatformCode 服务端平台代码
+     */
+    void resetServerPlatform(String serverPlatformCode);
+
+    /**
      * 获取客户端平台
      *
      * @param clientPlatformId 客户端平台ID
@@ -41,6 +48,13 @@ public interface CacheService {
      * @param clientPlatform 客户端平台
      */
     void setClientPlatform(ClientPlatformDo clientPlatform);
+
+    /**
+     * 重置客户端平台
+     *
+     * @param clientPlatformId 客户端平台ID
+     */
+    void resetClientPlatform(Long clientPlatformId);
 
     /**
      * 重置客户端平台相关状态

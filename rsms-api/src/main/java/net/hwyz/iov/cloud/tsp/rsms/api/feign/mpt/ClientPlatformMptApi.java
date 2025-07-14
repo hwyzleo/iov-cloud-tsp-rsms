@@ -69,6 +69,14 @@ public interface ClientPlatformMptApi {
     AjaxResult remove(Long[] clientPlatformIds);
 
     /**
+     * 同步平台信息
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 结果
+     */
+    AjaxResult syncPlatform(Long clientPlatformId);
+
+    /**
      * 客户端平台登录
      *
      * @param clientPlatformId 客户端平台ID

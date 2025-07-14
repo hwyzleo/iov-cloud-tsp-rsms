@@ -18,6 +18,8 @@ public enum ClientPlatformCmd {
     LOGIN,
     /** 平台登出 **/
     LOGOUT,
+    /** 同步平台 **/
+    SYNC_PLATFORM,
     /** 同步车辆 **/
     SYNC_VEHICLE;
 
