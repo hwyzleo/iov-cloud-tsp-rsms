@@ -46,7 +46,8 @@ public class RegisteredVehicleMptController extends BaseController implements Re
         logger.info("管理后台用户[{}]分页查询已注册车辆", SecurityUtils.getUsername());
         startPage();
         List<RegisteredVehiclePo> registeredVehiclePoList = registeredVehicleAppService.search(registeredVehicle.getVin(),
-                registeredVehicle.getServerPlatformCode(), getBeginTime(registeredVehicle), getEndTime(registeredVehicle));
+                registeredVehicle.getReportState(), registeredVehicle.getServerPlatformCode(), getBeginTime(registeredVehicle),
+                getEndTime(registeredVehicle));
         List<RegisteredVehicleMpt> registeredVehicleMptList = RegisteredVehicleMptAssembler.INSTANCE.fromPoList(registeredVehiclePoList);
         return getDataTable(registeredVehiclePoList, registeredVehicleMptList);
     }

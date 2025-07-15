@@ -27,17 +27,29 @@ public class RegisteredVehicleAppService {
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
 
     /**
+     * 根据服务端平台代码获取已注册车辆列表
+     *
+     * @param serverPlatformCode 服务端平台代码
+     * @return 已注册车辆列表
+     */
+    public List<RegisteredVehiclePo> listByServerPlatformCode(String serverPlatformCode) {
+        return search(null, null, serverPlatformCode, null, null);
+    }
+
+    /**
      * 查询已注册车辆
      *
      * @param vin                车架号
+     * @param reportState        车辆上报状态
      * @param serverPlatformCode 服务端平台代码
      * @param beginTime          开始时间
      * @param endTime            结束时间
      * @return 服务端平台列表
      */
-    public List<RegisteredVehiclePo> search(String vin, String serverPlatformCode, Date beginTime, Date endTime) {
+    public List<RegisteredVehiclePo> search(String vin, Integer reportState, String serverPlatformCode, Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("vin", vin);
+        map.put("reportState", reportState);
         map.put("serverPlatformCode", serverPlatformCode);
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);

@@ -59,7 +59,7 @@ public class ServerPlatformMptController extends BaseController implements Serve
                 serverPlatform.getType(), getBeginTime(serverPlatform), getEndTime(serverPlatform));
         List<ServerPlatformMpt> serverPlatformMptList = ServerPlatformMptAssembler.INSTANCE.fromPoList(serverPlatformPoList);
         serverPlatformMptList.forEach(serverPlatformMpt -> {
-            serverPlatformMpt.setVehicleCount(registeredVehicleAppService.search(null, serverPlatformMpt.getCode(), null, null).size());
+            serverPlatformMpt.setVehicleCount(registeredVehicleAppService.listByServerPlatformCode(serverPlatformMpt.getCode()).size());
         });
         return getDataTable(serverPlatformPoList, serverPlatformMptList);
     }

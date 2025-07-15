@@ -250,6 +250,9 @@
         <if test="vin != null and vin != ''">
             AND t.vin = #{vin}
         </if>
+        <if test="reportState != null">
+            AND t.report_state = #{reportState}
+        </if>
         <if test="serverPlatformCode != null and serverPlatformCode != ''">
             AND t.server_platform_code = #{serverPlatformCode}
         </if>

@@ -33,6 +33,11 @@ public class RegisteredVehicleMpt extends BaseRequest {
     private String vin;
 
     /**
+     * 上报状态
+     */
+    private Integer reportState;
+
+    /**
      * 车载终端所使用SIM卡ICCID编号
      */
     private String iccid;
