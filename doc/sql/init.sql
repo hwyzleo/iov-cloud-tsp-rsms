@@ -125,3 +125,24 @@ CREATE TABLE `db_rsms`.`tb_vehicle_gb_message`
     INDEX `idx_vin` (`vin`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='车辆国标消息';
+
+DROP TABLE IF EXISTS `db_rsms`.`tb_reissue_time_period`;
+CREATE TABLE `db_rsms`.`tb_reissue_time_period`
+(
+    `id`                 BIGINT    NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `client_platform_id` BIGINT    NOT NULL COMMENT '客户端平台ID',
+    `hostname`           VARCHAR(255)       DEFAULT NULL COMMENT '主机名',
+    `start_time`         TIMESTAMP NOT NULL COMMENT '平台中断开始时间',
+    `end_time`           TIMESTAMP          DEFAULT NULL COMMENT '平台中断结束时间',
+    `reissue_time`       TIMESTAMP          DEFAULT NULL COMMENT '补发开始时间',
+    `reissue_state`      SMALLINT  NOT NULL COMMENT '补发状态：0-未补发，1-正在补发，2-补发完成',
+    `description`        VARCHAR(255)       DEFAULT NULL COMMENT '备注',
+    `create_time`        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`          VARCHAR(64)        DEFAULT NULL COMMENT '创建者',
+    `modify_time`        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`          VARCHAR(64)        DEFAULT NULL COMMENT '修改者',
+    `row_version`        INT                DEFAULT 1 COMMENT '记录版本',
+    `row_valid`          TINYINT            DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='平台补发时间段';

@@ -76,7 +76,7 @@ public class GbPlatformHandler extends AbstractPlatformHandler implements Platfo
                 connectSuccess(clientPlatform);
                 login(clientPlatform);
             } else {
-                logout(clientPlatform);
+                logoutSuccess(clientPlatform);
                 connectFailure(clientPlatform);
             }
         }

@@ -4,12 +4,13 @@ import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ClientPlatformLoginHistoryAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.PlatformHandler;
+import net.hwyz.iov.cloud.tsp.rsms.client.application.service.RegisteredVehicleAppService;
+import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ReissueTimePeriodAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.ServerPlatformRepositoryImpl;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.RegisteredVehicleDao;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
@@ -23,11 +24,13 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     @Autowired
     private CacheService cacheService;
     @Autowired
-    private RegisteredVehicleDao registeredVehicleDao;
-    @Autowired
     private ClientPlatformRepository clientPlatformRepository;
     @Autowired
     private ServerPlatformRepositoryImpl serverPlatformRepository;
+    @Autowired
+    private RegisteredVehicleAppService registeredVehicleAppService;
+    @Autowired
+    private ReissueTimePeriodAppService reissueTimePeriodAppService;
     @Autowired
     private ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
@@ -43,6 +46,7 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
         clientPlatform.connectFailure();
         clientPlatformRepository.save(clientPlatform);
         cacheService.setClientPlatformConnectState(clientPlatform);
+        reissueTimePeriodAppService.recordTimePeriodStart(clientPlatform, false);
     }
 
     @Override
@@ -57,6 +61,7 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
         clientPlatformRepository.save(clientPlatform);
         clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
         cacheService.setClientPlatformLoginState(clientPlatform);
+        reissueTimePeriodAppService.recordTimePeriodEnd(clientPlatform);
     }
 
     @Override
@@ -71,6 +76,7 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     public void logout(ClientPlatformDo clientPlatform) {
         clientPlatform.logout();
         clientPlatformRepository.save(clientPlatform);
+        reissueTimePeriodAppService.recordTimePeriodStart(clientPlatform, true);
     }
 
     @Override
@@ -95,7 +101,7 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     @Override
     public void syncVehicle(ClientPlatformDo clientPlatform) {
         ServerPlatformDo serverPlatform = clientPlatform.getServerPlatform();
-        Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(serverPlatform.getCode());
+        Set<String> vehicleSet = registeredVehicleAppService.getServerPlatformReportVin(serverPlatform.getCode());
         serverPlatform.syncVehicleSet(vehicleSet);
         serverPlatformRepository.save(serverPlatform);
     }
