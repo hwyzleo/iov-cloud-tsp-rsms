@@ -18,11 +18,19 @@ import java.util.List;
 public interface ReissueTimePeriodDao extends BaseDao<ReissueTimePeriodPo, Long> {
 
     /**
-     * 查询平台上次初始化补发时间段
+     * 查询平台上次未结束补发时间段
      *
      * @param clientPlatformId 平台ID
      * @return 补发时间段
      */
-    List<ReissueTimePeriodPo> selectLastInitReissueTimePeriod(Long clientPlatformId);
+    List<ReissueTimePeriodPo> selectLastNotEndReissueTimePeriod(Long clientPlatformId);
+
+    /**
+     * 查询平台上次待补发时间段
+     *
+     * @param clientPlatformId ID
+     * @return 补发时间段
+     */
+    List<ReissueTimePeriodPo> selectLastReadyReissueTimePeriod(Long clientPlatformId);
 
 }

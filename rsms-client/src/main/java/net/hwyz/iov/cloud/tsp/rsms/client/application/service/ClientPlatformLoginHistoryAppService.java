@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.tsp.rsms.client.application.service;
 import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.ClientPlatformStateEvent;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ClientPlatformLoginHistoryDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
@@ -104,6 +105,20 @@ public class ClientPlatformLoginHistoryAppService {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         closeNotLogoutRecord();
+    }
+
+    /**
+     * 订阅客户端平台状态事件
+     *
+     * @param event 客户端平台状态事件
+     */
+    @EventListener
+    public void onClientPlatformStateEvent(ClientPlatformStateEvent event) {
+        ClientPlatformDo clientPlatform = event.getClientPlatform();
+        switch (event.getState()) {
+            case LOGIN_SUCCESS, LOGIN_FAILURE -> recordLogin(clientPlatform);
+            case LOGOUT_SUCCESS -> recordLogout(clientPlatform);
+        }
     }
 
 }

@@ -2,7 +2,8 @@ package net.hwyz.iov.cloud.tsp.rsms.client.application.service.platform;
 
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ClientPlatformLoginHistoryAppService;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformState;
+import net.hwyz.iov.cloud.tsp.rsms.client.application.event.publish.ClientPlatformStatePublish;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.PlatformHandler;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.RegisteredVehicleAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ReissueTimePeriodAppService;
@@ -26,19 +27,20 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     @Autowired
     private ClientPlatformRepository clientPlatformRepository;
     @Autowired
+    private ClientPlatformStatePublish clientPlatformStatePublish;
+    @Autowired
     private ServerPlatformRepositoryImpl serverPlatformRepository;
     @Autowired
     private RegisteredVehicleAppService registeredVehicleAppService;
     @Autowired
     private ReissueTimePeriodAppService reissueTimePeriodAppService;
-    @Autowired
-    private ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     @Override
     public void connectSuccess(ClientPlatformDo clientPlatform) {
         clientPlatform.connectSuccess();
         clientPlatformRepository.save(clientPlatform);
         cacheService.setClientPlatformConnectState(clientPlatform);
+        clientPlatformStatePublish.sendPlatformState(clientPlatform, ClientPlatformState.CONNECT_SUCCESS);
     }
 
     @Override
@@ -46,7 +48,7 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
         clientPlatform.connectFailure();
         clientPlatformRepository.save(clientPlatform);
         cacheService.setClientPlatformConnectState(clientPlatform);
-        reissueTimePeriodAppService.recordTimePeriodStart(clientPlatform, false);
+        clientPlatformStatePublish.sendPlatformState(clientPlatform, ClientPlatformState.CONNECT_FAILURE);
     }
 
     @Override
@@ -59,17 +61,16 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     public void loginSuccess(ClientPlatformDo clientPlatform) {
         clientPlatform.loginSuccess();
         clientPlatformRepository.save(clientPlatform);
-        clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
         cacheService.setClientPlatformLoginState(clientPlatform);
-        reissueTimePeriodAppService.recordTimePeriodEnd(clientPlatform);
+        clientPlatformStatePublish.sendPlatformState(clientPlatform, ClientPlatformState.LOGIN_SUCCESS);
     }
 
     @Override
     public void loginFailure(ClientPlatformDo clientPlatform) {
         clientPlatform.loginFailure();
         clientPlatformRepository.save(clientPlatform);
-        clientPlatformLoginHistoryAppService.recordLogin(clientPlatform);
         cacheService.setClientPlatformLoginState(clientPlatform);
+        clientPlatformStatePublish.sendPlatformState(clientPlatform, ClientPlatformState.LOGIN_FAILURE);
     }
 
     @Override
@@ -83,8 +84,8 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     public void logoutSuccess(ClientPlatformDo clientPlatform) {
         clientPlatform.logoutSuccess();
         clientPlatformRepository.save(clientPlatform);
-        clientPlatformLoginHistoryAppService.recordLogout(clientPlatform);
         cacheService.setClientPlatformLoginState(clientPlatform);
+        clientPlatformStatePublish.sendPlatformState(clientPlatform, ClientPlatformState.LOGOUT_SUCCESS);
     }
 
     @Override

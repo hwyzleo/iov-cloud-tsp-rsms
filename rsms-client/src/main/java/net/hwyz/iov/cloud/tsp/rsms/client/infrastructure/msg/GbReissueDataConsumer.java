@@ -1,8 +1,11 @@
 package net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.msg;
 
 import cn.hutool.core.collection.ConcurrentHashSet;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.NettyClientConnectEvent;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.publish.GbMessagePublish;
@@ -20,7 +23,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * 国标数据消费者
+ * 国标补发数据消费者
  *
  * @author hwyz_leo
  */
@@ -28,7 +31,7 @@ import java.util.Set;
 @Component
 @RefreshScope
 @RequiredArgsConstructor
-public class GbDataConsumer {
+public class GbReissueDataConsumer {
 
     private final KafkaProperties properties;
 
@@ -38,9 +41,9 @@ public class GbDataConsumer {
     private static final Set<String> CONSUMER = new ConcurrentHashSet<>();
 
     /**
-     * 国标数据主题
+     * 补发消息主题
      */
-    private final String TOPIC_GB_DATA = "vagw-rsms-data";
+    private final String TOPIC_REISSUE_MESSAGE = "rsms-reissue-message";
 
     private final GbMessagePublish gbMessagePublish;
 
@@ -51,25 +54,30 @@ public class GbDataConsumer {
         String uniqueKey = clientPlatform.getUniqueKey();
         if (!CONSUMER.contains(uniqueKey)) {
             properties.getConsumer().setGroupId(properties.getConsumer().getGroupId() + "-" + uniqueKey);
-            ReceiverOptions<byte[], byte[]> options = ReceiverOptions.create(properties.buildConsumerProperties());
-            options = options.subscription(Collections.singleton(TOPIC_GB_DATA));
-            logger.info("客户端平台[{}]开始监听国标数据消息", uniqueKey);
+            ReceiverOptions<String, String> options = ReceiverOptions.create(properties.buildConsumerProperties());
+            options = options.subscription(Collections.singleton(TOPIC_REISSUE_MESSAGE));
+            logger.info("客户端平台[{}]开始监听国标补发数据消息", uniqueKey);
             new ReactiveKafkaConsumerTemplate<>(options)
                     .receiveAutoAck()
                     .flatMap(record -> {
                         String vin = null;
                         try {
-                            vin = new String(record.key());
-                            GbUtil.parseMessage(record.value(), vin, false).ifPresent(gbMessage -> {
+                            vin = record.key();
+                            JSONObject json = JSONUtil.parseObj(record.value());
+                            String hostname = json.getStr("hostname");
+                            if (StrUtil.isNotBlank(hostname) && !clientPlatform.matchHostname(hostname)) {
+                                return Mono.empty();
+                            }
+                            GbUtil.parseMessage(json.getBytes("message"), vin, false).ifPresent(gbMessage -> {
                                 gbMessagePublish.sendVehicleData(clientPlatform.getId(), gbMessage.getVin(), gbMessage);
                             });
                         } catch (Exception e) {
-                            logger.error("客户端平台[{}]消费车辆[{}]国标数据消息异常", uniqueKey, vin, e);
+                            logger.error("客户端平台[{}]消费车辆[{}]国标补发数据消息异常", uniqueKey, vin, e);
                         }
                         return Mono.empty();
                     }, concurrency)
                     .doOnError(throwable -> {
-                        logger.error("客户端平台[{}]消费车辆国标数据消息异常", uniqueKey, throwable);
+                        logger.error("客户端平台[{}]消费车辆国标补发数据消息异常", uniqueKey, throwable);
                     })
                     .subscribe();
             CONSUMER.add(uniqueKey);
