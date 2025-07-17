@@ -220,7 +220,6 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
         this.loginState.set(true);
         this.failureCount.set(0);
         this.failureReason.set(0);
-        this.loginTime = new Date();
         this.logoutTime = null;
         stateChange();
     }

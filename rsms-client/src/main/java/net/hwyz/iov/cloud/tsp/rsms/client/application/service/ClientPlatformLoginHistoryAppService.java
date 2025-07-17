@@ -6,7 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ClientPlatformLoginHistoryDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 客户端平台登录历史应用服务类
@@ -26,9 +31,11 @@ public class ClientPlatformLoginHistoryAppService {
      * @param clientPlatform 客户端平台
      */
     public void recordLogin(ClientPlatformDo clientPlatform) {
-        logger.info("记录客户端平台[{}]登录[{}]历史", clientPlatform.getUniqueKey(), clientPlatform.getLoginState().get());
-        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId());
-        if (ObjUtil.isNull(history) || history.getLoginSn() != clientPlatform.getLoginSn()) {
+        logger.info("记录客户端平台[{}:{}]登录[{}]历史", clientPlatform.getUniqueKey(), clientPlatform.getCurrentHostname(),
+                clientPlatform.getLoginState().get());
+        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
+                clientPlatform.getCurrentHostname());
+        if (ObjUtil.isNull(history) || history.getLoginTime().compareTo(clientPlatform.getLoginTime()) != 0) {
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
                     .clientPlatformId(clientPlatform.getId())
                     .hostname(clientPlatform.getCurrentHostname())
@@ -47,9 +54,11 @@ public class ClientPlatformLoginHistoryAppService {
      * @param clientPlatform 客户端平台
      */
     public void recordLogout(ClientPlatformDo clientPlatform) {
-        logger.info("记录客户端平台[{}]登出[{}]历史", clientPlatform.getUniqueKey(), clientPlatform.getLoginState().get());
-        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId());
-        if (ObjUtil.isNotNull(history) && history.getLoginSn() == clientPlatform.getLoginSn()) {
+        logger.info("记录客户端平台[{}:{}]登出[{}]历史", clientPlatform.getUniqueKey(), clientPlatform.getCurrentHostname(),
+                clientPlatform.getLoginState().get());
+        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
+                clientPlatform.getCurrentHostname());
+        if (ObjUtil.isNotNull(history) && history.getLoginTime().compareTo(clientPlatform.getLoginTime()) == 0) {
             history.setLogoutTime(clientPlatform.getLogoutTime());
             clientPlatformLoginHistoryDao.updatePo(history);
         } else {
@@ -64,6 +73,25 @@ public class ClientPlatformLoginHistoryAppService {
                     .failureCount(clientPlatform.getFailureCount().get())
                     .build());
         }
+    }
+
+    /**
+     * 关闭未登出的记录
+     */
+    private void closeNotLogoutRecord() {
+        List<ClientPlatformLoginHistoryPo> loginHistoryPoList = clientPlatformLoginHistoryDao.selectLogoutTimeIsNullPo();
+        if (!loginHistoryPoList.isEmpty()) {
+            logger.info("补偿关闭未登出记录");
+            loginHistoryPoList.forEach(po -> {
+                po.setLogoutTime(new Date());
+                clientPlatformLoginHistoryDao.updatePo(po);
+            });
+        }
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        closeNotLogoutRecord();
     }
 
 }

@@ -122,8 +122,18 @@
         FROM tb_client_platform_login_history t
         WHERE t.row_valid = 1
         AND t.client_platform_id = #{clientPlatformId}
+        AND t.hostname = #{hostname}
         ORDER BY t.login_time DESC
         LIMIT 1
+    </select>
+
+    <!-- 查询所有未登出登录历史 -->
+    <select id="selectLogoutTimeIsNullPo" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_client_platform_login_history t
+        WHERE t.row_valid = 1
+        AND t.logout_time IS NULL
+        ORDER BY t.login_time DESC
     </select>
 
     <!-- 根据数据对象获取对应数据列表 -->
