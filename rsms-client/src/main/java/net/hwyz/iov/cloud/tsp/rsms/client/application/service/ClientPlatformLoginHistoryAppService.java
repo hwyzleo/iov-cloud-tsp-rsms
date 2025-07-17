@@ -62,6 +62,10 @@ public class ClientPlatformLoginHistoryAppService {
             history.setLogoutTime(clientPlatform.getLogoutTime());
             clientPlatformLoginHistoryDao.updatePo(history);
         } else {
+            logger.warn("登录历史{}", history);
+            if (history != null) {
+                logger.warn("时间{}={}", history.getLoginTime().getTime(), clientPlatform.getLoginTime().getTime());
+            }
             logger.warn("记录客户端平台[{}]登出历史异常[无对应登录记录]", clientPlatform.getUniqueKey());
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
                     .clientPlatformId(clientPlatform.getId())
