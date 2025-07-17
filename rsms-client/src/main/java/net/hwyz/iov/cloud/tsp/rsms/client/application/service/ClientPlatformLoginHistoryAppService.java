@@ -76,14 +76,15 @@ public class ClientPlatformLoginHistoryAppService {
     }
 
     /**
-     * 时间比较（10秒级）
+     * 时间比较
+     * 3秒内差距属于一致
      *
      * @param date1 日期1
      * @param date2 日期2
      * @return true:相同 false:不同
      */
     private boolean dateCompare(Date date1, Date date2) {
-        return date1.getTime() / 10000 == date2.getTime() / 10000;
+        return Math.abs((date1.getTime() / 1000) - (date2.getTime() / 1000)) < 3;
     }
 
     /**
