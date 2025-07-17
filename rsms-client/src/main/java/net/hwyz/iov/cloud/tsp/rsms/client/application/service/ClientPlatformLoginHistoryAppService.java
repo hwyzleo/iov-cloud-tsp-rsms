@@ -35,7 +35,7 @@ public class ClientPlatformLoginHistoryAppService {
                 clientPlatform.getLoginState().get());
         ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
                 clientPlatform.getCurrentHostname());
-        if (ObjUtil.isNull(history) || history.getLoginTime().compareTo(clientPlatform.getLoginTime()) != 0) {
+        if (ObjUtil.isNull(history) || !dateCompare(history.getLoginTime(), clientPlatform.getLoginTime())) {
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
                     .clientPlatformId(clientPlatform.getId())
                     .hostname(clientPlatform.getCurrentHostname())
@@ -58,7 +58,7 @@ public class ClientPlatformLoginHistoryAppService {
                 clientPlatform.getLoginState().get());
         ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
                 clientPlatform.getCurrentHostname());
-        if (ObjUtil.isNotNull(history) && history.getLoginTime().compareTo(clientPlatform.getLoginTime()) == 0) {
+        if (ObjUtil.isNotNull(history) && dateCompare(history.getLoginTime(), clientPlatform.getLoginTime())) {
             history.setLogoutTime(clientPlatform.getLogoutTime());
             clientPlatformLoginHistoryDao.updatePo(history);
         } else {
@@ -73,6 +73,17 @@ public class ClientPlatformLoginHistoryAppService {
                     .failureCount(clientPlatform.getFailureCount().get())
                     .build());
         }
+    }
+
+    /**
+     * 时间比较（秒级）
+     *
+     * @param date1 日期1
+     * @param date2 日期2
+     * @return true:相同 false:不同
+     */
+    private boolean dateCompare(Date date1, Date date2) {
+        return date1.getTime() / 1000 == date2.getTime() / 1000;
     }
 
     /**
