@@ -62,10 +62,6 @@ public class ClientPlatformLoginHistoryAppService {
             history.setLogoutTime(clientPlatform.getLogoutTime());
             clientPlatformLoginHistoryDao.updatePo(history);
         } else {
-            logger.warn("登录历史{}", history);
-            if (history != null) {
-                logger.warn("时间{}={}", history.getLoginTime().getTime(), clientPlatform.getLoginTime().getTime());
-            }
             logger.warn("记录客户端平台[{}]登出历史异常[无对应登录记录]", clientPlatform.getUniqueKey());
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
                     .clientPlatformId(clientPlatform.getId())
@@ -80,14 +76,14 @@ public class ClientPlatformLoginHistoryAppService {
     }
 
     /**
-     * 时间比较（秒级）
+     * 时间比较（10秒级）
      *
      * @param date1 日期1
      * @param date2 日期2
      * @return true:相同 false:不同
      */
     private boolean dateCompare(Date date1, Date date2) {
-        return date1.getTime() / 1000 == date2.getTime() / 1000;
+        return date1.getTime() / 10000 == date2.getTime() / 10000;
     }
 
     /**
