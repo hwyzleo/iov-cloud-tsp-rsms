@@ -122,7 +122,9 @@
         FROM tb_client_platform_login_history t
         WHERE t.row_valid = 1
         AND t.client_platform_id = #{clientPlatformId}
-        AND t.hostname = #{hostname}
+        <if test="hostname != null and hostname != ''">
+            AND t.hostname = #{hostname}
+        </if>
         ORDER BY t.login_time DESC
         LIMIT 1
     </select>

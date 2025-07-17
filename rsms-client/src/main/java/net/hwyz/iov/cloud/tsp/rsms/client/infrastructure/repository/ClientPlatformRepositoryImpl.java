@@ -1,7 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository;
 
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.system.SystemUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.AbstractRepository;
@@ -52,7 +51,7 @@ public class ClientPlatformRepositoryImpl extends AbstractRepository<Long, Clien
                         logger.warn("未找到服务端平台[{}]", clientPlatformPo.getServerPlatformCode());
                         return null;
                     }
-                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(id, SystemUtil.getHostInfo().getName());
+                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(id, null);
                     ClientPlatformDo clientPlatform = factory.build(clientPlatformPo, serverPlatformDoOptional.get(), loginHistory);
                     save(clientPlatform);
                     return clientPlatform;
@@ -78,7 +77,7 @@ public class ClientPlatformRepositoryImpl extends AbstractRepository<Long, Clien
                         logger.warn("未找到服务端平台[{}]", po.getServerPlatformCode());
                         return null;
                     }
-                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(po.getId(), SystemUtil.getHostInfo().getName());
+                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(po.getId(), null);
                     ClientPlatformDo clientPlatform = factory.build(po, serverPlatformDoOptional.get(), loginHistory);
                     save(clientPlatform);
                     return clientPlatform;
