@@ -44,7 +44,8 @@ public interface GbBatteryTemperatureMptAssembler {
     static List<Integer> bytesToIntList(byte[] bytes) {
         List<Integer> intList = new ArrayList<>();
         for (byte aByte : bytes) {
-            intList.add((int) aByte);
+            // 温度有40偏移量
+            intList.add((int) aByte - 40);
         }
         return intList;
     }

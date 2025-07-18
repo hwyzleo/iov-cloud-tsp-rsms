@@ -29,7 +29,7 @@ public interface GbBatteryVoltageMptAssembler {
     @Mappings({
             @Mapping(target = "sn", source = "sn"),
             @Mapping(target = "voltage", expression = "java(java.math.BigDecimal.valueOf(gbBatteryVoltageDataInfo.getVoltage()).divide(java.math.BigDecimal.TEN))"),
-            @Mapping(target = "current", expression = "java(java.math.BigDecimal.valueOf(gbBatteryVoltageDataInfo.getCurrent()).divide(java.math.BigDecimal.TEN))"),
+            @Mapping(target = "current", expression = "java(java.math.BigDecimal.valueOf(gbBatteryVoltageDataInfo.getCurrent()-10000).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "cellCount", source = "cellCount"),
             @Mapping(target = "frameStartCellSn", source = "frameStartCellSn"),
             @Mapping(target = "frameCellCount", source = "frameCellCount"),

@@ -28,12 +28,12 @@ public interface GbDriveMotorMptAssembler {
     @Mappings({
             @Mapping(target = "sn", source = "sn"),
             @Mapping(target = "state", source = "state.name"),
-            @Mapping(target = "controllerTemperature", source = "controllerTemperature"),
-            @Mapping(target = "speed", source = "speed"),
-            @Mapping(target = "torque", expression = "java(java.math.BigDecimal.valueOf(gbDriveMotorDataInfo.getTorque()).divide(java.math.BigDecimal.TEN))"),
-            @Mapping(target = "temperature", source = "temperature"),
+            @Mapping(target = "controllerTemperature", expression = "java(gbDriveMotorDataInfo.getControllerTemperature()-40)"),
+            @Mapping(target = "speed", expression = "java(gbDriveMotorDataInfo.getSpeed()-20000)"),
+            @Mapping(target = "torque", expression = "java(java.math.BigDecimal.valueOf(gbDriveMotorDataInfo.getTorque()-20000).divide(java.math.BigDecimal.TEN))"),
+            @Mapping(target = "temperature", expression = "java(gbDriveMotorDataInfo.getTemperature()-40)"),
             @Mapping(target = "controllerInputVoltage", expression = "java(java.math.BigDecimal.valueOf(gbDriveMotorDataInfo.getControllerInputVoltage()).divide(java.math.BigDecimal.TEN))"),
-            @Mapping(target = "controllerDcBusCurrent", expression = "java(java.math.BigDecimal.valueOf(gbDriveMotorDataInfo.getControllerDcBusCurrent()).divide(java.math.BigDecimal.TEN))")
+            @Mapping(target = "controllerDcBusCurrent", expression = "java(java.math.BigDecimal.valueOf(gbDriveMotorDataInfo.getControllerDcBusCurrent()-10000).divide(java.math.BigDecimal.TEN))")
     })
     GbDriveMotorMpt fromDataInfo(GbSingleDriveMotorDataInfo gbDriveMotorDataInfo);
 

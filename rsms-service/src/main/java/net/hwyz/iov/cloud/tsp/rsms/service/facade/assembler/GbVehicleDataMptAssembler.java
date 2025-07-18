@@ -30,7 +30,7 @@ public interface GbVehicleDataMptAssembler {
             @Mapping(target = "speed", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getSpeed()).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "totalOdometer", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getTotalOdometer()).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "totalVoltage", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getTotalVoltage()).divide(java.math.BigDecimal.TEN))"),
-            @Mapping(target = "totalCurrent", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getTotalCurrent()).divide(java.math.BigDecimal.TEN))"),
+            @Mapping(target = "totalCurrent", expression = "java(java.math.BigDecimal.valueOf(gbVehicleDataDataInfo.getTotalCurrent()-10000).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "soc", source = "soc"),
             @Mapping(target = "dcdcState", source = "dcdcState.name"),
             @Mapping(target = "driving", source = "driving"),

@@ -32,7 +32,7 @@ public interface GbFuelCellMptAssembler {
             @Mapping(target = "consumptionRate", expression = "java(java.math.BigDecimal.valueOf(gbFuelCellDataInfo.getConsumptionRate()).divide(java.math.BigDecimal.TEN).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "temperatureProbeCount", source = "temperatureProbeCount"),
             @Mapping(target = "probeTemperature", expression = "java(net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.GbFuelCellMptAssembler.bytesToIntList(gbFuelCellDataInfo.getProbeTemperature()))"),
-            @Mapping(target = "hydrogenSystemMaxTemperature", expression = "java(java.math.BigDecimal.valueOf(gbFuelCellDataInfo.getHydrogenSystemMaxTemperature()).divide(java.math.BigDecimal.TEN))"),
+            @Mapping(target = "hydrogenSystemMaxTemperature", expression = "java(java.math.BigDecimal.valueOf(gbFuelCellDataInfo.getHydrogenSystemMaxTemperature()-400).divide(java.math.BigDecimal.TEN))"),
             @Mapping(target = "hydrogenSystemMaxTemperatureProbe", source = "hydrogenSystemMaxTemperatureProbe"),
             @Mapping(target = "hydrogenMaxConcentration", source = "hydrogenMaxConcentration"),
             @Mapping(target = "hydrogenMaxConcentrationSensor", source = "hydrogenMaxConcentrationSensor"),
@@ -45,7 +45,8 @@ public interface GbFuelCellMptAssembler {
     static List<Integer> bytesToIntList(byte[] bytes) {
         List<Integer> intList = new ArrayList<>();
         for (byte aByte : bytes) {
-            intList.add((int) aByte);
+            // 温度有40偏移量
+            intList.add((int) aByte - 40);
         }
         return intList;
     }

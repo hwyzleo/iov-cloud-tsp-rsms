@@ -32,10 +32,10 @@ public interface GbExtremumMptAssembler {
             @Mapping(target = "cellMinVoltage", expression = "java(java.math.BigDecimal.valueOf(gbExtremumDataInfo.getCellMinVoltage()).divide(java.math.BigDecimal.valueOf(1000)))"),
             @Mapping(target = "maxTemperatureDeviceNo", source = "maxTemperatureDeviceNo"),
             @Mapping(target = "maxTemperatureProbeNo", source = "maxTemperatureProbeNo"),
-            @Mapping(target = "maxTemperature", source = "maxTemperature"),
+            @Mapping(target = "maxTemperature", expression = "java(gbExtremumDataInfo.getMaxTemperature()-40)"),
             @Mapping(target = "minTemperatureDeviceNo", source = "minTemperatureDeviceNo"),
             @Mapping(target = "minTemperatureProbeNo", source = "minTemperatureProbeNo"),
-            @Mapping(target = "minTemperature", source = "minTemperature")
+            @Mapping(target = "minTemperature", expression = "java(gbExtremumDataInfo.getMinTemperature()-40)")
     })
     GbExtremumMpt fromDataInfo(GbExtremumDataInfo gbExtremumDataInfo);
 

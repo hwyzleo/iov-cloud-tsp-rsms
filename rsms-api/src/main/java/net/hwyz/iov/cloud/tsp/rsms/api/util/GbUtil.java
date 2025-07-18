@@ -293,7 +293,7 @@ public class GbUtil {
         }
         byte checkCode = 0;
         for (byte b : bytes) {
-            checkCode ^= b;  // 连续异或操作
+            checkCode ^= b;
         }
         return checkCode;
     }
@@ -535,7 +535,7 @@ public class GbUtil {
         byte[] alarmFlagBytes = new byte[4];
         for (Map.Entry<Integer, Boolean> entry : alarmFlagMap.entrySet()) {
             if (entry.getValue()) {
-                alarmFlagBytes[entry.getKey() / 8] |= (1 << (entry.getKey() % 8));
+                alarmFlagBytes[(31 - entry.getKey()) / 8] |= (1 << (entry.getKey() % 8));
             }
         }
         return alarmFlagBytes;
