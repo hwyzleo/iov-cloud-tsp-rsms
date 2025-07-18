@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.tsp.rsms.api.contract;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjUtil;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Date;
  * @author hwyz_leo
  */
 @Data
+@Slf4j
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -85,10 +87,9 @@ public class GbMessage extends ProtocolMessage {
      * 计算校验码
      */
     public void calculateCheckCode() {
-        this.checkCode = GbUtil.calculateCheckCode(ArrayUtil.addAll(
-                ObjUtil.isNotNull(this.header) ? this.header.toByteArray() : this.headerBytes,
-                ObjUtil.isNotNull(this.dataUnit) ? this.dataUnit.toByteArray() : this.dataUnitBytes
-        ));
+        byte[] headerBytes = ObjUtil.isNotNull(this.header) ? this.header.toByteArray() : this.headerBytes;
+        byte[] dataUnitBytes = ObjUtil.isNotNull(this.dataUnit) ? this.dataUnit.toByteArray() : this.dataUnitBytes;
+        this.checkCode = GbUtil.calculateCheckCode(ArrayUtil.addAll(headerBytes, dataUnitBytes));
     }
 
     /**

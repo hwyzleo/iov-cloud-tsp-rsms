@@ -445,7 +445,7 @@ public class GbUtil {
      * @return 是否是有效定位
      */
     public static Boolean isPositionValid(byte positionByte) {
-        return ((positionByte >> 7) & 1) == 1;
+        return (positionByte & 1) == 0;
     }
 
     /**
@@ -467,7 +467,7 @@ public class GbUtil {
      * @return 是否是南纬
      */
     public static Boolean isSouthLatitude(byte positionByte) {
-        return ((positionByte >> 6) & 1) == 1;
+        return ((positionByte >> 1) & 1) == 1;
     }
 
     /**
@@ -477,7 +477,7 @@ public class GbUtil {
      * @return 是否是西经
      */
     public static Boolean isWestLongitude(byte positionByte) {
-        return ((positionByte >> 5) & 1) == 1;
+        return ((positionByte >> 2) & 1) == 1;
     }
 
     /**
@@ -489,7 +489,7 @@ public class GbUtil {
      * @return 定位字节
      */
     public static byte combinePositionByte(boolean isPositionValid, boolean isSouthLatitude, boolean isWestLongitude) {
-        return (byte) (((isPositionValid ? 1 : 0) << 7) | ((isSouthLatitude ? 1 : 0) << 6) | ((isWestLongitude ? 1 : 0) << 5));
+        return (byte) ((isPositionValid ? 0 : 1) | ((isSouthLatitude ? 1 : 0) << 1) | ((isWestLongitude ? 1 : 0) << 2));
     }
 
     /**
@@ -520,7 +520,7 @@ public class GbUtil {
     public static Map<Integer, Boolean> parseAlarmFlag(byte[] alarmFlagBytes) {
         Map<Integer, Boolean> alarmFlagMap = new LinkedHashMap<>(19);
         for (int i = 0; i <= 18; i++) {
-            alarmFlagMap.put(i, (alarmFlagBytes[i / 8] & (1 << (i % 8))) != 0);
+            alarmFlagMap.put(i, (alarmFlagBytes[(31 - i) / 8] & (1 << (i % 8))) != 0);
         }
         return alarmFlagMap;
     }
