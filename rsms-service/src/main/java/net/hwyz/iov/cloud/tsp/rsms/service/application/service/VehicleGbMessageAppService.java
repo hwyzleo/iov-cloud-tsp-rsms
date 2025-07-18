@@ -1,20 +1,22 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.application.service;
 
 import cn.hutool.core.util.HexUtil;
+import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.*;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.*;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.event.event.VehicleGbMessageEvent;
+import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.*;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.VehicleGbMessageDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType.*;
 
 /**
  * 车辆国标消息历史应用服务类
@@ -54,6 +56,56 @@ public class VehicleGbMessageAppService {
      */
     public VehicleGbMessagePo getVehicleGbMessageById(Long id) {
         return vehicleGbMessageDao.selectPoById(id);
+    }
+
+    /**
+     * 组装参数
+     *
+     * @param dataInfo   数据信息
+     * @param jsonObject json对象
+     */
+    public void assembleParams(GbMessageDataInfo dataInfo, JSONObject jsonObject) {
+        switch (dataInfo.getDataInfoType()) {
+            case VEHICLE -> {
+                GbVehicleDataMpt vehicleData = GbVehicleDataMptAssembler.INSTANCE.fromDataInfo((GbVehicleDataDataInfo) dataInfo);
+                jsonObject.set(VEHICLE.name(), vehicleData);
+            }
+            case DRIVE_MOTOR -> {
+                LinkedList<GbSingleDriveMotorDataInfo> driveMotorList = ((GbDriveMotorDataInfo) dataInfo).getDriveMotorList();
+                List<GbDriveMotorMpt> driveMotorMptList = GbDriveMotorMptAssembler.INSTANCE.fromDataInfoList(driveMotorList);
+                jsonObject.set(DRIVE_MOTOR.name(), driveMotorMptList);
+            }
+            case FUEL_CELL -> {
+                GbFuelCellMpt fuelCell = GbFuelCellMptAssembler.INSTANCE.fromDataInfo((GbFuelCellDataInfo) dataInfo);
+                jsonObject.set(FUEL_CELL.name(), fuelCell);
+            }
+            case ENGINE -> {
+                GbEngineMpt engine = GbEngineMptAssembler.INSTANCE.fromDataInfo((GbEngineDataInfo) dataInfo);
+                jsonObject.set(ENGINE.name(), engine);
+            }
+            case POSITION -> {
+                GbPositionMpt position = GbPositionMptAssembler.INSTANCE.fromDataInfo((GbPositionDataInfo) dataInfo);
+                jsonObject.set(POSITION.name(), position);
+            }
+            case EXTREMUM -> {
+                GbExtremumMpt extremum = GbExtremumMptAssembler.INSTANCE.fromDataInfo((GbExtremumDataInfo) dataInfo);
+                jsonObject.set(EXTREMUM.name(), extremum);
+            }
+            case ALARM -> {
+                GbAlarmMpt alarm = GbAlarmMptAssembler.INSTANCE.fromDataInfo((GbAlarmDataInfo) dataInfo);
+                jsonObject.set(ALARM.name(), alarm);
+            }
+            case BATTERY_VOLTAGE -> {
+                LinkedList<GbSingleBatteryVoltageDataInfo> batteryVoltageList = ((GbBatteryVoltageDataInfo) dataInfo).getBatteryVoltageList();
+                List<GbBatteryVoltageMpt> batteryVoltageMptList = GbBatteryVoltageMptAssembler.INSTANCE.fromDataInfoList(batteryVoltageList);
+                jsonObject.set(BATTERY_VOLTAGE.name(), batteryVoltageMptList);
+            }
+            case BATTERY_TEMPERATURE -> {
+                LinkedList<GbSingleBatteryTemperatureDataInfo> batteryTemperatureList = ((GbBatteryTemperatureDataInfo) dataInfo).getBatteryTemperatureList();
+                List<GbBatteryTemperatureMpt> batteryTemperatureMptList = GbBatteryTemperatureMptAssembler.INSTANCE.fromDataInfoList(batteryTemperatureList);
+                jsonObject.set(BATTERY_TEMPERATURE.name(), batteryTemperatureMptList);
+            }
+        }
     }
 
     /**

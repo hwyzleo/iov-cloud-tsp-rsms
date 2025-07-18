@@ -146,3 +146,25 @@ CREATE TABLE `db_rsms`.`tb_reissue_time_period`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='平台补发时间段';
+
+DROP TABLE IF EXISTS `db_rsms`.`tb_vehicle_gb_alarm`;
+CREATE TABLE `db_rsms`.`tb_vehicle_gb_alarm`
+(
+    `id`               BIGINT        NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `vin`              VARCHAR(20)   NOT NULL COMMENT '车架号',
+    `alarm_time`       TIMESTAMP     NOT NULL COMMENT '报警时间',
+    `restoration_time` TIMESTAMP              DEFAULT NULL COMMENT '报警恢复时间',
+    `alarm_flag`       SMALLINT      NOT NULL COMMENT '报警标志位',
+    `alarm_level`      SMALLINT      NOT NULL COMMENT '报警级别',
+    `message_data`     VARCHAR(2048) NOT NULL COMMENT '消息数据',
+    `description`      VARCHAR(255)           DEFAULT NULL COMMENT '备注',
+    `create_time`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`        VARCHAR(64)            DEFAULT NULL COMMENT '创建者',
+    `modify_time`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`        VARCHAR(64)            DEFAULT NULL COMMENT '修改者',
+    `row_version`      INT                    DEFAULT 1 COMMENT '记录版本',
+    `row_valid`        TINYINT                DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`),
+    INDEX `idx_vin` (`vin`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='车辆国标报警';

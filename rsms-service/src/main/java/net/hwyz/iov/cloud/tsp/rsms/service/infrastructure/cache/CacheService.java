@@ -23,4 +23,20 @@ public interface CacheService {
      */
     Map<String, Boolean> getClientPlatformLoginState(String clientPlatformUniqueKey);
 
+    /**
+     * 获取车辆报警信息
+     *
+     * @param vin 车架号
+     * @return 车辆报警信息
+     */
+    Map<Integer, Long> getVehicleAlarm(String vin);
+
+    /**
+     * 设置车辆报警信息
+     *
+     * @param vin      车架号
+     * @param alarmMap 车辆报警信息
+     */
+    void setVehicleAlarm(String vin, Map<Integer, Long> alarmMap);
+
 }

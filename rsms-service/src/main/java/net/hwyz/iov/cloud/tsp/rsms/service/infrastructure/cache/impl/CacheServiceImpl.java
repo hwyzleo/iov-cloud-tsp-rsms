@@ -1,5 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.impl;
 
+import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
@@ -29,6 +30,10 @@ public class CacheServiceImpl implements CacheService {
      * Redis Key前缀：客户端平台登录状态
      */
     private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE = "rsms:clientPlatformLoginState:";
+    /**
+     * Redis Key前缀：车辆报警
+     */
+    private static final String REDIS_KEY_PREFIX_VEHICLE_ALARM = "rsms:vehicleAlarm:";
 
     @Override
     public Map<String, Boolean> getClientPlatformConnectState(String clientPlatformUniqueKey) {
@@ -50,5 +55,27 @@ public class CacheServiceImpl implements CacheService {
                     .forEach((key, value) -> map.put(key.toString(), Boolean.valueOf(value.toString())));
         }
         return map;
+    }
+
+    @Override
+    public Map<Integer, Long> getVehicleAlarm(String vin) {
+        logger.debug("获取车辆[{}]报警信息", vin);
+        Map<Integer, Long> alarmMap = new HashMap<>();
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_KEY_PREFIX_VEHICLE_ALARM + vin))) {
+            redisTemplate.opsForHash().entries(REDIS_KEY_PREFIX_VEHICLE_ALARM + vin)
+                    .forEach((key, value) -> alarmMap.put(Integer.parseInt(key.toString()), Long.parseLong(value.toString())));
+        }
+        return alarmMap;
+    }
+
+    @Override
+    public void setVehicleAlarm(String vin, Map<Integer, Long> alarmMap) {
+        if (ObjUtil.isNotNull(alarmMap)) {
+            logger.debug("设置车辆[{}]报警信息", vin);
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(REDIS_KEY_PREFIX_VEHICLE_ALARM + vin))) {
+                redisTemplate.delete(REDIS_KEY_PREFIX_VEHICLE_ALARM + vin);
+            }
+            alarmMap.forEach((key, value) -> redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_VEHICLE_ALARM + vin, key.toString(), value.toString()));
+        }
     }
 }

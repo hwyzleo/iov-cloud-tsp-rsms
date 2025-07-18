@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 /**
- * 管理后台服务端平台已注册车辆转换类
+ * 管理后台车辆国标消息转换类
  *
  * @author hwyz_leo
  */

@@ -2,6 +2,7 @@ package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbCommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.event.publish.GbMessagePublish;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +55,9 @@ public class GbDataConsumer {
                         vin = new String(record.key());
                         GbUtil.parseMessage(record.value(), vin, false).ifPresent(gbMessage -> {
                             gbMessagePublish.sendVehicleData(gbMessage.getVin(), gbMessage);
+                            if (GbCommandFlag.REALTIME_REPORT == gbMessage.getHeader().getCommandFlag()) {
+                                gbMessagePublish.sendVehicleRealtimeData(gbMessage.getVin(), gbMessage);
+                            }
                         });
                     } catch (Exception e) {
                         logger.error("消费车辆[{}]国标数据消息异常", vin, e);
