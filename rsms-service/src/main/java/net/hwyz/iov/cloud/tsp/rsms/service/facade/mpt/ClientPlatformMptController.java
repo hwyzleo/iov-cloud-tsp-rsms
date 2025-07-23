@@ -10,16 +10,19 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformAccountMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformLoginHistoryMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformAccountMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformLoginHistoryMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformAccountPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.validation.annotation.Validated;
@@ -69,6 +72,21 @@ public class ClientPlatformMptController extends BaseController implements Clien
             clientPlatformMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
         });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
+    }
+
+    /**
+     * 列出客户端平台下账号
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 客户端平台账号列表
+     */
+    @RequiresPermissions("iov:rsms:clientPlatform:listAccount")
+    @Override
+    @GetMapping(value = "/listAccount")
+    public List<ClientPlatformAccountMpt> listAccount(Long clientPlatformId) {
+        logger.info("管理后台用户[{}]列出客户端平台[{}]下账号", SecurityUtils.getUsername(), clientPlatformId);
+        List<ClientPlatformAccountPo> clientPlatformAccountPoList = clientPlatformAppService.listAccount(clientPlatformId);
+        return ClientPlatformAccountMptAssembler.INSTANCE.fromPoList(clientPlatformAccountPoList);
     }
 
     /**
@@ -135,6 +153,23 @@ public class ClientPlatformMptController extends BaseController implements Clien
     }
 
     /**
+     * 新增客户端平台账号
+     *
+     * @param clientPlatformAccount 客户端平台账号
+     * @return 结果
+     */
+    @Log(title = "客户端平台账号管理", businessType = BusinessType.INSERT)
+    @RequiresPermissions("iov:rsms:clientPlatform:addAccount")
+    @Override
+    @PostMapping("/{clientPlatformId}")
+    public AjaxResult addAccount(@PathVariable Long clientPlatformId, @Validated @RequestBody ClientPlatformAccountMpt clientPlatformAccount) {
+        logger.info("管理后台用户[{}]新增客户端平台[{}]账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccount.getUsername());
+        ClientPlatformAccountPo clientPlatformAccountPo = ClientPlatformAccountMptAssembler.INSTANCE.toPo(clientPlatformAccount);
+        clientPlatformAccountPo.setCreateBy(SecurityUtils.getUserId().toString());
+        return toAjax(clientPlatformAppService.createClientPlatformAccount(clientPlatformAccountPo));
+    }
+
+    /**
      * 修改保存客户端平台
      *
      * @param clientPlatform 客户端平台
@@ -152,6 +187,24 @@ public class ClientPlatformMptController extends BaseController implements Clien
     }
 
     /**
+     * 修改保存客户端平台账号
+     *
+     * @param clientPlatformId      客户端平台ID
+     * @param clientPlatformAccount 客户端平台账号
+     * @return 结果
+     */
+    @Log(title = "客户端平台账号管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("iov:rsms:clientPlatform:editAccount")
+    @Override
+    @PutMapping("/{clientPlatformId}")
+    public AjaxResult editAccount(@PathVariable Long clientPlatformId, @Validated @RequestBody ClientPlatformAccountMpt clientPlatformAccount) {
+        logger.info("管理后台用户[{}]修改保存客户端平台[{}]账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccount.getUsername());
+        ClientPlatformAccountPo clientPlatformAccountPo = ClientPlatformAccountMptAssembler.INSTANCE.toPo(clientPlatformAccount);
+        clientPlatformAccountPo.setModifyBy(SecurityUtils.getUserId().toString());
+        return toAjax(clientPlatformAppService.modifyClientPlatformAccount(clientPlatformAccountPo));
+    }
+
+    /**
      * 删除客户端平台
      *
      * @param clientPlatformIds 客户端平台ID数组
@@ -164,6 +217,22 @@ public class ClientPlatformMptController extends BaseController implements Clien
     public AjaxResult remove(@PathVariable Long[] clientPlatformIds) {
         logger.info("管理后台用户[{}]删除客户端平台[{}]", SecurityUtils.getUsername(), clientPlatformIds);
         return toAjax(clientPlatformAppService.deleteClientPlatformByIds(clientPlatformIds));
+    }
+
+    /**
+     * 删除客户端平台账号
+     *
+     * @param clientPlatformId         客户端平台ID
+     * @param clientPlatformAccountIds 客户端平台账号ID数组
+     * @return 结果
+     */
+    @Log(title = "客户端平台账号管理", businessType = BusinessType.DELETE)
+    @RequiresPermissions("iov:rsms:clientPlatform:removeAccount")
+    @Override
+    @DeleteMapping("/{clientPlatformId}/{clientPlatformAccountIds}")
+    public AjaxResult removeAccount(@PathVariable Long clientPlatformId, @PathVariable Long[] clientPlatformAccountIds) {
+        logger.info("管理后台用户[{}]删除客户端平台[{}]下账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccountIds);
+        return toAjax(clientPlatformAppService.deleteClientPlatformAccountByIds(clientPlatformAccountIds));
     }
 
     /**

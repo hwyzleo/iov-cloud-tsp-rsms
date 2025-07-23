@@ -14,26 +14,25 @@
         <result column="row_valid" property="rowValid" />
         <result column="server_platform_code" property="serverPlatformCode" />
         <result column="unique_code" property="uniqueCode" />
-        <result column="username" property="username" />
-        <result column="password" property="password" />
-        <result column="hostname" property="hostname" />
+        <result column="encrypt_type" property="encryptType" />
+        <result column="encrypt_key" property="encryptKey" />
         <result column="enable" property="enable" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, server_platform_code, unique_code, username, password, hostname, enable, 
+        id, server_platform_code, unique_code, encrypt_type, encrypt_key, enable,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_client_platform (
-            id, server_platform_code, unique_code, username, password, hostname, enable, 
+            id, server_platform_code, unique_code, encrypt_type, encrypt_key, enable,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{serverPlatformCode}, #{uniqueCode}, #{username}, #{password}, #{hostname}, #{enable}, 
+            #{id}, #{serverPlatformCode}, #{uniqueCode}, #{encryptType}, #{encryptKey}, #{enable},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -41,13 +40,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_client_platform (
-            id, server_platform_code, unique_code, username, password, hostname, enable, 
+            id, server_platform_code, unique_code, encrypt_type, encrypt_key, enable,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.serverPlatformCode}, #{item.uniqueCode}, #{item.username}, #{item.password}, #{item.hostname}, #{item.enable}, 
+            #{item.id}, #{item.serverPlatformCode}, #{item.uniqueCode}, #{item.encryptType}, #{item.encryptKey}, #{item.enable},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -62,14 +61,11 @@
         <if test="uniqueCode != null and uniqueCode != ''">
             t.unique_code = #{uniqueCode},
         </if>
-        <if test="username != null and username != ''">
-            t.username = #{username},
+        <if test="encryptType != null and encryptType != ''">
+            t.encrypt_type = #{encryptType},
         </if>
-        <if test="password != null and password != ''">
-            t.password = #{password},
-        </if>
-        <if test="hostname != null and hostname != ''">
-            t.hostname = #{hostname},
+        <if test="encryptKey != null and encryptKey != ''">
+            t.encrypt_key = #{encryptKey},
         </if>
         <if test="enable != null">
             t.enable = #{enable},
@@ -122,14 +118,11 @@
         <if test="uniqueCode != null and uniqueCode != ''">
             AND t.unique_code = #{uniqueCode}
         </if>
-        <if test="username != null and username != ''">
-            AND t.username = #{username}
+        <if test="encryptType != null and encryptType != ''">
+            AND t.encrypt_type = #{encryptType}
         </if>
-        <if test="password != null and password != ''">
-            AND t.password = #{password}
-        </if>
-        <if test="hostname != null and hostname != ''">
-            AND t.hostname = #{hostname}
+        <if test="encryptKey != null and encryptKey != ''">
+            AND t.encrypt_key = #{encryptKey}
         </if>
         <if test="enable != null">
             AND t.enable = #{enable}

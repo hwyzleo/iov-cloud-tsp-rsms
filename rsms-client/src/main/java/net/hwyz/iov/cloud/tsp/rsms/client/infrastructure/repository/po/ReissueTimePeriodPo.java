@@ -41,6 +41,12 @@ public class ReissueTimePeriodPo extends BasePo {
     private Long clientPlatformId;
 
     /**
+     * 用户名
+     */
+    @TableField("username")
+    private String username;
+
+    /**
      * 主机名
      */
     @TableField("hostname")

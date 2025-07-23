@@ -2,7 +2,9 @@ package net.hwyz.iov.cloud.tsp.rsms.service.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ClientPlatformAccountDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ClientPlatformDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformAccountPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ import java.util.Map;
 public class ClientPlatformAppService {
 
     private final ClientPlatformDao clientPlatformDao;
+    private final ClientPlatformAccountDao clientPlatformAccountDao;
 
     /**
      * 根据服务端平台编码查询客户端平台
@@ -52,6 +55,18 @@ public class ClientPlatformAppService {
     }
 
     /**
+     * 根据客户端平台ID查询客户端平台账号
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 客户端平台账号列表
+     */
+    public List<ClientPlatformAccountPo> listAccount(Long clientPlatformId) {
+        return clientPlatformAccountDao.selectPoByExample(ClientPlatformAccountPo.builder()
+                .clientPlatformId(clientPlatformId)
+                .build());
+    }
+
+    /**
      * 根据主键ID获取客户端平台
      *
      * @param id 主键ID
@@ -72,6 +87,16 @@ public class ClientPlatformAppService {
     }
 
     /**
+     * 新增客户端平台账号
+     *
+     * @param clientPlatformAccount 客户端平台账号
+     * @return 结果
+     */
+    public int createClientPlatformAccount(ClientPlatformAccountPo clientPlatformAccount) {
+        return clientPlatformAccountDao.insertPo(clientPlatformAccount);
+    }
+
+    /**
      * 修改客户端平台
      *
      * @param clientPlatform 客户端平台
@@ -82,6 +107,16 @@ public class ClientPlatformAppService {
     }
 
     /**
+     * 修改客户端平台账号
+     *
+     * @param clientPlatformAccount 客户端平台账号
+     * @return 结果
+     */
+    public int modifyClientPlatformAccount(ClientPlatformAccountPo clientPlatformAccount) {
+        return clientPlatformAccountDao.updatePo(clientPlatformAccount);
+    }
+
+    /**
      * 批量删除客户端平台
      *
      * @param ids 客户端平台ID数组
@@ -89,6 +124,16 @@ public class ClientPlatformAppService {
      */
     public int deleteClientPlatformByIds(Long[] ids) {
         return clientPlatformDao.batchPhysicalDeletePo(ids);
+    }
+
+    /**
+     * 批量删除客户端平台账号
+     *
+     * @param ids 客户端平台账号ID数组
+     * @return 结果
+     */
+    public int deleteClientPlatformAccountByIds(Long[] ids) {
+        return clientPlatformAccountDao.batchPhysicalDeletePo(ids);
     }
 
 }

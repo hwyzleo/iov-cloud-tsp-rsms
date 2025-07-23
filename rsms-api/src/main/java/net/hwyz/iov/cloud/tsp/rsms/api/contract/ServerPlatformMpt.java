@@ -73,21 +73,6 @@ public class ServerPlatformMpt extends BaseRequest {
     private Boolean heartbeat;
 
     /**
-     * 数据加密方式
-     */
-    private Integer encryptType;
-
-    /**
-     * 数据加密KEY
-     */
-    private String encryptKey;
-
-    /**
-     * 已注册车辆数
-     */
-    private Integer vehicleCount;
-
-    /**
      * 创建时间
      */
     private Date createTime;

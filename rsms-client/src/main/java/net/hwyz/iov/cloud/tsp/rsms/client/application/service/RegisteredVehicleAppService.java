@@ -22,11 +22,11 @@ public class RegisteredVehicleAppService {
     /**
      * 查询指定平台已上报车辆
      *
-     * @param serverPlatformCode 服务端平台代码
-     * @return 已上报车辆
+     * @param clientPlatformId 客户端平台ID
+     * @return 已上报车辆列表
      */
-    public Set<String> getServerPlatformReportVin(String serverPlatformCode) {
-        return registeredVehicleDao.selectReportVinByServerPlatformCode(serverPlatformCode);
+    public Set<String> getClientPlatformReportVin(Long clientPlatformId) {
+        return registeredVehicleDao.selectReportVinByClientPlatformId(clientPlatformId);
     }
 
 }

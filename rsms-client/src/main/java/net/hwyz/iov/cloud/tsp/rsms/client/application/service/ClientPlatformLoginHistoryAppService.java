@@ -32,13 +32,14 @@ public class ClientPlatformLoginHistoryAppService {
      * @param clientPlatform 客户端平台
      */
     public void recordLogin(ClientPlatformDo clientPlatform) {
-        logger.info("记录客户端平台[{}:{}]登录[{}]历史", clientPlatform.getUniqueKey(), clientPlatform.getCurrentHostname(),
-                clientPlatform.getLoginState().get());
-        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
-                clientPlatform.getCurrentHostname());
+        logger.info("记录客户端平台[{}:{}:{}]登录[{}]历史", clientPlatform.getClientPlatformId(), clientPlatform.getUsername(),
+                clientPlatform.getCurrentHostname(), clientPlatform.getLoginState().get());
+        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getClientPlatformId(),
+                clientPlatform.getUsername(), clientPlatform.getCurrentHostname());
         if (ObjUtil.isNull(history) || !dateCompare(history.getLoginTime(), clientPlatform.getLoginTime())) {
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
-                    .clientPlatformId(clientPlatform.getId())
+                    .clientPlatformId(clientPlatform.getClientPlatformId())
+                    .username(clientPlatform.getUsername())
                     .hostname(clientPlatform.getCurrentHostname())
                     .loginTime(clientPlatform.getLoginTime())
                     .loginSn(clientPlatform.getLoginSn())
@@ -55,10 +56,10 @@ public class ClientPlatformLoginHistoryAppService {
      * @param clientPlatform 客户端平台
      */
     public void recordLogout(ClientPlatformDo clientPlatform) {
-        logger.info("记录客户端平台[{}:{}]登出[{}]历史", clientPlatform.getUniqueKey(), clientPlatform.getCurrentHostname(),
-                clientPlatform.getLoginState().get());
-        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
-                clientPlatform.getCurrentHostname());
+        logger.info("记录客户端平台[{}:{}:{}]登出[{}]历史", clientPlatform.getClientPlatformId(), clientPlatform.getUsername(),
+                clientPlatform.getCurrentHostname(), clientPlatform.getLoginState().get());
+        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getClientPlatformId(),
+                clientPlatform.getUsername(), clientPlatform.getCurrentHostname());
         if (ObjUtil.isNotNull(history) && dateCompare(history.getLoginTime(), clientPlatform.getLoginTime())) {
             history.setLogoutTime(clientPlatform.getLogoutTime());
             clientPlatformLoginHistoryDao.updatePo(history);

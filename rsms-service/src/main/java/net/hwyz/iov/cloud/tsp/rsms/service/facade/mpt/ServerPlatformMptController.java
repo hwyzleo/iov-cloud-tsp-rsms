@@ -15,7 +15,6 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.ServerPlatformMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ServerPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.RegisteredVehicleAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ServerPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ServerPlatformMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
@@ -41,7 +40,6 @@ public class ServerPlatformMptController extends BaseController implements Serve
     private final ServerPlatformAppService serverPlatformAppService;
     private final ClientPlatformAppService clientPlatformAppService;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
-    private final RegisteredVehicleAppService registeredVehicleAppService;
 
     /**
      * 分页查询服务端平台
@@ -58,9 +56,6 @@ public class ServerPlatformMptController extends BaseController implements Serve
         List<ServerPlatformPo> serverPlatformPoList = serverPlatformAppService.search(serverPlatform.getCode(), serverPlatform.getName(),
                 serverPlatform.getType(), getBeginTime(serverPlatform), getEndTime(serverPlatform));
         List<ServerPlatformMpt> serverPlatformMptList = ServerPlatformMptAssembler.INSTANCE.fromPoList(serverPlatformPoList);
-        serverPlatformMptList.forEach(serverPlatformMpt -> {
-            serverPlatformMpt.setVehicleCount(registeredVehicleAppService.listByServerPlatformCode(serverPlatformMpt.getCode()).size());
-        });
         return getDataTable(serverPlatformPoList, serverPlatformMptList);
     }
 
@@ -185,23 +180,4 @@ public class ServerPlatformMptController extends BaseController implements Serve
         return toAjax(clientPlatformList.size());
     }
 
-    /**
-     * 同步已注册车辆
-     *
-     * @param serverPlatformId 服务端平台ID
-     * @return 结果
-     */
-    @RequiresPermissions("iov:rsms:serverPlatform:syncVehicle")
-    @Override
-    @PostMapping("/{serverPlatformId}/action/syncVehicle")
-    public AjaxResult syncVehicle(@PathVariable Long serverPlatformId) {
-        logger.info("管理后台用户[{}]同步服务端平台[{}]已注册车辆", SecurityUtils.getUsername(), serverPlatformId);
-        Optional<ServerPlatformPo> serverPlatformOptional = serverPlatformAppService.getServerPlatformById(serverPlatformId);
-        if (serverPlatformOptional.isEmpty()) {
-            return error(StrUtil.format("服务端平台[{}]不存在", serverPlatformId));
-        }
-        List<ClientPlatformPo> clientPlatformList = clientPlatformAppService.listByServerPlatformCode(serverPlatformOptional.get().getCode());
-        clientPlatformList.forEach(clientPlatformPo -> clientPlatformCmdProducer.send(clientPlatformPo.getId(), ClientPlatformCmd.SYNC_VEHICLE));
-        return toAjax(clientPlatformList.size());
-    }
 }

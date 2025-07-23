@@ -46,26 +46,20 @@ public class ClientPlatformPo extends BasePo {
     private String uniqueCode;
 
     /**
-     * 用户名
+     * 数据加密方式
      */
-    @TableField("username")
-    private String username;
+    @TableField("encrypt_type")
+    private Integer encryptType;
 
     /**
-     * 密码
+     * 数据加密KEY
      */
-    @TableField("password")
-    private String password;
-
-    /**
-     * 绑定主机名
-     */
-    @TableField("hostname")
-    private String hostname;
+    @TableField("encrypt_key")
+    private String encryptKey;
 
     /**
      * 是否启用
      */
     @TableField("enable")
-    private Byte enable;
+    private Boolean enable;
 }

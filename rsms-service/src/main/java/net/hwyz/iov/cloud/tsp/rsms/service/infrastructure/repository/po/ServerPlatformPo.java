@@ -92,16 +92,4 @@ public class ServerPlatformPo extends BasePo {
      */
     @TableField("heartbeat")
     private Boolean heartbeat;
-
-    /**
-     * 数据加密方式
-     */
-    @TableField("encrypt_type")
-    private Integer encryptType;
-
-    /**
-     * 数据加密KEY
-     */
-    @TableField("encrypt_key")
-    private String encryptKey;
 }

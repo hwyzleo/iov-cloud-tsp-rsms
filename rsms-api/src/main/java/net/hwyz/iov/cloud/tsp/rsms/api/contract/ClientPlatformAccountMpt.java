@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * 管理后台客户端平台
+ * 管理后台客户端平台账号
  *
  * @author hwyz_leo
  */
@@ -16,7 +16,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ClientPlatformMpt extends BaseRequest {
+public class ClientPlatformAccountMpt extends BaseRequest {
 
     /**
      * 主键
@@ -24,14 +24,24 @@ public class ClientPlatformMpt extends BaseRequest {
     private Long id;
 
     /**
-     * 服务端平台代码
+     * 客户端平台ID
      */
-    private String serverPlatformCode;
+    private Long clientPlatformId;
 
     /**
-     * 唯一识别码
+     * 用户名
      */
-    private String uniqueCode;
+    private String username;
+
+    /**
+     * 密码
+     */
+    private String password;
+
+    /**
+     * 绑定主机名
+     */
+    private String hostname;
 
     /**
      * 是否启用

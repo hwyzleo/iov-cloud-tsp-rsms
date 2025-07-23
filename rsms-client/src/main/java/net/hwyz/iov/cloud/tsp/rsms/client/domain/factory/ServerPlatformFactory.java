@@ -1,13 +1,10 @@
 package net.hwyz.iov.cloud.tsp.rsms.client.domain.factory;
 
 import lombok.RequiredArgsConstructor;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ProtocolType;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
 
 /**
  * 服务端平台领域工厂类
@@ -22,10 +19,9 @@ public class ServerPlatformFactory {
      * 创建服务端平台领域对象
      *
      * @param serverPlatformPo 服务端平台
-     * @param vehicleSet       已注册车辆集合
      * @return 服务端平台领域对象
      */
-    public ServerPlatformDo build(ServerPlatformPo serverPlatformPo, Set<String> vehicleSet) {
+    public ServerPlatformDo build(ServerPlatformPo serverPlatformPo) {
         ServerPlatformDo serverPlatform = ServerPlatformDo.builder()
                 .id(serverPlatformPo.getCode())
                 .code(serverPlatformPo.getCode())
@@ -38,9 +34,6 @@ public class ServerPlatformFactory {
                 .reportFrequency(serverPlatformPo.getReportFrequency())
                 .readWriteSync(serverPlatformPo.getReadWriteSync())
                 .heartbeat(serverPlatformPo.getHeartbeat())
-                .encryptType(GbDataUnitEncryptType.valOf((byte) serverPlatformPo.getEncryptType().intValue()))
-                .encryptKey(serverPlatformPo.getEncryptKey())
-                .vehicleSet(vehicleSet)
                 .build();
         serverPlatform.init();
         return serverPlatform;

@@ -9,11 +9,13 @@ import net.hwyz.iov.cloud.framework.common.domain.DomainObj;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ProtocolMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ProtocolPackager;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.util.NettyClient;
 
 import java.util.Date;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,6 +33,10 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      * 服务端平台
      */
     private ServerPlatformDo serverPlatform;
+    /**
+     * 客户端平台ID
+     */
+    private Long clientPlatformId;
     /**
      * 客户端平台绑定主机名
      */
@@ -51,6 +57,18 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      * 客户端平台唯一识别码
      */
     private String uniqueCode;
+    /**
+     * 数据单元加密类型
+     */
+    private GbDataUnitEncryptType encryptType;
+    /**
+     * 数据加密KEY
+     */
+    private String encryptKey;
+    /**
+     * 已注册车辆集合
+     */
+    private Set<String> vehicleSet;
     /**
      * Netty客户端
      */
@@ -262,6 +280,26 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     }
 
     /**
+     * 同步已注册车辆集合
+     *
+     * @param vehicleSet 已注册车辆集合
+     */
+    public void syncVehicleSet(Set<String> vehicleSet) {
+        this.vehicleSet = vehicleSet;
+        stateChange();
+    }
+
+    /**
+     * 判断车辆是否已注册
+     *
+     * @param vin 车架号
+     * @return true-已注册，false-未注册
+     */
+    public boolean isVehicleRegistered(String vin) {
+        return vehicleSet.contains(vin);
+    }
+
+    /**
      * 发送数据
      *
      * @param message 协议消息
@@ -270,7 +308,7 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
         if (logger.isDebugEnabled()) {
             logger.debug("客户端平台[{}]向服务端平台[{}]发送[{}]消息", getUniqueKey(), this.serverPlatform.getName(), message.getCommandFlag());
         }
-        if (isVehicleMessage(message) && !this.serverPlatform.isVehicleRegistered(message.getVin())) {
+        if (isVehicleMessage(message) && !isVehicleRegistered(message.getVin())) {
             return;
         }
         this.client.send(message);

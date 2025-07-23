@@ -21,10 +21,11 @@ public interface ClientPlatformLoginHistoryDao extends BaseDao<ClientPlatformLog
      * 查询指定客户端平台最后一次登录历史
      *
      * @param clientPlatformId 客户端平台ID
+     * @param username         用户名
      * @param hostname         主机名
      * @return 客户端平台登录历史
      */
-    ClientPlatformLoginHistoryPo selectLastPoByClientPlatformId(Long clientPlatformId, String hostname);
+    ClientPlatformLoginHistoryPo selectLastPoByClientPlatformId(Long clientPlatformId, String username, String hostname);
 
     /**
      * 查询所有未登出登录历史

@@ -13,6 +13,7 @@
         <result column="row_version" property="rowVersion" />
         <result column="row_valid" property="rowValid" />
         <result column="client_platform_id" property="clientPlatformId" />
+        <result column="username" property="username" />
         <result column="hostname" property="hostname" />
         <result column="login_time" property="loginTime" />
         <result column="login_sn" property="loginSn" />
@@ -24,18 +25,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, client_platform_id, hostname, login_time, login_sn, login_result, failure_reason, failure_count, logout_time,
+        id, client_platform_id, username, hostname, login_time, login_sn, login_result, failure_reason, failure_count, logout_time,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_client_platform_login_history (
-            id, client_platform_id, hostname, login_time, login_sn, login_result, failure_reason, failure_count, logout_time,
+            id, client_platform_id, username, hostname, login_time, login_sn, login_result, failure_reason, failure_count, logout_time,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{clientPlatformId}, #{hostname}, #{loginTime}, #{loginSn}, #{loginResult}, #{failureReason}, #{failureCount}, #{logoutTime},
+            #{id}, #{clientPlatformId}, #{username}, #{hostname}, #{loginTime}, #{loginSn}, #{loginResult}, #{failureReason}, #{failureCount}, #{logoutTime},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -43,13 +44,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_client_platform_login_history (
-            id, client_platform_id, hostname, login_time, login_sn, login_result, failure_reason, failure_count, logout_time,
+            id, client_platform_id, username, hostname, login_time, login_sn, login_result, failure_reason, failure_count, logout_time,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.clientPlatformId}, #{item.hostname}, #{item.loginTime}, #{item.loginSn}, #{item.loginResult}, #{item.failureReason}, #{item.failureCount}, #{item.logoutTime},
+            #{item.id}, #{item.clientPlatformId}, #{item.username}, #{item.hostname}, #{item.loginTime}, #{item.loginSn}, #{item.loginResult}, #{item.failureReason}, #{item.failureCount}, #{item.logoutTime},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -60,6 +61,9 @@
         UPDATE tb_client_platform_login_history t SET
         <if test="clientPlatformId != null">
             t.client_platform_id = #{clientPlatformId},
+        </if>
+        <if test="username != null and username != ''">
+            t.username = #{username},
         </if>
         <if test="hostname != null and hostname != ''">
             t.hostname = #{hostname},
@@ -122,6 +126,7 @@
         FROM tb_client_platform_login_history t
         WHERE t.row_valid = 1
         AND t.client_platform_id = #{clientPlatformId}
+        AND t.username = #{username}
         <if test="hostname != null and hostname != ''">
             AND t.hostname = #{hostname}
         </if>
@@ -148,6 +153,9 @@
         </if>
         <if test="clientPlatformId != null">
             AND t.client_platform_id = #{clientPlatformId}
+        </if>
+        <if test="username != null and username != ''">
+            AND t.username = #{username}
         </if>
         <if test="hostname != null and hostname != ''">
             AND t.hostname = #{hostname}

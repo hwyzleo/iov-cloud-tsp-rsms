@@ -77,12 +77,4 @@ public interface ServerPlatformMptApi {
      */
     AjaxResult syncPlatform(Long serverPlatformId);
 
-    /**
-     * 同步已注册车辆
-     *
-     * @param serverPlatformId 服务端平台ID
-     * @return 结果
-     */
-    AjaxResult syncVehicle(Long serverPlatformId);
-
 }

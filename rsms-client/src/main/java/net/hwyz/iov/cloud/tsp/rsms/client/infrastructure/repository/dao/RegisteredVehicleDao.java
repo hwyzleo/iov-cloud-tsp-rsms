@@ -18,11 +18,11 @@ import java.util.Set;
 public interface RegisteredVehicleDao extends BaseDao<RegisteredVehiclePo, Long> {
 
     /**
-     * 根据服务端平台代码查询可上报的已注册车辆
+     * 根据客户端平台ID查询可上报的已注册车辆
      *
-     * @param serverPlatformCode 服务端平台代码
+     * @param clientPlatformId 客户端平台ID
      * @return 已注册车辆列表
      */
-    Set<String> selectReportVinByServerPlatformCode(String serverPlatformCode);
+    Set<String> selectReportVinByClientPlatformId(Long clientPlatformId);
 
 }

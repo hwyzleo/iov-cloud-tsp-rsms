@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ReissueTimePeriodDao">
+<mapper namespace="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ClientPlatformAccountDao">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="baseResultMap" type="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ReissueTimePeriodPo">
+    <resultMap id="baseResultMap" type="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformAccountPo">
         <id column="id" property="id" />
         <result column="description" property="description" />
         <result column="create_time" property="createTime" />
@@ -14,69 +14,61 @@
         <result column="row_valid" property="rowValid" />
         <result column="client_platform_id" property="clientPlatformId" />
         <result column="username" property="username" />
+        <result column="password" property="password" />
         <result column="hostname" property="hostname" />
-        <result column="start_time" property="startTime" />
-        <result column="end_time" property="endTime" />
-        <result column="reissue_time" property="reissueTime" />
-        <result column="reissue_state" property="reissueState" />
+        <result column="enable" property="enable" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, client_platform_id, username, hostname, start_time, end_time, reissue_time, reissue_state,
+        id, client_platform_id, username, password, hostname, enable, 
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO tb_reissue_time_period (
-            id, client_platform_id, username, hostname, start_time, end_time, reissue_time, reissue_state,
+        INSERT INTO tb_client_platform_account (
+            id, client_platform_id, username, password, hostname, enable, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{clientPlatformId}, #{username}, #{hostname}, #{startTime}, #{endTime}, #{reissueTime}, #{reissueState},
+            #{id}, #{clientPlatformId}, #{username}, #{password}, #{hostname}, #{enable}, 
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
 
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
-        INSERT INTO tb_reissue_time_period (
-            id, client_platform_id, username, hostname, start_time, end_time, reissue_time, reissue_state,
+        INSERT INTO tb_client_platform_account (
+            id, client_platform_id, username, password, hostname, enable, 
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.clientPlatformId}, #{item.username}, #{item.hostname}, #{item.startTime}, #{item.endTime}, #{item.reissueTime}, #{item.reissueState},
+            #{item.id}, #{item.clientPlatformId}, #{item.username}, #{item.password}, #{item.hostname}, #{item.enable}, 
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
     </insert>
 
     <!-- 更新 -->
-    <update id="updatePo" parameterType="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ReissueTimePeriodPo">
-        UPDATE tb_reissue_time_period t SET
+    <update id="updatePo" parameterType="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformAccountPo">
+        UPDATE tb_client_platform_account t SET
         <if test="clientPlatformId != null">
             t.client_platform_id = #{clientPlatformId},
         </if>
         <if test="username != null and username != ''">
             t.username = #{username},
         </if>
+        <if test="password != null and password != ''">
+            t.password = #{password},
+        </if>
         <if test="hostname != null and hostname != ''">
             t.hostname = #{hostname},
         </if>
-        <if test="startTime != null">
-            t.start_time = #{startTime},
-        </if>
-        <if test="endTime != null">
-            t.end_time = #{endTime},
-        </if>
-        <if test="reissueTime != null">
-            t.reissue_time = #{reissueTime},
-        </if>
-        <if test="reissueState != null">
-            t.reissue_state = #{reissueState},
+        <if test="enable != null">
+            t.enable = #{enable},
         </if>
         <if test="description != null and description != ''">
             t.description = #{description},
@@ -91,7 +83,7 @@
 
     <!-- 逻辑删除 -->
     <update id="logicalDeletePo" parameterType="Long">
-        UPDATE tb_reissue_time_period t SET
+        UPDATE tb_client_platform_account t SET
         t.row_version = t.row_version + 1,
         t.modify_time = now(),
         t.row_valid = 0
@@ -100,22 +92,22 @@
 
     <!-- 物理删除 -->
     <delete id="physicalDeletePo" parameterType="Long">
-        DELETE FROM tb_reissue_time_period t
+        DELETE FROM tb_client_platform_account t
         WHERE t.id = #{value}
     </delete>
 
     <!-- 根据主键获取对应数据 -->
     <select id="selectPoById" parameterType="Long" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
-        FROM tb_reissue_time_period t
+        FROM tb_client_platform_account t
         WHERE t.id = #{value}
         AND t.row_valid = 1
     </select>
 
     <!-- 根据数据对象获取对应数据列表 -->
-    <select id="selectPoByExample" parameterType="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ReissueTimePeriodPo" resultMap="baseResultMap">
+    <select id="selectPoByExample" parameterType="net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformAccountPo" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
-        FROM tb_reissue_time_period t
+        FROM tb_client_platform_account t
         WHERE t.row_valid = 1
         <if test="id != null">
             AND t.id = #{id}
@@ -126,20 +118,14 @@
         <if test="username != null and username != ''">
             AND t.username = #{username}
         </if>
+        <if test="password != null and password != ''">
+            AND t.password = #{password}
+        </if>
         <if test="hostname != null and hostname != ''">
             AND t.hostname = #{hostname}
         </if>
-        <if test="startTime != null">
-            AND t.start_time = #{startTime}
-        </if>
-        <if test="endTime != null">
-            AND t.end_time = #{endTime}
-        </if>
-        <if test="reissueTime != null">
-            AND t.reissue_time = #{reissueTime}
-        </if>
-        <if test="reissueState != null">
-            AND t.reissue_state = #{reissueState}
+        <if test="enable != null">
+            AND t.enable = #{enable}
         </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}
@@ -165,38 +151,26 @@
     <!-- 根据Map对象获取对应数据列表 -->
     <select id="selectPoByMap" parameterType="java.util.Map" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
-        FROM tb_reissue_time_period t
+        FROM tb_client_platform_account t
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
         ORDER BY t.id DESC
     </select>
 
-    <!-- 查询平台上次未结束补发时间段 -->
-    <select id="selectLastNotEndReissueTimePeriod" parameterType="java.util.Map" resultMap="baseResultMap">
+    <!-- 查询所有启用的客户端平台账号 -->
+    <select id="selectPoByEnabled" parameterType="java.util.Map" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
-        FROM tb_reissue_time_period t
+        FROM tb_client_platform_account t
         WHERE t.row_valid = 1
-        AND t.client_platform_id = #{clientPlatformId}
-        AND t.end_time IS NULL
-        AND t.reissue_state = 0
-        ORDER BY t.id ASC
-    </select>
-
-    <!-- 查询平台上次待补发时间段 -->
-    <select id="selectLastReadyReissueTimePeriod" parameterType="java.util.Map" resultMap="baseResultMap">
-        SELECT <include refid="baseColumnList"/>
-        FROM tb_reissue_time_period t
-        WHERE t.row_valid = 1
-        AND t.client_platform_id = #{clientPlatformId}
-        AND t.end_time IS NOT NULL
-        AND t.reissue_state &lt; 2
-        ORDER BY t.start_time ASC
+        AND t.enable = 1
+        AND client_platform_id = #{clientPlatformId}
+        ORDER BY t.id DESC
     </select>
 
     <!-- 根据Map对象统计记录数 -->
     <select id="countPoByMap" parameterType="java.util.Map" resultType="int">
         SELECT COUNT(*)
-        FROM tb_reissue_time_period t
+        FROM tb_client_platform_account t
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
     </select>

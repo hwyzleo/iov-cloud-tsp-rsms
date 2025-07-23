@@ -9,9 +9,7 @@ import net.hwyz.iov.cloud.tsp.rsms.client.application.service.RegisteredVehicleA
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ReissueTimePeriodAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
-import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.ServerPlatformRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Set;
@@ -28,8 +26,6 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
     private ClientPlatformRepository clientPlatformRepository;
     @Autowired
     private ClientPlatformStatePublish clientPlatformStatePublish;
-    @Autowired
-    private ServerPlatformRepositoryImpl serverPlatformRepository;
     @Autowired
     private RegisteredVehicleAppService registeredVehicleAppService;
     @Autowired
@@ -101,10 +97,9 @@ public abstract class AbstractPlatformHandler implements PlatformHandler {
 
     @Override
     public void syncVehicle(ClientPlatformDo clientPlatform) {
-        ServerPlatformDo serverPlatform = clientPlatform.getServerPlatform();
-        Set<String> vehicleSet = registeredVehicleAppService.getServerPlatformReportVin(serverPlatform.getCode());
-        serverPlatform.syncVehicleSet(vehicleSet);
-        serverPlatformRepository.save(serverPlatform);
+        Set<String> vehicleSet = registeredVehicleAppService.getClientPlatformReportVin(clientPlatform.getClientPlatformId());
+        clientPlatform.syncVehicleSet(vehicleSet);
+        clientPlatformRepository.save(clientPlatform);
     }
 
 }

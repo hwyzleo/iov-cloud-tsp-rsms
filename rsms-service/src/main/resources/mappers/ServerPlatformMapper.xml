@@ -22,24 +22,22 @@
         <result column="report_frequency" property="reportFrequency" />
         <result column="read_write_sync" property="readWriteSync" />
         <result column="heartbeat" property="heartbeat" />
-        <result column="encrypt_type" property="encryptType" />
-        <result column="encrypt_key" property="encryptKey" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat, encrypt_type, encrypt_key,
+        id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_server_platform (
-            id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat, encrypt_type, encrypt_key,
+            id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{code}, #{name}, #{type}, #{url}, #{port}, #{protocol}, #{collectFrequency}, #{reportFrequency}, #{readWriteSync}, #{heartbeat}, #{encryptType}, #{encryptKey},
+            #{id}, #{code}, #{name}, #{type}, #{url}, #{port}, #{protocol}, #{collectFrequency}, #{reportFrequency}, #{readWriteSync}, #{heartbeat},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -47,13 +45,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_server_platform (
-            id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat, encrypt_type, encrypt_key,
+            id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.code}, #{item.name}, #{item.type}, #{item.url}, #{item.port}, #{item.protocol}, #{item.collectFrequency}, #{item.reportFrequency}, #{item.readWriteSync}, #{item.heartbeat}, #{item.encryptType}, #{item.encryptKey},
+            #{item.id}, #{item.code}, #{item.name}, #{item.type}, #{item.url}, #{item.port}, #{item.protocol}, #{item.collectFrequency}, #{item.reportFrequency}, #{item.readWriteSync}, #{item.heartbeat},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -91,12 +89,6 @@
         </if>
         <if test="heartbeat != null">
             t.heartbeat = #{heartbeat},
-        </if>
-        <if test="encryptType != null">
-            t.encrypt_type = #{encryptType},
-        </if>
-        <if test="encryptKey != null and encryptKey != ''">
-            t.encrypt_key = #{encryptKey},
         </if>
         <if test="description != null and description != ''">
             t.description = #{description},
@@ -187,12 +179,6 @@
         </if>
         <if test="heartbeat != null">
             AND t.heartbeat = #{heartbeat}
-        </if>
-        <if test="encryptType != null">
-            AND t.encrypt_type = #{encryptType}
-        </if>
-        <if test="encryptKey != null and encryptKey != ''">
-            AND t.encrypt_key = #{encryptKey}
         </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}

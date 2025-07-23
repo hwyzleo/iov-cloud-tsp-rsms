@@ -9,7 +9,6 @@ import net.hwyz.iov.cloud.tsp.rsms.client.domain.factory.ServerPlatformFactory;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.repository.ServerPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ServerPlatformDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ServerPlatformPo;
 import org.springframework.stereotype.Repository;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * 客户端平台领域仓库接口实现类
@@ -32,7 +30,6 @@ public class ServerPlatformRepositoryImpl extends AbstractRepository<String, Ser
     private final CacheService cacheService;
     private final ServerPlatformFactory factory;
     private final ServerPlatformDao serverPlatformDao;
-    private final RegisteredVehicleDao registeredVehicleDao;
 
     @Override
     public Optional<ServerPlatformDo> getById(String code) {
@@ -43,8 +40,7 @@ public class ServerPlatformRepositoryImpl extends AbstractRepository<String, Ser
                         logger.warn("未找到服务端平台[{}]", code);
                         return null;
                     }
-                    Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(code);
-                    ServerPlatformDo serverPlatform = factory.build(serverPlatformPo, vehicleSet);
+                    ServerPlatformDo serverPlatform = factory.build(serverPlatformPo);
                     save(serverPlatform);
                     return serverPlatform;
                 }));
@@ -65,8 +61,7 @@ public class ServerPlatformRepositoryImpl extends AbstractRepository<String, Ser
         serverPlatformDao.selectPoByExample(ServerPlatformPo.builder().build()).forEach(po -> {
             list.add(cacheService.getServerPlatform(po.getCode())
                     .orElseGet(() -> {
-                        Set<String> vehicleSet = registeredVehicleDao.selectReportVinByServerPlatformCode(po.getCode());
-                        ServerPlatformDo serverPlatform = factory.build(po, vehicleSet);
+                        ServerPlatformDo serverPlatform = factory.build(po);
                         save(serverPlatform);
                         return serverPlatform;
                     }));

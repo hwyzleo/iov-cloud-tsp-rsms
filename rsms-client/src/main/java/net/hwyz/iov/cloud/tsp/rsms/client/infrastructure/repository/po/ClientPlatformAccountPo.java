@@ -1,30 +1,29 @@
-package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po;
+package net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.util.Date;
 import net.hwyz.iov.cloud.framework.mysql.po.BasePo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 /**
  * <p>
- * 客户端平台 数据对象
+ * 客户端平台账号 数据对象
  * </p>
  *
  * @author hwyz_leo
- * @since 2025-06-19
+ * @since 2025-07-21
  */
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("tb_client_platform")
-public class ClientPlatformPo extends BasePo {
+@TableName("tb_client_platform_account")
+public class ClientPlatformAccountPo extends BasePo {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,32 +34,32 @@ public class ClientPlatformPo extends BasePo {
     private Long id;
 
     /**
-     * 服务端平台代码
+     * 客户端平台ID
      */
-    @TableField("server_platform_code")
-    private String serverPlatformCode;
+    @TableField("client_platform_id")
+    private Long clientPlatformId;
 
     /**
-     * 唯一识别码
+     * 用户名
      */
-    @TableField("unique_code")
-    private String uniqueCode;
+    @TableField("username")
+    private String username;
 
     /**
-     * 数据加密方式
+     * 密码
      */
-    @TableField("encrypt_type")
-    private Integer encryptType;
+    @TableField("password")
+    private String password;
 
     /**
-     * 数据加密KEY
+     * 绑定主机名
      */
-    @TableField("encrypt_key")
-    private String encryptKey;
+    @TableField("hostname")
+    private String hostname;
 
     /**
      * 是否启用
      */
     @TableField("enable")
-    private Boolean enable;
+    private Byte enable;
 }
