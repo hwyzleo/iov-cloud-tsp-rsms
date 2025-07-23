@@ -24,8 +24,11 @@ public class PlatformLogoutMessageHandler implements GbProtocolHandler {
     public Optional<GbMessage> handle(GbMessage message) {
         GbPlatformLogoutDataUnit platformLogout = new GbPlatformLogoutDataUnit();
         platformLogout.parse(message.getDataUnitBytes());
-        logger.info("收到客户端平台[{}]今日第[{}]次登出[{}]消息", message.getHeader().getUniqueCode(), platformLogout.getLoginSn(), GbUtil.dateTimeBytesToString(platformLogout.getLogoutTime()));
-        message.setDataUnit(new GbPlatformLogoutAckDataUnit(platformLogout.getLogoutTime()));
+        logger.info("收到客户端平台[{}]今日第[{}]次登出[{}]消息", message.getHeader().getUniqueCode(), platformLogout.getLoginSn(),
+                GbUtil.getGbDateTimeBytes(platformLogout.getMessageTime().getTime()));
+        GbPlatformLogoutAckDataUnit dataUnit = new GbPlatformLogoutAckDataUnit();
+        dataUnit.setMessageTime(platformLogout.getMessageTime());
+        message.setDataUnit(dataUnit);
         message.getHeader().setDataUnitLength(message.getDataUnit().toByteArray().length);
         message.getHeader().setAckFlag(GbAckFlag.SUCCESS);
         message.calculateCheckCode();
