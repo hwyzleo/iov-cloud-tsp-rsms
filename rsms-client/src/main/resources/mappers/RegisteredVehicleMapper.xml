@@ -128,7 +128,7 @@
     </select>
 
     <!-- 根据客户端平台ID查询可上报的已注册车辆 -->
-    <select id="selectReportVinByClientPlatformId" parameterType="string" resultType="string">
+    <select id="selectReportVinByClientPlatformId" parameterType="long" resultType="string">
         SELECT t.vin
         FROM tb_registered_vehicle t
         WHERE t.client_platform_id = #{clientPlatformId}
