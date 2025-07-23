@@ -56,6 +56,14 @@ public interface ClientPlatformMptApi {
     AjaxResult getInfo(Long clientPlatformId);
 
     /**
+     * 根据客户端平台账号ID获取客户端平台账号
+     *
+     * @param clientPlatformAccountId 客户端平台账号ID
+     * @return 客户端平台账号
+     */
+    AjaxResult getAccountInfo(Long clientPlatformId, Long clientPlatformAccountId);
+
+    /**
      * 新增客户端平台
      *
      * @param clientPlatform 客户端平台

@@ -77,6 +77,16 @@ public class ClientPlatformAppService {
     }
 
     /**
+     * 根据主键ID获取客户端平台账号
+     *
+     * @param id 主键ID
+     * @return 客户端平台账号
+     */
+    public ClientPlatformAccountPo getClientPlatformAccountById(Long id) {
+        return clientPlatformAccountDao.selectPoById(id);
+    }
+
+    /**
      * 新增客户端平台
      *
      * @param clientPlatform 客户端平台

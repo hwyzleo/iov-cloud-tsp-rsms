@@ -136,6 +136,21 @@ public class ClientPlatformMptController extends BaseController implements Clien
     }
 
     /**
+     * 根据客户端平台账号ID获取客户端平台账号
+     *
+     * @param clientPlatformAccountId 客户端平台账号ID
+     * @return 客户端平台账号
+     */
+    @RequiresPermissions("iov:rsms:clientPlatform:queryAccount")
+    @Override
+    @GetMapping(value = "/{clientPlatformId}/{clientPlatformAccountId}")
+    public AjaxResult getAccountInfo(@PathVariable Long clientPlatformId, @PathVariable Long clientPlatformAccountId) {
+        logger.info("管理后台用户[{}]根据客户端平台账号ID[{}]获取客户端平台账号", SecurityUtils.getUsername(), clientPlatformAccountId);
+        ClientPlatformAccountPo clientPlatformAccount = clientPlatformAppService.getClientPlatformAccountById(clientPlatformAccountId);
+        return success(ClientPlatformAccountMptAssembler.INSTANCE.fromPo(clientPlatformAccount));
+    }
+
+    /**
      * 新增客户端平台
      *
      * @param clientPlatform 客户端平台
