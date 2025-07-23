@@ -18,26 +18,24 @@
         <result column="url" property="url" />
         <result column="port" property="port" />
         <result column="protocol" property="protocol" />
-        <result column="collect_frequency" property="collectFrequency" />
-        <result column="report_frequency" property="reportFrequency" />
         <result column="read_write_sync" property="readWriteSync" />
         <result column="heartbeat" property="heartbeat" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat,
+        id, code, name, type, url, port, protocol, read_write_sync, heartbeat,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_server_platform (
-            id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat,
+            id, code, name, type, url, port, protocol, read_write_sync, heartbeat,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{code}, #{name}, #{type}, #{url}, #{port}, #{protocol}, #{collectFrequency}, #{reportFrequency}, #{readWriteSync}, #{heartbeat},
+            #{id}, #{code}, #{name}, #{type}, #{url}, #{port}, #{protocol}, #{readWriteSync}, #{heartbeat},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -45,13 +43,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_server_platform (
-            id, code, name, type, url, port, protocol, collect_frequency, report_frequency, read_write_sync, heartbeat,
+            id, code, name, type, url, port, protocol, read_write_sync, heartbeat,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.code}, #{item.name}, #{item.type}, #{item.url}, #{item.port}, #{item.protocol}, #{item.collectFrequency}, #{item.reportFrequency}, #{item.readWriteSync}, #{item.heartbeat},
+            #{item.id}, #{item.code}, #{item.name}, #{item.type}, #{item.url}, #{item.port}, #{item.protocol}, #{item.readWriteSync}, #{item.heartbeat},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -77,12 +75,6 @@
         </if>
         <if test="protocol != null and protocol != ''">
             t.protocol = #{protocol},
-        </if>
-        <if test="collectFrequency != null">
-            t.collect_frequency = #{collectFrequency},
-        </if>
-        <if test="reportFrequency != null">
-            t.report_frequency = #{reportFrequency},
         </if>
         <if test="readWriteSync != null">
             t.read_write_sync = #{readWriteSync},
@@ -167,12 +159,6 @@
         </if>
         <if test="protocol != null and protocol != ''">
             t.protocol = #{protocol},
-        </if>
-        <if test="collectFrequency != null">
-            AND t.collect_frequency = #{collectFrequency}
-        </if>
-        <if test="reportFrequency != null">
-            AND t.report_frequency = #{reportFrequency}
         </if>
         <if test="readWriteSync != null">
             AND t.read_write_sync = #{readWriteSync}

@@ -29,9 +29,29 @@ public class ClientPlatformMpt extends BaseRequest {
     private String serverPlatformCode;
 
     /**
-     * 唯一识别码
+     * 企业唯一识别码
      */
     private String uniqueCode;
+
+    /**
+     * 采集频率
+     */
+    private Integer collectFrequency;
+
+    /**
+     * 上报频率
+     */
+    private Integer reportFrequency;
+
+    /**
+     * 数据加密方式
+     */
+    private Integer encryptType;
+
+    /**
+     * 数据加密KEY
+     */
+    private String encryptKey;
 
     /**
      * 是否启用
