@@ -164,6 +164,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @PostMapping("/{clientPlatformId}")
     public AjaxResult addAccount(@PathVariable Long clientPlatformId, @Validated @RequestBody ClientPlatformAccountMpt clientPlatformAccount) {
         logger.info("管理后台用户[{}]新增客户端平台[{}]账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccount.getUsername());
+        clientPlatformAccount.setClientPlatformId(clientPlatformId);
         ClientPlatformAccountPo clientPlatformAccountPo = ClientPlatformAccountMptAssembler.INSTANCE.toPo(clientPlatformAccount);
         clientPlatformAccountPo.setCreateBy(SecurityUtils.getUserId().toString());
         return toAjax(clientPlatformAppService.createClientPlatformAccount(clientPlatformAccountPo));
@@ -199,6 +200,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @PutMapping("/{clientPlatformId}")
     public AjaxResult editAccount(@PathVariable Long clientPlatformId, @Validated @RequestBody ClientPlatformAccountMpt clientPlatformAccount) {
         logger.info("管理后台用户[{}]修改保存客户端平台[{}]账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccount.getUsername());
+        clientPlatformAccount.setClientPlatformId(clientPlatformId);
         ClientPlatformAccountPo clientPlatformAccountPo = ClientPlatformAccountMptAssembler.INSTANCE.toPo(clientPlatformAccount);
         clientPlatformAccountPo.setModifyBy(SecurityUtils.getUserId().toString());
         return toAjax(clientPlatformAppService.modifyClientPlatformAccount(clientPlatformAccountPo));
