@@ -82,8 +82,8 @@ public class ClientPlatformMptController extends BaseController implements Clien
      */
     @RequiresPermissions("iov:rsms:clientPlatform:listAccount")
     @Override
-    @GetMapping(value = "/listAccount")
-    public List<ClientPlatformAccountMpt> listAccount(Long clientPlatformId) {
+    @GetMapping(value = "/{clientPlatformId}/account")
+    public List<ClientPlatformAccountMpt> listAccount(@PathVariable Long clientPlatformId) {
         logger.info("管理后台用户[{}]列出客户端平台[{}]下账号", SecurityUtils.getUsername(), clientPlatformId);
         List<ClientPlatformAccountPo> clientPlatformAccountPoList = clientPlatformAppService.listAccount(clientPlatformId);
         return ClientPlatformAccountMptAssembler.INSTANCE.fromPoList(clientPlatformAccountPoList);
