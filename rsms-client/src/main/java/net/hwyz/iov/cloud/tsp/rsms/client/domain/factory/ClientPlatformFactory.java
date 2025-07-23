@@ -2,6 +2,7 @@ package net.hwyz.iov.cloud.tsp.rsms.client.domain.factory;
 
 import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ProtocolPackager;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
@@ -48,6 +49,8 @@ public class ClientPlatformFactory {
                 .uniqueCode(clientPlatformPo.getUniqueCode())
                 .collectFrequency(clientPlatformPo.getCollectFrequency())
                 .reportFrequency(clientPlatformPo.getReportFrequency())
+                .encryptType(GbDataUnitEncryptType.valOf(clientPlatformPo.getEncryptType().byteValue()))
+                .encryptKey(clientPlatformPo.getEncryptKey())
                 .loginSn(ObjUtil.isNotNull(loginHistory) ? new AtomicInteger(loginHistory.getLoginSn()) : new AtomicInteger(1))
                 .loginTime(ObjUtil.isNotNull(loginHistory) ? loginHistory.getLoginTime() : null)
                 .failureReason(ObjUtil.isNotNull(loginHistory) ? new AtomicInteger(loginHistory.getFailureReason()) : new AtomicInteger(0))
