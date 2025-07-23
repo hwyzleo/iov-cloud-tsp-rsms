@@ -32,7 +32,7 @@ public class GbProtocolPackager implements ProtocolPackager {
                 .startingSymbols(GB_DATA_STARTING_SYMBOLS)
                 .build();
         GbMessageDataUnit dataUnit = new GbPlatformLoginDataUnit(clientPlatform.getLoginSn(), clientPlatform.getUsername(),
-                clientPlatform.getPassword(), null);
+                clientPlatform.getPassword(), clientPlatform.getEncryptType());
         dataUnit.setMessageTime(new Date());
         gbData.setDataUnit(dataUnit);
         GbMessageHeader header = GbMessageHeader.builder()
