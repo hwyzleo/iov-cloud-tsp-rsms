@@ -42,6 +42,7 @@ public class ClientPlatformFactory {
         ProtocolPackager packager = ctx.getBean(serverPlatformDo.getProtocol().getCode() + "ProtocolPackager", ProtocolPackager.class);
         ClientPlatformDo clientPlatform = ClientPlatformDo.builder()
                 .id(clientPlatformAccountPo.getId())
+                .clientPlatformId(clientPlatformPo.getId())
                 .serverPlatform(serverPlatformDo)
                 .hostname(clientPlatformAccountPo.getHostname())
                 .username(clientPlatformAccountPo.getUsername())
