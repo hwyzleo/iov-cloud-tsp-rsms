@@ -46,6 +46,18 @@ public class ClientPlatformPo extends BasePo {
     private String uniqueCode;
 
     /**
+     * 采集频率
+     */
+    @TableField("collect_frequency")
+    private Integer collectFrequency;
+
+    /**
+     * 上报频率
+     */
+    @TableField("report_frequency")
+    private Integer reportFrequency;
+
+    /**
      * 数据加密方式
      */
     @TableField("encrypt_type")

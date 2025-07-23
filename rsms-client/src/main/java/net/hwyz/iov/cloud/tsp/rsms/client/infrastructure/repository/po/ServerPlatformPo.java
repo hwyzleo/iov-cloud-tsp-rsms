@@ -70,18 +70,6 @@ public class ServerPlatformPo extends BasePo {
     private String protocol;
 
     /**
-     * 采集频率
-     */
-    @TableField("collect_frequency")
-    private Integer collectFrequency;
-
-    /**
-     * 上报频率
-     */
-    @TableField("report_frequency")
-    private Integer reportFrequency;
-
-    /**
      * 是否读写同步
      */
     @TableField("read_write_sync")
