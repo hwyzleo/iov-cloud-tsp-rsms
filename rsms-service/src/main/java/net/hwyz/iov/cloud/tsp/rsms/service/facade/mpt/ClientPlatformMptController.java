@@ -86,7 +86,28 @@ public class ClientPlatformMptController extends BaseController implements Clien
     public List<ClientPlatformAccountMpt> listAccount(@PathVariable Long clientPlatformId) {
         logger.info("管理后台用户[{}]列出客户端平台[{}]下账号", SecurityUtils.getUsername(), clientPlatformId);
         List<ClientPlatformAccountPo> clientPlatformAccountPoList = clientPlatformAppService.listAccount(clientPlatformId);
-        return ClientPlatformAccountMptAssembler.INSTANCE.fromPoList(clientPlatformAccountPoList);
+        List<ClientPlatformAccountMpt> clientPlatformAccountMptList = ClientPlatformAccountMptAssembler.INSTANCE.fromPoList(clientPlatformAccountPoList);
+        ClientPlatformPo clientPlatformPo = clientPlatformAppService.getClientPlatformById(clientPlatformId);
+        clientPlatformAccountMptList.forEach(clientPlatformAccountMpt -> {
+            String uniqueKey = clientPlatformPo.getServerPlatformCode() + "-" + clientPlatformPo.getUniqueCode();
+            Map<String, Boolean> connectState = cacheService.getClientPlatformConnectState(uniqueKey);
+            connectState.keySet().forEach(key -> {
+                if (!key.startsWith(clientPlatformAccountMpt.getUsername())) {
+                    connectState.remove(key);
+                }
+            });
+            clientPlatformAccountMpt.setConnectState(connectState);
+            clientPlatformAccountMpt.setConnectStat(connectState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + connectState.size());
+            Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
+            loginState.keySet().forEach(key -> {
+                if (!key.startsWith(clientPlatformAccountMpt.getUsername())) {
+                    loginState.remove(key);
+                }
+            });
+            clientPlatformAccountMpt.setLoginState(loginState);
+            clientPlatformAccountMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
+        });
+        return clientPlatformAccountMptList;
     }
 
     /**
