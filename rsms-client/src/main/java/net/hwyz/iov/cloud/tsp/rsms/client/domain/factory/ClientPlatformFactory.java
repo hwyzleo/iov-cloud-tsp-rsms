@@ -46,6 +46,8 @@ public class ClientPlatformFactory {
                 .username(clientPlatformAccountPo.getUsername())
                 .password(clientPlatformAccountPo.getPassword())
                 .uniqueCode(clientPlatformPo.getUniqueCode())
+                .collectFrequency(clientPlatformPo.getCollectFrequency())
+                .reportFrequency(clientPlatformPo.getReportFrequency())
                 .loginSn(ObjUtil.isNotNull(loginHistory) ? new AtomicInteger(loginHistory.getLoginSn()) : new AtomicInteger(1))
                 .loginTime(ObjUtil.isNotNull(loginHistory) ? loginHistory.getLoginTime() : null)
                 .failureReason(ObjUtil.isNotNull(loginHistory) ? new AtomicInteger(loginHistory.getFailureReason()) : new AtomicInteger(0))

@@ -58,6 +58,14 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     private String uniqueCode;
     /**
+     * 采集频率
+     */
+    private Integer collectFrequency;
+    /**
+     * 上报频率
+     */
+    private Integer reportFrequency;
+    /**
      * 数据单元加密类型
      */
     private GbDataUnitEncryptType encryptType;

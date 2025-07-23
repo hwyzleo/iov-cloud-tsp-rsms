@@ -30,8 +30,6 @@ public class ServerPlatformFactory {
                 .url(serverPlatformPo.getUrl())
                 .port(serverPlatformPo.getPort())
                 .protocol(ProtocolType.valOf(serverPlatformPo.getProtocol()))
-                .collectFrequency(serverPlatformPo.getCollectFrequency())
-                .reportFrequency(serverPlatformPo.getReportFrequency())
                 .readWriteSync(serverPlatformPo.getReadWriteSync())
                 .heartbeat(serverPlatformPo.getHeartbeat())
                 .build();

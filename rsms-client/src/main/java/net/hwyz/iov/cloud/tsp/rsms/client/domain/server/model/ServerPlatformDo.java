@@ -45,14 +45,6 @@ public class ServerPlatformDo extends BaseDo<String> implements DomainObj<Server
      */
     private ProtocolType protocol;
     /**
-     * 采集频率
-     */
-    private Integer collectFrequency;
-    /**
-     * 上报频率
-     */
-    private Integer reportFrequency;
-    /**
      * 是否读写同步
      */
     private Boolean readWriteSync;
