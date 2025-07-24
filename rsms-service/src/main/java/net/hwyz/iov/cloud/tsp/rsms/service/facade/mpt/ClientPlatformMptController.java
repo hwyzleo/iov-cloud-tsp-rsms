@@ -17,7 +17,6 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.RegisteredVehicleAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformAccountMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformLoginHistoryMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
@@ -46,7 +45,6 @@ public class ClientPlatformMptController extends BaseController implements Clien
     private final CacheService cacheService;
     private final ClientPlatformAppService clientPlatformAppService;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
-    private final RegisteredVehicleAppService registeredVehicleAppService;
     private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
@@ -72,7 +70,6 @@ public class ClientPlatformMptController extends BaseController implements Clien
             Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
             clientPlatformMpt.setLoginState(loginState);
             clientPlatformMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
-            clientPlatformMpt.setVehicleCount(registeredVehicleAppService.listByClientPlatformId(clientPlatformMpt.getId()).size());
         });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
     }

@@ -1,8 +1,8 @@
 package net.hwyz.iov.cloud.tsp.rsms.api.feign.service.factory;
 
 import lombok.extern.slf4j.Slf4j;
-import net.hwyz.iov.cloud.tsp.rsms.api.contract.RegisteredVehicleReportStateExService;
-import net.hwyz.iov.cloud.tsp.rsms.api.feign.service.ExRegisteredVehicleService;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.ReportVehicleReportStateExService;
+import net.hwyz.iov.cloud.tsp.rsms.api.feign.service.ExReportVehicleService;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class ExRegisteredVehicleServiceFallbackFactory implements FallbackFactory<ExRegisteredVehicleService> {
+public class ExRegisteredVehicleServiceFallbackFactory implements FallbackFactory<ExReportVehicleService> {
 
     @Override
-    public ExRegisteredVehicleService create(Throwable throwable) {
-        return new ExRegisteredVehicleService() {
+    public ExReportVehicleService create(Throwable throwable) {
+        return new ExReportVehicleService() {
             @Override
-            public void changeReportState(String vin, RegisteredVehicleReportStateExService vehicleReportState) {
-                logger.error("已注册车辆服务改变车辆[{}]上报状态[{}]调用失败", vin, vehicleReportState.getReportState(), throwable);
+            public void changeReportState(String vin, ReportVehicleReportStateExService vehicleReportState) {
+                logger.error("上报车辆服务改变车辆[{}]上报状态[{}]调用失败", vin, vehicleReportState.getReportState(), throwable);
             }
         };
     }

@@ -6,7 +6,7 @@ import net.hwyz.iov.cloud.framework.common.web.domain.BaseRequest;
 import java.util.Date;
 
 /**
- * 管理后台已注册车辆
+ * 管理后台上报车辆
  *
  * @author hwyz_leo
  */
@@ -15,27 +15,12 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class RegisteredVehicleMpt extends BaseRequest {
+public class ReportVehicleMpt extends BaseRequest {
 
     /**
      * 主键
      */
     private Long id;
-
-    /**
-     * 客户端平台ID
-     */
-    private Long clientPlatformId;
-
-    /**
-     * 服务端平台名称
-     */
-    private String serverPlatformName;
-
-    /**
-     * 企业编码
-     */
-    private String clientPlatformUniqueCode;
 
     /**
      * 车架号

@@ -23,4 +23,12 @@ public interface ReportVehicleDao extends BaseDao<ReportVehiclePo, Long> {
      */
     ReportVehiclePo selectPoByVin(String vin);
 
+    /**
+     * 批量物理删除
+     *
+     * @param ids id数组
+     * @return 影响行数
+     */
+    int batchPhysicalDeletePo(Long[] ids);
+
 }

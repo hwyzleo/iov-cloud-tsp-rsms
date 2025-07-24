@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.VehicleReportState;
 
 /**
- * 对外服务已注册车辆上报状态
+ * 对外服务上报车辆上报状态
  *
  * @author hwyz_leo
  */
@@ -15,7 +15,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.VehicleReportState;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisteredVehicleReportStateExService {
+public class ReportVehicleReportStateExService {
 
     /**
      * 车架号
