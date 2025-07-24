@@ -244,7 +244,7 @@
             AND t.vin = #{vin}
         </if>
         <if test="reportState != null">
-            AND r.report_state = #{reportState}
+            AND t.report_state = #{reportState}
         </if>
         <if test="beginTime != null">
             AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
