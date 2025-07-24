@@ -79,6 +79,11 @@ public class ClientPlatformMpt extends BaseRequest {
     private String loginStat;
 
     /**
+     * 已注册车辆数
+     */
+    private Integer vehicleCount;
+
+    /**
      * 创建时间
      */
     private Date createTime;

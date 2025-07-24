@@ -12,39 +12,26 @@
         <result column="modify_by" property="modifyBy" />
         <result column="row_version" property="rowVersion" />
         <result column="row_valid" property="rowValid" />
-        <result column="server_platform_code" property="serverPlatformCode" />
+        <result column="client_platform_id" property="clientPlatformId" />
         <result column="vin" property="vin" />
         <result column="report_state" property="reportState" />
-        <result column="iccid" property="iccid" />
         <result column="model" property="model" />
-        <result column="drive_motor_type" property="driveMotorType" />
-        <result column="max_speed" property="maxSpeed" />
-        <result column="ev_range" property="evRange" />
-        <result column="gear_ratio" property="gearRatio" />
-        <result column="battery_param" property="batteryParam" />
-        <result column="drive_motor_param" property="driveMotorParam" />
-        <result column="alarm_default" property="alarmDefault" />
-        <result column="engine_sn" property="engineSn" />
-        <result column="fuel_type" property="fuelType" />
-        <result column="fuel_mark" property="fuelMark" />
-        <result column="engine_max_power" property="engineMaxPower" />
-        <result column="engine_max_torque" property="engineMaxTorque" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, server_platform_code, vin, report_state, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque,
-        description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+        t.id, t.client_platform_id, t.vin, r.report_state, r.model,
+        t.description, t.create_time, t.create_by, t.modify_time, t.modify_by, t.row_version, t.row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_registered_vehicle (
-            id, server_platform_code, vin, report_state, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque,
+            id, client_platform_id, vin,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{serverPlatformCode}, #{vin}, #{reportState}, #{iccid}, #{model}, #{driveMotorType}, #{maxSpeed}, #{evRange}, #{gearRatio}, #{batteryParam}, #{driveMotorParam}, #{alarmDefault}, #{engineSn}, #{fuelType}, #{fuelMark}, #{engineMaxPower}, #{engineMaxTorque},
+            #{id}, #{clientPlatformId}, #{vin},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -52,13 +39,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_registered_vehicle (
-            id, server_platform_code, vin, report_state, iccid, model, drive_motor_type, max_speed, ev_range, gear_ratio, battery_param, drive_motor_param, alarm_default, engine_sn, fuel_type, fuel_mark, engine_max_power, engine_max_torque,
+            id, client_platform_id, vin,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.serverPlatformCode}, #{item.vin}, #{item.reportState}, #{item.iccid}, #{item.model}, #{item.driveMotorType}, #{item.maxSpeed}, #{item.evRange}, #{item.gearRatio}, #{item.batteryParam}, #{item.driveMotorParam}, #{item.alarmDefault}, #{item.engineSn}, #{item.fuelType}, #{item.fuelMark}, #{item.engineMaxPower}, #{item.engineMaxTorque},
+            #{item.id}, #{item.clientPlatformId}, #{item.vin},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -67,56 +54,11 @@
     <!-- 更新 -->
     <update id="updatePo" parameterType="net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo">
         UPDATE tb_registered_vehicle t SET
-        <if test="serverPlatformCode != null and serverPlatformCode != ''">
-            t.server_platform_code = #{serverPlatformCode},
+        <if test="clientPlatformId != null">
+            t.client_platform_id = #{clientPlatformId},
         </if>
         <if test="vin != null and vin != ''">
             t.vin = #{vin},
-        </if>
-        <if test="reportState != null">
-            t.report_state = #{reportState},
-        </if>
-        <if test="iccid != null and iccid != ''">
-            t.iccid = #{iccid},
-        </if>
-        <if test="model != null and model != ''">
-            t.model = #{model},
-        </if>
-        <if test="driveMotorType != null and driveMotorType != ''">
-            t.drive_motor_type = #{driveMotorType},
-        </if>
-        <if test="maxSpeed != null">
-            t.max_speed = #{maxSpeed},
-        </if>
-        <if test="evRange != null">
-            t.ev_range = #{evRange},
-        </if>
-        <if test="gearRatio != null and gearRatio != ''">
-            t.gear_ratio = #{gearRatio},
-        </if>
-        <if test="batteryParam != null and batteryParam != ''">
-            t.battery_param = #{batteryParam},
-        </if>
-        <if test="driveMotorParam != null and driveMotorParam != ''">
-            t.drive_motor_param = #{driveMotorParam},
-        </if>
-        <if test="alarmDefault != null and alarmDefault != ''">
-            t.alarm_default = #{alarmDefault},
-        </if>
-        <if test="engineSn != null and engineSn != ''">
-            t.engine_sn = #{engineSn},
-        </if>
-        <if test="fuelType != null and fuelType != ''">
-            t.fuel_type = #{fuelType},
-        </if>
-        <if test="fuelMark != null and fuelMark != ''">
-            t.fuel_mark = #{fuelMark},
-        </if>
-        <if test="engineMaxPower != null and engineMaxPower != ''">
-            t.engine_max_power = #{engineMaxPower},
-        </if>
-        <if test="engineMaxTorque != null and engineMaxTorque != ''">
-            t.engine_max_torque = #{engineMaxTorque},
         </if>
         <if test="description != null and description != ''">
             t.description = #{description},
@@ -165,60 +107,23 @@
     <select id="selectPoByExample" parameterType="net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
         FROM tb_registered_vehicle t
+        LEFT JOIN tb_report_vehicle r
+        ON t.vin = r.vin
         WHERE t.row_valid = 1
         <if test="id != null">
             AND t.id = #{id}
         </if>
-        <if test="serverPlatformCode != null and serverPlatformCode != ''">
-            AND t.server_platform_code = #{serverPlatformCode}
+        <if test="clientPlatformId != null">
+            AND t.client_platform_id = #{clientPlatformId}
         </if>
         <if test="vin != null and vin != ''">
             AND t.vin = #{vin}
         </if>
         <if test="reportState != null">
-            AND t.report_state = #{reportState}
-        </if>
-        <if test="iccid != null and iccid != ''">
-            AND t.iccid = #{iccid}
+            AND r.report_state = #{reportState}
         </if>
         <if test="model != null and model != ''">
-            AND t.model = #{model}
-        </if>
-        <if test="driveMotorType != null and driveMotorType != ''">
-            AND t.drive_motor_type = #{driveMotorType}
-        </if>
-        <if test="maxSpeed != null">
-            AND t.max_speed = #{maxSpeed}
-        </if>
-        <if test="evRange != null">
-            AND t.ev_range = #{evRange}
-        </if>
-        <if test="gearRatio != null and gearRatio != ''">
-            AND t.gear_ratio = #{gearRatio}
-        </if>
-        <if test="batteryParam != null and batteryParam != ''">
-            AND t.battery_param = #{batteryParam}
-        </if>
-        <if test="driveMotorParam != null and driveMotorParam != ''">
-            AND t.drive_motor_param = #{driveMotorParam}
-        </if>
-        <if test="alarmDefault != null and alarmDefault != ''">
-            AND t.alarm_default = #{alarmDefault}
-        </if>
-        <if test="engineSn != null and engineSn != ''">
-            AND t.engine_sn = #{engineSn}
-        </if>
-        <if test="fuelType != null and fuelType != ''">
-            AND t.fuel_type = #{fuelType}
-        </if>
-        <if test="fuelMark != null and fuelMark != ''">
-            AND t.fuel_mark = #{fuelMark}
-        </if>
-        <if test="engineMaxPower != null and engineMaxPower != ''">
-            AND t.engine_max_power = #{engineMaxPower}
-        </if>
-        <if test="engineMaxTorque != null and engineMaxTorque != ''">
-            AND t.engine_max_torque = #{engineMaxTorque}
+            AND r.model = #{model}
         </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}
@@ -245,16 +150,18 @@
     <select id="selectPoByMap" parameterType="java.util.Map" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
         FROM tb_registered_vehicle t
+        LEFT JOIN tb_report_vehicle r
+        ON t.vin = r.vin
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
+        <if test="clientPlatformId != null">
+            AND t.client_platform_id = #{clientPlatformId}
+        </if>
         <if test="vin != null and vin != ''">
             AND t.vin = #{vin}
         </if>
         <if test="reportState != null">
-            AND t.report_state = #{reportState}
-        </if>
-        <if test="serverPlatformCode != null and serverPlatformCode != ''">
-            AND t.server_platform_code = #{serverPlatformCode}
+            AND r.report_state = #{reportState}
         </if>
         <if test="beginTime != null">
             AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
@@ -265,20 +172,22 @@
         ORDER BY t.id DESC
     </select>
 
-    <!-- 根据服务端平台代码查询可上报的已注册车辆 -->
-    <select id="selectReportVinByServerPlatformCode" parameterType="string" resultType="string">
+    <!-- 根据客户端平台ID查询可上报的已注册车辆 -->
+    <select id="selectReportVinByClientPlatformId" parameterType="long" resultType="string">
         SELECT t.vin
         FROM tb_registered_vehicle t
-        WHERE t.server_platform_code = #{serverPlatformCode}
-        AND t.report_state = 0
+        LEFT JOIN tb_report_vehicle r
+        ON t.vin = r.vin
+        WHERE t.client_platform_id = #{clientPlatformId}
+        AND r.report_state = 0
         AND t.row_valid = 1
     </select>
 
-    <!-- 根据代码查询已注册车辆 -->
-    <select id="selectPoByServerPlatformCodeAndVin" parameterType="string" resultMap="baseResultMap">
+    <!-- 根据客户端平台ID及车架号查询已注册车辆 -->
+    <select id="selectPoByClientPlatformIdAndVin" parameterType="string" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>
         FROM tb_registered_vehicle t
-        WHERE t.server_platform_code = #{serverPlatformCode}
+        WHERE t.client_platform_id = #{clientPlatformId}
         AND t.vin = #{vin}
         AND t.row_valid = 1
         LIMIT 1

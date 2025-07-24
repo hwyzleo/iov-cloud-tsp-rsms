@@ -7,7 +7,9 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.VehicleReportState;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.RegisteredVehicleDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ReportVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,35 +24,35 @@ import java.util.*;
 @RequiredArgsConstructor
 public class RegisteredVehicleAppService {
 
+    private final ReportVehicleDao reportVehicleDao;
     private final RegisteredVehicleDao registeredVehicleDao;
-    private final ClientPlatformAppService clientPlatformAppService;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
 
     /**
-     * 根据服务端平台代码获取已注册车辆列表
+     * 根据客户端平台ID获取已注册车辆列表
      *
-     * @param serverPlatformCode 服务端平台代码
+     * @param clientPlatformId 客户端平台ID
      * @return 已注册车辆列表
      */
-    public List<RegisteredVehiclePo> listByServerPlatformCode(String serverPlatformCode) {
-        return search(null, null, serverPlatformCode, null, null);
+    public List<RegisteredVehiclePo> listByClientPlatformId(Long clientPlatformId) {
+        return search(null, null, clientPlatformId, null, null);
     }
 
     /**
      * 查询已注册车辆
      *
-     * @param vin                车架号
-     * @param reportState        车辆上报状态
-     * @param serverPlatformCode 服务端平台代码
-     * @param beginTime          开始时间
-     * @param endTime            结束时间
+     * @param vin              车架号
+     * @param reportState      车辆上报状态
+     * @param clientPlatformId 客户端平台ID
+     * @param beginTime        开始时间
+     * @param endTime          结束时间
      * @return 服务端平台列表
      */
-    public List<RegisteredVehiclePo> search(String vin, Integer reportState, String serverPlatformCode, Date beginTime, Date endTime) {
+    public List<RegisteredVehiclePo> search(String vin, Integer reportState, Long clientPlatformId, Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("vin", vin);
         map.put("reportState", reportState);
-        map.put("serverPlatformCode", serverPlatformCode);
+        map.put("clientPlatformId", clientPlatformId);
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);
         return registeredVehicleDao.selectPoByMap(map);
@@ -59,16 +61,16 @@ public class RegisteredVehicleAppService {
     /**
      * 检查已注册车辆在平台下是否唯一
      *
-     * @param registeredVehicleId 服务端平台ID
-     * @param serverPlatformCode  服务端平台代码
+     * @param registeredVehicleId 已注册车辆ID
+     * @param clientPlatformId    客户端平台ID
      * @param vin                 车架号
      * @return 结果
      */
-    public Boolean checkCodeUnique(Long registeredVehicleId, String serverPlatformCode, String vin) {
+    public Boolean checkCodeUnique(Long registeredVehicleId, Long clientPlatformId, String vin) {
         if (ObjUtil.isNull(registeredVehicleId)) {
             registeredVehicleId = -1L;
         }
-        RegisteredVehiclePo registeredVehiclePo = getRegisteredVehicleByServerPlatformCodeAndVin(serverPlatformCode, vin);
+        RegisteredVehiclePo registeredVehiclePo = getRegisteredVehicleByClientPlatformIdAndVin(clientPlatformId, vin);
         return !ObjUtil.isNotNull(registeredVehiclePo) || registeredVehiclePo.getId().longValue() == registeredVehicleId.longValue();
     }
 
@@ -83,14 +85,14 @@ public class RegisteredVehicleAppService {
     }
 
     /**
-     * 根据服务端平台代码和车架号获取已注册车辆
+     * 根据客户端平台ID和车架号获取已注册车辆
      *
-     * @param serverPlatformCode 服务端平台代码
-     * @param vin                车架号
+     * @param clientPlatformId 客户端平台ID
+     * @param vin              车架号
      * @return 已注册车辆
      */
-    public RegisteredVehiclePo getRegisteredVehicleByServerPlatformCodeAndVin(String serverPlatformCode, String vin) {
-        return registeredVehicleDao.selectPoByServerPlatformCodeAndVin(serverPlatformCode, vin);
+    public RegisteredVehiclePo getRegisteredVehicleByClientPlatformIdAndVin(Long clientPlatformId, String vin) {
+        return registeredVehicleDao.selectPoByClientPlatformIdAndVin(clientPlatformId, vin);
     }
 
     /**
@@ -130,17 +132,16 @@ public class RegisteredVehicleAppService {
      * @param vehicleReportState 车辆上报状态
      */
     public void changeReportState(String vin, VehicleReportState vehicleReportState) {
-        Set<String> serverPlatformCodes = new HashSet<>();
-        registeredVehicleDao.selectPoByExample(RegisteredVehiclePo.builder().vin(vin).build()).forEach(vehicle -> {
-            vehicle.setReportState(vehicleReportState.getCode());
-            registeredVehicleDao.updatePo(vehicle);
-            serverPlatformCodes.add(vehicle.getServerPlatformCode());
-        });
-        serverPlatformCodes.forEach(serverPlatformCode -> {
-            clientPlatformAppService.listByServerPlatformCode(serverPlatformCode).forEach(clientPlatform -> {
-                clientPlatformCmdProducer.send(clientPlatform.getId(), ClientPlatformCmd.SYNC_VEHICLE);
+        Set<Long> clientPlatformIds = new HashSet<>();
+        ReportVehiclePo reportVehiclePo = reportVehicleDao.selectPoByVin(vin);
+        if (ObjUtil.isNotNull(reportVehiclePo) && vehicleReportState.getCode() != reportVehiclePo.getReportState()) {
+            reportVehiclePo.setReportState(vehicleReportState.getCode());
+            reportVehicleDao.updatePo(reportVehiclePo);
+            registeredVehicleDao.selectPoByExample(RegisteredVehiclePo.builder().vin(vin).build()).forEach(vehicle -> {
+                clientPlatformIds.add(vehicle.getClientPlatformId());
             });
-        });
+        }
+        clientPlatformIds.forEach(clientPlatformId -> clientPlatformCmdProducer.send(clientPlatformId, ClientPlatformCmd.SYNC_VEHICLE));
     }
 
 }

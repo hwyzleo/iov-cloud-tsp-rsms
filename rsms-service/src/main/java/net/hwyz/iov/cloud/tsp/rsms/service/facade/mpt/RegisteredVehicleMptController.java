@@ -12,7 +12,9 @@ import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.RegisteredVehicleMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.RegisteredVehicleMptApi;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.RegisteredVehicleAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ServerPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.RegisteredVehicleMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +33,8 @@ import java.util.List;
 @RequestMapping(value = "/mpt/registeredVehicle")
 public class RegisteredVehicleMptController extends BaseController implements RegisteredVehicleMptApi {
 
+    private final ClientPlatformAppService clientPlatformAppService;
+    private final ServerPlatformAppService serverPlatformAppService;
     private final RegisteredVehicleAppService registeredVehicleAppService;
 
     /**
@@ -46,9 +50,17 @@ public class RegisteredVehicleMptController extends BaseController implements Re
         logger.info("管理后台用户[{}]分页查询已注册车辆", SecurityUtils.getUsername());
         startPage();
         List<RegisteredVehiclePo> registeredVehiclePoList = registeredVehicleAppService.search(registeredVehicle.getVin(),
-                registeredVehicle.getReportState(), registeredVehicle.getServerPlatformCode(), getBeginTime(registeredVehicle),
+                registeredVehicle.getReportState(), registeredVehicle.getClientPlatformId(), getBeginTime(registeredVehicle),
                 getEndTime(registeredVehicle));
         List<RegisteredVehicleMpt> registeredVehicleMptList = RegisteredVehicleMptAssembler.INSTANCE.fromPoList(registeredVehiclePoList);
+        registeredVehicleMptList.forEach(registeredVehicleMpt -> {
+            clientPlatformAppService.getClientPlatformById(registeredVehicleMpt.getClientPlatformId()).ifPresent(clientPlatform -> {
+                registeredVehicleMpt.setClientPlatformUniqueCode(clientPlatform.getUniqueCode());
+                serverPlatformAppService.getServerPlatformByCode(clientPlatform.getServerPlatformCode()).ifPresent(serverPlatform -> {
+                    registeredVehicleMpt.setServerPlatformName(serverPlatform.getName());
+                });
+            });
+        });
         return getDataTable(registeredVehiclePoList, registeredVehicleMptList);
     }
 
@@ -92,9 +104,9 @@ public class RegisteredVehicleMptController extends BaseController implements Re
     @Override
     @PostMapping
     public AjaxResult add(@Validated @RequestBody RegisteredVehicleMpt registeredVehicle) {
-        logger.info("管理后台用户[{}]新增平台[{}]已注册车辆[{}]", SecurityUtils.getUsername(), registeredVehicle.getServerPlatformCode(), registeredVehicle.getVin());
-        if (!registeredVehicleAppService.checkCodeUnique(registeredVehicle.getId(), registeredVehicle.getServerPlatformCode(), registeredVehicle.getVin())) {
-            return error("新增平台'" + registeredVehicle.getServerPlatformCode() + "'已注册车辆'" + registeredVehicle.getVin() + "'失败，该平台下车辆已存在");
+        logger.info("管理后台用户[{}]新增平台[{}]已注册车辆[{}]", SecurityUtils.getUsername(), registeredVehicle.getClientPlatformId(), registeredVehicle.getVin());
+        if (!registeredVehicleAppService.checkCodeUnique(registeredVehicle.getId(), registeredVehicle.getClientPlatformId(), registeredVehicle.getVin())) {
+            return error("新增平台'" + registeredVehicle.getClientPlatformId() + "'已注册车辆'" + registeredVehicle.getVin() + "'失败，该平台下车辆已存在");
         }
         RegisteredVehiclePo registeredVehiclePo = RegisteredVehicleMptAssembler.INSTANCE.toPo(registeredVehicle);
         registeredVehiclePo.setCreateBy(SecurityUtils.getUserId().toString());
@@ -112,9 +124,9 @@ public class RegisteredVehicleMptController extends BaseController implements Re
     @Override
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody RegisteredVehicleMpt registeredVehicle) {
-        logger.info("管理后台用户[{}]修改保存平台[{}]已注册车辆[{}]", SecurityUtils.getUsername(), registeredVehicle.getServerPlatformCode(), registeredVehicle.getVin());
-        if (!registeredVehicleAppService.checkCodeUnique(registeredVehicle.getId(), registeredVehicle.getServerPlatformCode(), registeredVehicle.getVin())) {
-            return error("修改保存平台'" + registeredVehicle.getServerPlatformCode() + "'已注册车辆'" + registeredVehicle.getVin() + "'失败，该平台下车辆已存在");
+        logger.info("管理后台用户[{}]修改保存平台[{}]已注册车辆[{}]", SecurityUtils.getUsername(), registeredVehicle.getClientPlatformId(), registeredVehicle.getVin());
+        if (!registeredVehicleAppService.checkCodeUnique(registeredVehicle.getId(), registeredVehicle.getClientPlatformId(), registeredVehicle.getVin())) {
+            return error("修改保存平台'" + registeredVehicle.getClientPlatformId() + "'已注册车辆'" + registeredVehicle.getVin() + "'失败，该平台下车辆已存在");
         }
         RegisteredVehiclePo registeredVehiclePo = RegisteredVehicleMptAssembler.INSTANCE.toPo(registeredVehicle);
         registeredVehiclePo.setModifyBy(SecurityUtils.getUserId().toString());

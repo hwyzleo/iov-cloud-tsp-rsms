@@ -8,10 +8,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPl
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 客户端平台应用服务类
@@ -72,8 +69,8 @@ public class ClientPlatformAppService {
      * @param id 主键ID
      * @return 客户端平台
      */
-    public ClientPlatformPo getClientPlatformById(Long id) {
-        return clientPlatformDao.selectPoById(id);
+    public Optional<ClientPlatformPo> getClientPlatformById(Long id) {
+        return Optional.ofNullable(clientPlatformDao.selectPoById(id));
     }
 
     /**
@@ -82,8 +79,8 @@ public class ClientPlatformAppService {
      * @param id 主键ID
      * @return 客户端平台账号
      */
-    public ClientPlatformAccountPo getClientPlatformAccountById(Long id) {
-        return clientPlatformAccountDao.selectPoById(id);
+    public Optional<ClientPlatformAccountPo> getClientPlatformAccountById(Long id) {
+        return Optional.ofNullable(clientPlatformAccountDao.selectPoById(id));
     }
 
     /**

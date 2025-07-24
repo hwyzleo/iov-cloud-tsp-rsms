@@ -17,6 +17,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLoginHistoryAppService;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.RegisteredVehicleAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformAccountMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformLoginHistoryMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
@@ -45,6 +46,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     private final CacheService cacheService;
     private final ClientPlatformAppService clientPlatformAppService;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
+    private final RegisteredVehicleAppService registeredVehicleAppService;
     private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
@@ -70,6 +72,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
             Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
             clientPlatformMpt.setLoginState(loginState);
             clientPlatformMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
+            clientPlatformMpt.setVehicleCount(registeredVehicleAppService.listByClientPlatformId(clientPlatformMpt.getId()).size());
         });
         return getDataTable(clientPlatformPoList, clientPlatformMptList);
     }
@@ -87,25 +90,26 @@ public class ClientPlatformMptController extends BaseController implements Clien
         logger.info("管理后台用户[{}]列出客户端平台[{}]下账号", SecurityUtils.getUsername(), clientPlatformId);
         List<ClientPlatformAccountPo> clientPlatformAccountPoList = clientPlatformAppService.listAccount(clientPlatformId);
         List<ClientPlatformAccountMpt> clientPlatformAccountMptList = ClientPlatformAccountMptAssembler.INSTANCE.fromPoList(clientPlatformAccountPoList);
-        ClientPlatformPo clientPlatformPo = clientPlatformAppService.getClientPlatformById(clientPlatformId);
-        clientPlatformAccountMptList.forEach(clientPlatformAccountMpt -> {
-            String uniqueKey = clientPlatformPo.getServerPlatformCode() + "-" + clientPlatformPo.getUniqueCode();
-            Map<String, Boolean> connectState = cacheService.getClientPlatformConnectState(uniqueKey);
-            connectState.keySet().forEach(key -> {
-                if (!key.startsWith(clientPlatformAccountMpt.getUsername())) {
-                    connectState.remove(key);
-                }
+        clientPlatformAppService.getClientPlatformById(clientPlatformId).ifPresent(clientPlatformPo -> {
+            clientPlatformAccountMptList.forEach(clientPlatformAccountMpt -> {
+                String uniqueKey = clientPlatformPo.getServerPlatformCode() + "-" + clientPlatformPo.getUniqueCode();
+                Map<String, Boolean> connectState = cacheService.getClientPlatformConnectState(uniqueKey);
+                connectState.keySet().forEach(key -> {
+                    if (!key.startsWith(clientPlatformAccountMpt.getUsername())) {
+                        connectState.remove(key);
+                    }
+                });
+                clientPlatformAccountMpt.setConnectState(connectState);
+                clientPlatformAccountMpt.setConnectStat(connectState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + connectState.size());
+                Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
+                loginState.keySet().forEach(key -> {
+                    if (!key.startsWith(clientPlatformAccountMpt.getUsername())) {
+                        loginState.remove(key);
+                    }
+                });
+                clientPlatformAccountMpt.setLoginState(loginState);
+                clientPlatformAccountMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
             });
-            clientPlatformAccountMpt.setConnectState(connectState);
-            clientPlatformAccountMpt.setConnectStat(connectState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + connectState.size());
-            Map<String, Boolean> loginState = cacheService.getClientPlatformLoginState(uniqueKey);
-            loginState.keySet().forEach(key -> {
-                if (!key.startsWith(clientPlatformAccountMpt.getUsername())) {
-                    loginState.remove(key);
-                }
-            });
-            clientPlatformAccountMpt.setLoginState(loginState);
-            clientPlatformAccountMpt.setLoginStat(loginState.values().stream().filter(Boolean::booleanValue).toList().size() + " / " + loginState.size());
         });
         return clientPlatformAccountMptList;
     }
@@ -152,7 +156,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @GetMapping(value = "/{clientPlatformId}")
     public AjaxResult getInfo(@PathVariable Long clientPlatformId) {
         logger.info("管理后台用户[{}]根据客户端平台ID[{}]获取客户端平台", SecurityUtils.getUsername(), clientPlatformId);
-        ClientPlatformPo clientPlatformPo = clientPlatformAppService.getClientPlatformById(clientPlatformId);
+        ClientPlatformPo clientPlatformPo = clientPlatformAppService.getClientPlatformById(clientPlatformId).orElse(null);
         return success(ClientPlatformMptAssembler.INSTANCE.fromPo(clientPlatformPo));
     }
 
@@ -167,7 +171,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @GetMapping(value = "/{clientPlatformId}/{clientPlatformAccountId}")
     public AjaxResult getAccountInfo(@PathVariable Long clientPlatformId, @PathVariable Long clientPlatformAccountId) {
         logger.info("管理后台用户[{}]根据客户端平台账号ID[{}]获取客户端平台账号", SecurityUtils.getUsername(), clientPlatformAccountId);
-        ClientPlatformAccountPo clientPlatformAccount = clientPlatformAppService.getClientPlatformAccountById(clientPlatformAccountId);
+        ClientPlatformAccountPo clientPlatformAccount = clientPlatformAppService.getClientPlatformAccountById(clientPlatformAccountId).orElse(null);
         return success(ClientPlatformAccountMptAssembler.INSTANCE.fromPo(clientPlatformAccount));
     }
 
