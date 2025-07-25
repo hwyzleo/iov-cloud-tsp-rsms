@@ -98,8 +98,8 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @RequiresPermissions("iov:rsms:clientPlatform:listLoginHistory")
     @Override
     @GetMapping(value = "/{clientPlatformId}/loginHistory")
-    public TableDataInfo listLoginHistory(@PathVariable Long clientPlatformId) {
-        logger.info("管理后台用户[{}]分页查询客户端平台登录历史", SecurityUtils.getUsername());
+    public TableDataInfo listLoginHistory(@PathVariable Long clientPlatformId, ClientPlatformLoginHistoryMpt clientPlatformLoginHistory) {
+        logger.info("管理后台用户[{}]分页查询客户端平台[{}]登录历史", SecurityUtils.getUsername(), clientPlatformId);
         startPage();
         List<ClientPlatformLoginHistoryPo> loginHistoryPoList = clientPlatformLoginHistoryAppService.listLoginHistory(clientPlatformId);
         List<ClientPlatformLoginHistoryMpt> clientPlatformLoginHistoryMptList = ClientPlatformLoginHistoryMptAssembler.INSTANCE.fromPoList(loginHistoryPoList);

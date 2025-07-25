@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformAccountMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformLoginHistoryMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
 
 import java.util.List;
@@ -34,10 +35,11 @@ public interface ClientPlatformMptApi {
     /**
      * 分页查询客户端平台登录历史
      *
-     * @param clientPlatformId 客户端平台ID
+     * @param clientPlatformId           客户端平台ID
+     * @param clientPlatformLoginHistory 客户端平台登录历史
      * @return 客户端平台登录历史列表
      */
-    TableDataInfo listLoginHistory(Long clientPlatformId);
+    TableDataInfo listLoginHistory(Long clientPlatformId, ClientPlatformLoginHistoryMpt clientPlatformLoginHistory);
 
     /**
      * 导出客户端平台
