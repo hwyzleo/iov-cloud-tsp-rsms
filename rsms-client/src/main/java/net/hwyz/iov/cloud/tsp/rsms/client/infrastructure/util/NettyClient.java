@@ -51,6 +51,8 @@ public class NettyClient {
 
     /**
      * 建立 Netty 连接
+     *
+     * @param clientPlatform        客户端平台
      */
     public void connect(ClientPlatformDo clientPlatform) {
         if (channel != null && channel.isActive()) {

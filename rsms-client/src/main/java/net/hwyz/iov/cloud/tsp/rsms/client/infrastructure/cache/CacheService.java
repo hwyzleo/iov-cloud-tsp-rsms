@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -60,6 +61,21 @@ public interface CacheService {
      * 重置客户端平台相关状态
      */
     void resetClientPlatformState();
+
+    /**
+     * 获取客户端平台账号状态
+     *
+     * @param clientPlatform 客户端平台
+     * @return 账号状态
+     */
+    Map<String, Integer> getClientPlatformAccountState(ClientPlatformDo clientPlatform);
+
+    /**
+     * 设置客户端平台账号状态
+     *
+     * @param clientPlatform 客户端平台
+     */
+    void setClientPlatformAccountState(ClientPlatformDo clientPlatform);
 
     /**
      * 设置客户端平台连接状态

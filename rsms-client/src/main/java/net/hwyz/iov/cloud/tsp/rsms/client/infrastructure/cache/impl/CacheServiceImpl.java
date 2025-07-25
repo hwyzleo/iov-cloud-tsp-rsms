@@ -1,5 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.impl;
 
+import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +42,10 @@ public class CacheServiceImpl implements CacheService {
      * Redis Key：客户端平台状态流水号
      */
     private static final String REDIS_KEY_CLIENT_PLATFORM_STATE_SN = "rsms:clientPlatformStateSn";
+    /**
+     * Redis Key前缀：客户端平台账号状态
+     */
+    private static final String REDIS_KEY_PREFIX_CLIENT_PLATFORM_ACCOUNT_STATE = "rsms:clientPlatformAccountState:";
     /**
      * Redis Key前缀：客户端平台连接状态
      */
@@ -114,14 +120,35 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @Override
+    public Map<String, Integer> getClientPlatformAccountState(ClientPlatformDo clientPlatform) {
+        logger.debug("获取客户端平台[{}]账号状态", clientPlatform.getUniqueKey());
+        Map<String, Integer> map = new ConcurrentHashMap<>();
+        redisTemplate.opsForHash().entries(REDIS_KEY_PREFIX_CLIENT_PLATFORM_ACCOUNT_STATE + clientPlatform.getUniqueKey())
+                .forEach((key, value) -> map.put(key.toString(), Integer.valueOf(value.toString())));
+        return map;
+    }
+
+    @Override
+    public void setClientPlatformAccountState(ClientPlatformDo clientPlatform) {
+        logger.debug("设置客户端平台[{}]账号状态[{}]", clientPlatform.getUniqueKey(), clientPlatform.getUsername());
+        if (!redisTemplate.opsForHash().hasKey(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey())) {
+            redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
+        }
+        Object countObj = redisTemplate.opsForHash().get(REDIS_KEY_PREFIX_CLIENT_PLATFORM_ACCOUNT_STATE + clientPlatform.getUniqueKey(),
+                clientPlatform.getUsername());
+        int count = ObjUtil.isNull(countObj) ? 1 : Integer.parseInt(countObj.toString()) + 1;
+        redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_ACCOUNT_STATE + clientPlatform.getUniqueKey(),
+                clientPlatform.getUsername(), Integer.toString(count));
+    }
+
+    @Override
     public void setClientPlatformConnectState(ClientPlatformDo clientPlatform) {
         logger.debug("设置客户端平台[{}]连接状态[{}]", clientPlatform.getUniqueKey(), clientPlatform.isConnect());
         if (!redisTemplate.opsForHash().hasKey(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey())) {
             redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
         redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_CONNECT_STATE + clientPlatform.getUniqueKey(),
-                clientPlatform.getUsername() + "-" + clientPlatform.getCurrentHostname(),
-                String.valueOf(clientPlatform.isConnect()));
+                clientPlatform.getCurrentHostname(), String.valueOf(clientPlatform.isConnect()));
     }
 
     @Override

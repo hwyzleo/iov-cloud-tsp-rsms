@@ -12,9 +12,12 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataUnitEncryptType;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ProtocolPackager;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
+import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.util.NettyClient;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,26 +36,6 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      * 服务端平台
      */
     private ServerPlatformDo serverPlatform;
-    /**
-     * 客户端平台ID
-     */
-    private Long clientPlatformId;
-    /**
-     * 客户端平台绑定主机名
-     */
-    private String hostname;
-    /**
-     * 当前客户端平台绑定主机名
-     */
-    private String currentHostname;
-    /**
-     * 客户端平台用户名
-     */
-    private String username;
-    /**
-     * 客户端平台密码
-     */
-    private String password;
     /**
      * 客户端平台唯一识别码
      */
@@ -74,9 +57,25 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     private String encryptKey;
     /**
-     * 已注册车辆集合
+     * 客户端平台绑定主机名
      */
-    private Set<String> vehicleSet;
+    private String hostname;
+    /**
+     * 当前客户端平台绑定主机名
+     */
+    private String currentHostname;
+    /**
+     * 可用账号列表
+     */
+    private List<ClientPlatformAccountDo> accounts;
+    /**
+     * 客户端平台用户名
+     */
+    private String username;
+    /**
+     * 客户端平台密码
+     */
+    private String password;
     /**
      * Netty客户端
      */
@@ -110,6 +109,10 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     private Date logoutTime;
     /**
+     * 已注册车辆集合
+     */
+    private Set<String> vehicleSet;
+    /**
      * 协议处理器
      */
     private ProtocolPackager packager;
@@ -120,6 +123,9 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     public void init() {
         this.connectState = new AtomicBoolean(false);
         this.loginState = new AtomicBoolean(false);
+        this.loginSn = new AtomicInteger(1);
+        this.failureReason = new AtomicInteger(0);
+        this.failureCount = new AtomicInteger(0);
         stateInit();
     }
 
@@ -133,12 +139,120 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
     }
 
     /**
+     * 同步已注册车辆集合
+     *
+     * @param vehicleSet 已注册车辆集合
+     */
+    public void syncVehicleSet(Set<String> vehicleSet) {
+        this.vehicleSet = vehicleSet;
+        stateChange();
+    }
+
+    /**
+     * 判断车辆是否已注册
+     *
+     * @param vin 车架号
+     * @return true-已注册，false-未注册
+     */
+    public boolean isVehicleRegistered(String vin) {
+        return vehicleSet.contains(vin);
+    }
+
+    /**
+     * 校验当前主机名是否满足平台主机名绑定限制主机名范围
+     *
+     * @param hostname 主机名
+     * @return true:满足,false:不满足
+     */
+    public boolean validateHostname(String hostname) {
+        if (StrUtil.isBlank(this.hostname)) {
+            this.currentHostname = hostname;
+            stateChange();
+            return true;
+        }
+        for (String h : this.hostname.split(",")) {
+            if (h.trim().equalsIgnoreCase(hostname)) {
+                this.currentHostname = hostname;
+                stateChange();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 检查传入主机名是否匹配当前主机名
+     * this.hostname或hostname为空时说明无需匹配
+     *
+     * @param hostname 主机名
+     * @return true:匹配成功,false:匹配失败
+     */
+    public boolean matchHostname(String hostname) {
+        return StrUtil.isBlank(this.hostname) || StrUtil.isBlank(hostname) || this.currentHostname.equalsIgnoreCase(hostname);
+    }
+
+    /**
+     * 分配账号
+     *
+     * @param accountState 当前全局账号状态
+     * @return true:分配成功,false:分配失败
+     */
+    public boolean allocateAccount(Map<String, Integer> accountState) {
+        for (ClientPlatformAccountDo account : this.accounts) {
+            if (!accountState.containsKey(account.getUsername()) || accountState.get(account.getUsername()) < account.getUseLimit()) {
+                this.username = account.getUsername();
+                this.password = account.getPassword();
+                stateChange();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 加载登录历史
+     *
+     * @param loginHistory 登录历史
+     */
+    public void loadLoginHistory(ClientPlatformLoginHistoryPo loginHistory) {
+        this.loginSn = new AtomicInteger(loginHistory.getLoginSn());
+        this.logoutTime = loginHistory.getLoginTime();
+        this.failureReason = new AtomicInteger(loginHistory.getFailureReason());
+        this.failureCount = new AtomicInteger(loginHistory.getFailureCount());
+        stateChange();
+    }
+
+    /**
+     * 绑定客户端
+     */
+    public void bindClient(NettyClient client) {
+        this.client = client;
+        stateChange();
+    }
+
+    /**
      * 是否已连接服务端平台
      *
      * @return true:已连接,false:未连接
      */
     public boolean isConnect() {
         return this.connectState.get();
+    }
+
+    /**
+     * 服务端平台连接成功
+     */
+    public void connectSuccess() {
+        this.connectState.set(true);
+        stateChange();
+    }
+
+    /**
+     * 服务端平台连接失败
+     */
+    public void connectFailure() {
+        this.connectState.set(false);
+        stateChange();
     }
 
     /**
@@ -157,71 +271,6 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
      */
     public int getLoginSn() {
         return this.loginSn != null ? this.loginSn.get() : 1;
-    }
-
-    /**
-     * 绑定客户端
-     */
-    public void bindClient(NettyClient client) {
-        this.client = client;
-        stateChange();
-    }
-
-    /**
-     * 绑定主机名
-     *
-     * @param hostname 主机名
-     */
-    public void bindHostname(String hostname) {
-        this.currentHostname = hostname;
-        stateChange();
-    }
-
-    /**
-     * 检查传入主机名是否满足当前主机名绑定限制主机名范围
-     *
-     * @param hostname 主机名
-     * @return true:满足,false:不满足
-     */
-    public boolean checkHostname(String hostname) {
-        boolean isMatch = true;
-        if (StrUtil.isNotBlank(this.hostname)) {
-            isMatch = false;
-            for (String h : this.hostname.split(",")) {
-                if (h.equalsIgnoreCase(hostname)) {
-                    isMatch = true;
-                    break;
-                }
-            }
-        }
-        return isMatch;
-    }
-
-    /**
-     * 检查传入主机名是否匹配当前主机名
-     * this.hostname或hostname为空时说明无需匹配
-     *
-     * @param hostname 主机名
-     * @return true:匹配成功,false:匹配失败
-     */
-    public boolean matchHostname(String hostname) {
-        return StrUtil.isBlank(this.hostname) || StrUtil.isBlank(hostname) || this.currentHostname.equalsIgnoreCase(hostname);
-    }
-
-    /**
-     * 服务端平台连接成功
-     */
-    public void connectSuccess() {
-        this.connectState.set(true);
-        stateChange();
-    }
-
-    /**
-     * 服务端平台连接失败
-     */
-    public void connectFailure() {
-        this.connectState.set(false);
-        stateChange();
     }
 
     /**
@@ -285,26 +334,6 @@ public class ClientPlatformDo extends BaseDo<Long> implements DomainObj<ClientPl
         this.loginState.set(false);
         this.logoutTime = new Date();
         stateChange();
-    }
-
-    /**
-     * 同步已注册车辆集合
-     *
-     * @param vehicleSet 已注册车辆集合
-     */
-    public void syncVehicleSet(Set<String> vehicleSet) {
-        this.vehicleSet = vehicleSet;
-        stateChange();
-    }
-
-    /**
-     * 判断车辆是否已注册
-     *
-     * @param vin 车架号
-     * @return true-已注册，false-未注册
-     */
-    public boolean isVehicleRegistered(String vin) {
-        return vehicleSet.contains(vin);
     }
 
     /**

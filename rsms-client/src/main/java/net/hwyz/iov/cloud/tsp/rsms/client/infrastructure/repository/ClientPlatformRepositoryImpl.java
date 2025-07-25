@@ -5,18 +5,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.domain.AbstractRepository;
 import net.hwyz.iov.cloud.framework.common.domain.DoState;
+import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformAccountDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
+import net.hwyz.iov.cloud.tsp.rsms.client.domain.factory.ClientPlatformAccountFactory;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.factory.ClientPlatformFactory;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.model.ServerPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.server.repository.ServerPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ClientPlatformAccountDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ClientPlatformDao;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.ClientPlatformLoginHistoryDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformAccountPo;
-import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.repository.po.ClientPlatformPo;
 import org.springframework.stereotype.Repository;
 
@@ -36,39 +36,39 @@ import java.util.Set;
 public class ClientPlatformRepositoryImpl extends AbstractRepository<Long, ClientPlatformDo> implements ClientPlatformRepository {
 
     private final CacheService cacheService;
-    private final ClientPlatformFactory factory;
     private final ClientPlatformDao clientPlatformDao;
     private final RegisteredVehicleDao registeredVehicleDao;
-    private final ClientPlatformAccountDao clientPlatformAccountDao;
+    private final ClientPlatformFactory clientPlatformFactory;
     private final ServerPlatformRepository serverPlatformRepository;
-    private final ClientPlatformLoginHistoryDao clientPlatformLoginHistoryDao;
+    private final ClientPlatformAccountDao clientPlatformAccountDao;
+    private final ClientPlatformAccountFactory clientPlatformAccountFactory;
 
     @Override
     public Optional<ClientPlatformDo> getById(Long id) {
         return Optional.ofNullable(cacheService.getClientPlatform(id)
                 .orElseGet(() -> {
-                    ClientPlatformAccountPo clientPlatformAccountPo = clientPlatformAccountDao.selectPoById(id);
-                    if (ObjUtil.isNull(clientPlatformAccountPo)) {
-                        logger.warn("未找到客户端平台账号[{}]", id);
-                        return null;
-                    }
-                    ClientPlatformPo clientPlatformPo = clientPlatformDao.selectPoById(clientPlatformAccountPo.getClientPlatformId());
-                    if (ObjUtil.isNull(clientPlatformPo)) {
+                    ClientPlatformPo clientPlatform = clientPlatformDao.selectPoById(id);
+                    if (ObjUtil.isNull(clientPlatform)) {
                         logger.warn("未找到客户端平台[{}]", id);
                         return null;
                     }
-                    Optional<ServerPlatformDo> serverPlatformDoOptional = serverPlatformRepository.getById(clientPlatformPo.getServerPlatformCode());
-                    if (serverPlatformDoOptional.isEmpty()) {
-                        logger.warn("未找到服务端平台[{}]", clientPlatformPo.getServerPlatformCode());
+                    Optional<ServerPlatformDo> serverPlatformOptional = serverPlatformRepository.getById(clientPlatform.getServerPlatformCode());
+                    if (serverPlatformOptional.isEmpty()) {
+                        logger.warn("未找到服务端平台[{}]", clientPlatform.getServerPlatformCode());
                         return null;
                     }
-                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(id,
-                            clientPlatformAccountPo.getUsername(), null);
-                    Set<String> vehicleSet = registeredVehicleDao.selectReportVinByClientPlatformId(clientPlatformPo.getId());
-                    ClientPlatformDo clientPlatform = factory.build(clientPlatformPo, clientPlatformAccountPo,
-                            serverPlatformDoOptional.get(), loginHistory, vehicleSet);
-                    save(clientPlatform);
-                    return clientPlatform;
+                    List<ClientPlatformAccountPo> accountPoList = clientPlatformAccountDao.selectPoByEnabled(id);
+                    if (accountPoList.isEmpty()) {
+                        logger.warn("客户端平台[{}]下无可用账号", id);
+                        return null;
+                    }
+                    List<ClientPlatformAccountDo> accounts = new ArrayList<>();
+                    accountPoList.forEach(accountPo -> accounts.add(clientPlatformAccountFactory.build(accountPo)));
+                    Set<String> vehicleSet = registeredVehicleDao.selectReportVinByClientPlatformId(id);
+                    ClientPlatformDo clientPlatformDo = clientPlatformFactory.build(clientPlatform, serverPlatformOptional.get(),
+                            accounts, vehicleSet);
+                    save(clientPlatformDo);
+                    return clientPlatformDo;
                 }));
     }
 
@@ -84,21 +84,29 @@ public class ClientPlatformRepositoryImpl extends AbstractRepository<Long, Clien
     @Override
     public List<ClientPlatformDo> getAllEnabled() {
         List<ClientPlatformDo> list = new ArrayList<>();
-        clientPlatformDao.selectPoByEnabled().forEach(po -> clientPlatformAccountDao.selectPoByEnabled(po.getId()).forEach(accountPo ->
-                list.add(cacheService.getClientPlatform(po.getId()).orElseGet(() -> {
-                    Optional<ServerPlatformDo> serverPlatformDoOptional = serverPlatformRepository.getById(po.getServerPlatformCode());
-                    if (serverPlatformDoOptional.isEmpty()) {
-                        logger.warn("未找到服务端平台[{}]", po.getServerPlatformCode());
-                        return null;
-                    }
-                    ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(po.getId(),
-                            accountPo.getUsername(), null);
-                    Set<String> vehicleSet = registeredVehicleDao.selectReportVinByClientPlatformId(po.getId());
-                    ClientPlatformDo clientPlatform = factory.build(po, accountPo, serverPlatformDoOptional.get(), loginHistory, vehicleSet);
-                    save(clientPlatform);
-                    return clientPlatform;
-                })))
-        );
+        clientPlatformDao.selectPoByEnabled().forEach(po -> {
+            ClientPlatformDo clientPlatformDo = cacheService.getClientPlatform(po.getId()).orElseGet(() -> {
+                Optional<ServerPlatformDo> serverPlatformDoOptional = serverPlatformRepository.getById(po.getServerPlatformCode());
+                if (serverPlatformDoOptional.isEmpty()) {
+                    logger.warn("未找到服务端平台[{}]", po.getServerPlatformCode());
+                    return null;
+                }
+                List<ClientPlatformAccountPo> accountPoList = clientPlatformAccountDao.selectPoByEnabled(po.getId());
+                if (accountPoList.isEmpty()) {
+                    logger.warn("客户端平台[{}]下无可用账号", po.getId());
+                    return null;
+                }
+                List<ClientPlatformAccountDo> accounts = new ArrayList<>();
+                accountPoList.forEach(accountPo -> accounts.add(clientPlatformAccountFactory.build(accountPo)));
+                Set<String> vehicleSet = registeredVehicleDao.selectReportVinByClientPlatformId(po.getId());
+                ClientPlatformDo clientPlatformDoTmp = clientPlatformFactory.build(po, serverPlatformDoOptional.get(), accounts, vehicleSet);
+                save(clientPlatformDoTmp);
+                return clientPlatformDoTmp;
+            });
+            if (ObjUtil.isNotNull(clientPlatformDo)) {
+                list.add(clientPlatformDo);
+            }
+        });
         return list;
     }
 

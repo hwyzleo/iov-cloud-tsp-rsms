@@ -5,6 +5,7 @@ import cn.hutool.system.SystemUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.client.application.event.event.VehicleGbMessageEvent;
+import net.hwyz.iov.cloud.tsp.rsms.client.application.service.ClientPlatformLoginHistoryAppService;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.model.ClientPlatformDo;
 import net.hwyz.iov.cloud.tsp.rsms.client.domain.client.repository.ClientPlatformRepository;
 import net.hwyz.iov.cloud.tsp.rsms.client.infrastructure.cache.CacheService;
@@ -13,6 +14,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * 客户端平台管理类
@@ -27,6 +30,7 @@ public class ClientPlatformManager {
     private final ApplicationContext ctx;
     private final CacheService cacheService;
     private final ClientPlatformRepository clientPlatformRepository;
+    private final ClientPlatformLoginHistoryAppService clientPlatformLoginHistoryAppService;
 
     /**
      * 初始化
@@ -44,12 +48,16 @@ public class ClientPlatformManager {
      */
     private void start(ClientPlatformDo clientPlatform) {
         String hostname = SystemUtil.getHostInfo().getName();
-        if (!clientPlatform.checkHostname(hostname)) {
+        if (!clientPlatform.validateHostname(hostname)) {
             return;
         }
-        clientPlatform.bindHostname(hostname);
-        clientPlatformRepository.save(clientPlatform);
+        Map<String, Integer> accountState = cacheService.getClientPlatformAccountState(clientPlatform);
+        if (!clientPlatform.allocateAccount(accountState)) {
+            return;
+        }
+        clientPlatformLoginHistoryAppService.loadLastLoginHistory(clientPlatform);
         startNetty(clientPlatform);
+        clientPlatformRepository.save(clientPlatform);
     }
 
     /**

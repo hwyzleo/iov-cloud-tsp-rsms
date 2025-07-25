@@ -75,4 +75,10 @@ public class ClientPlatformPo extends BasePo {
      */
     @TableField("enable")
     private Boolean enable;
+
+    /**
+     * 绑定主机名
+     */
+    @TableField("hostname")
+    private String hostname;
 }

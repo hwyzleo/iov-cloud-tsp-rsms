@@ -59,6 +59,11 @@ public class ClientPlatformMpt extends BaseRequest {
     private Boolean enable;
 
     /**
+     * 绑定主机名
+     */
+    private String hostname;
+
+    /**
      * 连接状态
      */
     private Map<String, Boolean> connectState;

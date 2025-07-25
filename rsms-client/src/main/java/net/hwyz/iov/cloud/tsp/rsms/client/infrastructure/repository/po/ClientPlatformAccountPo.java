@@ -52,14 +52,20 @@ public class ClientPlatformAccountPo extends BasePo {
     private String password;
 
     /**
-     * 绑定主机名
+     * 使用上限
      */
-    @TableField("hostname")
-    private String hostname;
+    @TableField("use_limit")
+    private Integer useLimit;
 
     /**
      * 是否启用
      */
     @TableField("enable")
-    private Byte enable;
+    private Boolean enable;
+
+    /**
+     * 排序
+     */
+    @TableField("sort")
+    private Integer sort;
 }

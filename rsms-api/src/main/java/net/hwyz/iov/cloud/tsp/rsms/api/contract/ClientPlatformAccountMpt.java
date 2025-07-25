@@ -4,7 +4,6 @@ import lombok.*;
 import net.hwyz.iov.cloud.framework.common.web.domain.BaseRequest;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * 管理后台客户端平台账号
@@ -39,9 +38,9 @@ public class ClientPlatformAccountMpt extends BaseRequest {
     private String password;
 
     /**
-     * 绑定主机名
+     * 使用上限
      */
-    private String hostname;
+    private Integer useLimit;
 
     /**
      * 是否启用
@@ -49,24 +48,9 @@ public class ClientPlatformAccountMpt extends BaseRequest {
     private Boolean enable;
 
     /**
-     * 连接状态
+     * 排序
      */
-    private Map<String, Boolean> connectState;
-
-    /**
-     * 连接统计
-     */
-    private String connectStat;
-
-    /**
-     * 登录状态
-     */
-    private Map<String, Boolean> loginState;
-
-    /**
-     * 登录统计
-     */
-    private String loginStat;
+    private Integer sort;
 
     /**
      * 创建时间

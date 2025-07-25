@@ -19,22 +19,23 @@
         <result column="encrypt_type" property="encryptType" />
         <result column="encrypt_key" property="encryptKey" />
         <result column="enable" property="enable" />
+        <result column="hostname" property="hostname" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, server_platform_code, unique_code, collect_frequency, report_frequency, encrypt_type, encrypt_key, enable,
+        id, server_platform_code, unique_code, collect_frequency, report_frequency, encrypt_type, encrypt_key, enable, hostname,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_client_platform (
-            id, server_platform_code, unique_code, collect_frequency, report_frequency, encrypt_type, encrypt_key, enable,
+            id, server_platform_code, unique_code, collect_frequency, report_frequency, encrypt_type, encrypt_key, enable, hostname,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{serverPlatformCode}, #{uniqueCode}, #{collectFrequency}, #{reportFrequency}, #{encryptType}, #{encryptKey}, #{enable},
+            #{id}, #{serverPlatformCode}, #{uniqueCode}, #{collectFrequency}, #{reportFrequency}, #{encryptType}, #{encryptKey}, #{enable}, #{hostname},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -42,13 +43,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_client_platform (
-            id, server_platform_code, unique_code, collect_frequency, report_frequency, encrypt_type, encrypt_key, enable,
+            id, server_platform_code, unique_code, collect_frequency, report_frequency, encrypt_type, encrypt_key, enable, hostname,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.serverPlatformCode}, #{item.uniqueCode}, #{item.collectFrequency}, #{item.reportFrequency}, #{item.encryptType}, #{item.encryptKey}, #{item.enable},
+            #{item.id}, #{item.serverPlatformCode}, #{item.uniqueCode}, #{item.collectFrequency}, #{item.reportFrequency}, #{item.encryptType}, #{item.encryptKey}, #{item.enable}, #{item.hostname},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -77,6 +78,9 @@
         </if>
         <if test="enable != null">
             t.enable = #{enable},
+        </if>
+        <if test="hostname != null and hostname != ''">
+            t.hostname = #{hostname},
         </if>
         <if test="description != null and description != ''">
             t.description = #{description},
@@ -149,6 +153,9 @@
         </if>
         <if test="enable != null">
             AND t.enable = #{enable}
+        </if>
+        <if test="hostname != null and hostname != ''">
+            AND t.hostname = #{hostname}
         </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}

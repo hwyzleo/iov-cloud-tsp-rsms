@@ -164,7 +164,7 @@
         WHERE t.row_valid = 1
         AND t.enable = 1
         AND client_platform_id = #{clientPlatformId}
-        ORDER BY t.id DESC
+        ORDER BY t.sort ASC
     </select>
 
     <!-- 根据Map对象统计记录数 -->

@@ -27,18 +27,32 @@ public class ClientPlatformLoginHistoryAppService {
     private final ClientPlatformLoginHistoryDao clientPlatformLoginHistoryDao;
 
     /**
+     * 加载上次登录历史
+     *
+     * @param clientPlatform 客户端平台
+     */
+    public void loadLastLoginHistory(ClientPlatformDo clientPlatform) {
+        logger.info("客户端平台[{}:{}:{}]加载上次登录历史", clientPlatform.getId(), clientPlatform.getUsername(), clientPlatform.getCurrentHostname());
+        ClientPlatformLoginHistoryPo loginHistory = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
+                clientPlatform.getUsername(), clientPlatform.getHostname());
+        if (ObjUtil.isNotNull(loginHistory)) {
+           clientPlatform.loadLoginHistory(loginHistory);
+        }
+    }
+
+    /**
      * 记录客户端平台登录历史
      *
      * @param clientPlatform 客户端平台
      */
     public void recordLogin(ClientPlatformDo clientPlatform) {
-        logger.info("记录客户端平台[{}:{}:{}]登录[{}]历史", clientPlatform.getClientPlatformId(), clientPlatform.getUsername(),
+        logger.info("记录客户端平台[{}:{}:{}]登录[{}]历史", clientPlatform.getId(), clientPlatform.getUsername(),
                 clientPlatform.getCurrentHostname(), clientPlatform.getLoginState().get());
-        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getClientPlatformId(),
+        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
                 clientPlatform.getUsername(), clientPlatform.getCurrentHostname());
         if (ObjUtil.isNull(history) || !dateCompare(history.getLoginTime(), clientPlatform.getLoginTime())) {
             clientPlatformLoginHistoryDao.insertPo(ClientPlatformLoginHistoryPo.builder()
-                    .clientPlatformId(clientPlatform.getClientPlatformId())
+                    .clientPlatformId(clientPlatform.getId())
                     .username(clientPlatform.getUsername())
                     .hostname(clientPlatform.getCurrentHostname())
                     .loginTime(clientPlatform.getLoginTime())
@@ -56,9 +70,9 @@ public class ClientPlatformLoginHistoryAppService {
      * @param clientPlatform 客户端平台
      */
     public void recordLogout(ClientPlatformDo clientPlatform) {
-        logger.info("记录客户端平台[{}:{}:{}]登出[{}]历史", clientPlatform.getClientPlatformId(), clientPlatform.getUsername(),
+        logger.info("记录客户端平台[{}:{}:{}]登出[{}]历史", clientPlatform.getId(), clientPlatform.getUsername(),
                 clientPlatform.getCurrentHostname(), clientPlatform.getLoginState().get());
-        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getClientPlatformId(),
+        ClientPlatformLoginHistoryPo history = clientPlatformLoginHistoryDao.selectLastPoByClientPlatformId(clientPlatform.getId(),
                 clientPlatform.getUsername(), clientPlatform.getCurrentHostname());
         if (ObjUtil.isNotNull(history) && dateCompare(history.getLoginTime(), clientPlatform.getLoginTime())) {
             history.setLogoutTime(clientPlatform.getLogoutTime());
