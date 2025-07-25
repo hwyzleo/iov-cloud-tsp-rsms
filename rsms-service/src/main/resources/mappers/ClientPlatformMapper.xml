@@ -73,13 +73,13 @@
         <if test="encryptType != null and encryptType != ''">
             t.encrypt_type = #{encryptType},
         </if>
-        <if test="encryptKey != null and encryptKey != ''">
+        <if test="encryptKey != null">
             t.encrypt_key = #{encryptKey},
         </if>
         <if test="enable != null">
             t.enable = #{enable},
         </if>
-        <if test="hostname != null and hostname != ''">
+        <if test="hostname != null">
             t.hostname = #{hostname},
         </if>
         <if test="description != null and description != ''">
