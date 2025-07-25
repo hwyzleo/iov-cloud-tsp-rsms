@@ -14,13 +14,11 @@
         <result column="row_valid" property="rowValid" />
         <result column="client_platform_id" property="clientPlatformId" />
         <result column="vin" property="vin" />
-        <result column="report_state" property="reportState" />
-        <result column="model" property="model" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        t.id, t.client_platform_id, t.vin, r.report_state, r.model,
+        t.id, t.client_platform_id, t.vin,
         t.description, t.create_time, t.create_by, t.modify_time, t.modify_by, t.row_version, t.row_valid
     </sql>
 
@@ -119,12 +117,6 @@
         <if test="vin != null and vin != ''">
             AND t.vin = #{vin}
         </if>
-        <if test="reportState != null">
-            AND r.report_state = #{reportState}
-        </if>
-        <if test="model != null and model != ''">
-            AND r.model = #{model}
-        </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}
         </if>
@@ -159,9 +151,6 @@
         </if>
         <if test="vin != null and vin != ''">
             AND t.vin = #{vin}
-        </if>
-        <if test="reportState != null">
-            AND r.report_state = #{reportState}
         </if>
         <if test="beginTime != null">
             AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
