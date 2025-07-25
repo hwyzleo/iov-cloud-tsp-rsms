@@ -15,24 +15,25 @@
         <result column="client_platform_id" property="clientPlatformId" />
         <result column="username" property="username" />
         <result column="password" property="password" />
-        <result column="hostname" property="hostname" />
+        <result column="use_limit" property="useLimit" />
         <result column="enable" property="enable" />
+        <result column="sort" property="sort" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="baseColumnList">
-        id, client_platform_id, username, password, hostname, enable, 
+        id, client_platform_id, username, password, use_limit, enable, sort,
         description, create_time, create_by, modify_time, modify_by, row_version, row_valid
     </sql>
 
     <!-- 插入 -->
     <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO tb_client_platform_account (
-            id, client_platform_id, username, password, hostname, enable, 
+            id, client_platform_id, username, password, use_limit, enable, sort,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES (
-            #{id}, #{clientPlatformId}, #{username}, #{password}, #{hostname}, #{enable}, 
+            #{id}, #{clientPlatformId}, #{username}, #{password}, #{useLimit}, #{enable}, #{sort},
             #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
         )
     </insert>
@@ -40,13 +41,13 @@
     <!-- 批量插入 -->
     <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         INSERT INTO tb_client_platform_account (
-            id, client_platform_id, username, password, hostname, enable, 
+            id, client_platform_id, username, password, use_limit, enable, sort,
             description, create_time, create_by, modify_time, modify_by, row_version, row_valid
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
         (
-            #{item.id}, #{item.clientPlatformId}, #{item.username}, #{item.password}, #{item.hostname}, #{item.enable}, 
+            #{item.id}, #{item.clientPlatformId}, #{item.username}, #{item.password}, #{item.useLimit}, #{item.enable}, #{item.sort},
             #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
         )
         </foreach>
@@ -64,11 +65,14 @@
         <if test="password != null and password != ''">
             t.password = #{password},
         </if>
-        <if test="hostname != null and hostname != ''">
-            t.hostname = #{hostname},
+        <if test="useLimit != null">
+            t.use_limit = #{useLimit},
         </if>
         <if test="enable != null">
             t.enable = #{enable},
+        </if>
+        <if test="sort != null">
+            t.sort = #{sort},
         </if>
         <if test="description != null and description != ''">
             t.description = #{description},
@@ -121,11 +125,14 @@
         <if test="password != null and password != ''">
             AND t.password = #{password}
         </if>
-        <if test="hostname != null and hostname != ''">
-            AND t.hostname = #{hostname}
+        <if test="useLimit != null">
+            AND t.use_limit = #{useLimit}
         </if>
         <if test="enable != null">
             AND t.enable = #{enable}
+        </if>
+        <if test="sort != null">
+            AND t.sort = #{sort}
         </if>
         <if test="description != null and description != ''">
             AND t.description = #{description}
