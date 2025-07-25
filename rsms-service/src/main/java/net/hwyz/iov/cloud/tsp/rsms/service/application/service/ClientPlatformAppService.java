@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ClientPlatformAccountDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ClientPlatformDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformAccountPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,6 +23,7 @@ import java.util.*;
 public class ClientPlatformAppService {
 
     private final ClientPlatformDao clientPlatformDao;
+    private final RegisteredVehicleDao registeredVehicleDao;
     private final ClientPlatformAccountDao clientPlatformAccountDao;
 
     /**
@@ -59,6 +62,18 @@ public class ClientPlatformAppService {
      */
     public List<ClientPlatformAccountPo> listAccount(Long clientPlatformId) {
         return clientPlatformAccountDao.selectPoByExample(ClientPlatformAccountPo.builder()
+                .clientPlatformId(clientPlatformId)
+                .build());
+    }
+
+    /**
+     * 根据客户端平台ID查询已注册车辆
+     *
+     * @param clientPlatformId 客户端平台ID
+     * @return 已注册车辆列表
+     */
+    public List<RegisteredVehiclePo> listRegisteredVehicle(Long clientPlatformId) {
+        return registeredVehicleDao.selectPoByExample(RegisteredVehiclePo.builder()
                 .clientPlatformId(clientPlatformId)
                 .build());
     }
@@ -104,6 +119,16 @@ public class ClientPlatformAppService {
     }
 
     /**
+     * 新增注册车辆
+     *
+     * @param registeredVehicle 注册车辆
+     * @return 结果
+     */
+    public int createRegisteredVehicle(RegisteredVehiclePo registeredVehicle) {
+        return registeredVehicleDao.insertPo(registeredVehicle);
+    }
+
+    /**
      * 修改客户端平台
      *
      * @param clientPlatform 客户端平台
@@ -141,6 +166,16 @@ public class ClientPlatformAppService {
      */
     public int deleteClientPlatformAccountByIds(Long[] ids) {
         return clientPlatformAccountDao.batchPhysicalDeletePo(ids);
+    }
+
+    /**
+     * 批量删除注册车辆
+     *
+     * @param ids 注册车辆ID数组
+     * @return 结果
+     */
+    public int deleteRegisteredVehicleByIds(Long[] ids) {
+        return registeredVehicleDao.batchPhysicalDeletePo(ids);
     }
 
 }

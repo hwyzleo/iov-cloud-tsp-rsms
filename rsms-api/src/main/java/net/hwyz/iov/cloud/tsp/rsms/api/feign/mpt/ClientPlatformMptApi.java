@@ -6,6 +6,7 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformAccountMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformLoginHistoryMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.RegisteredVehicleMpt;
 
 import java.util.List;
 
@@ -40,6 +41,15 @@ public interface ClientPlatformMptApi {
      * @return 客户端平台登录历史列表
      */
     TableDataInfo listLoginHistory(Long clientPlatformId, ClientPlatformLoginHistoryMpt clientPlatformLoginHistory);
+
+    /**
+     * 分页查询客户端平台下注册车辆
+     *
+     * @param clientPlatformId  客户端平台ID
+     * @param registeredVehicle 已注册车辆
+     * @return 客户端平台已注册车辆列表
+     */
+    TableDataInfo listRegisteredVehicle(Long clientPlatformId, RegisteredVehicleMpt registeredVehicle);
 
     /**
      * 导出客户端平台
@@ -83,6 +93,15 @@ public interface ClientPlatformMptApi {
     AjaxResult addAccount(Long clientPlatformId, ClientPlatformAccountMpt clientPlatformAccount);
 
     /**
+     * 新增客户端平台注册车辆
+     *
+     * @param clientPlatformId  客户端平台ID
+     * @param registeredVehicle 注册车辆
+     * @return 结果
+     */
+    AjaxResult addRegisteredVehicle(Long clientPlatformId, RegisteredVehicleMpt registeredVehicle);
+
+    /**
      * 修改保存客户端平台
      *
      * @param clientPlatform 客户端平台
@@ -115,6 +134,15 @@ public interface ClientPlatformMptApi {
      * @return 结果
      */
     AjaxResult removeAccount(Long clientPlatformId, Long[] clientPlatformAccountIds);
+
+    /**
+     * 删除注册车辆
+     *
+     * @param clientPlatformId     客户端平台ID
+     * @param registeredVehicleIds 注册车辆ID数组
+     * @return 结果
+     */
+    AjaxResult removeRegisteredVehicle(Long clientPlatformId, Long[] registeredVehicleIds);
 
     /**
      * 同步平台信息

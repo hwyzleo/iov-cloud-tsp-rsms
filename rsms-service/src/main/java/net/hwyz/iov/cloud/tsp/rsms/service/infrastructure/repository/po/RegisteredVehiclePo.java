@@ -47,16 +47,4 @@ public class RegisteredVehiclePo extends BasePo {
     @TableField("vin")
     private String vin;
 
-    /**
-     * 上报状态
-     */
-    @TableField("report_state")
-    private Integer reportState;
-
-    /**
-     * 车辆备案时所用车辆型号
-     */
-    @TableField("model")
-    private String model;
-
 }

@@ -13,6 +13,7 @@ import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformAccountMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformLoginHistoryMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ClientPlatformMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.RegisteredVehicleMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ClientPlatformMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
@@ -20,11 +21,13 @@ import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformLog
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformAccountMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformLoginHistoryMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ClientPlatformMptAssembler;
+import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.RegisteredVehicleMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformAccountPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformLoginHistoryPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ClientPlatformPo;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -107,6 +110,24 @@ public class ClientPlatformMptController extends BaseController implements Clien
     }
 
     /**
+     * 分页查询客户端平台下注册车辆
+     *
+     * @param clientPlatformId  客户端平台ID
+     * @param registeredVehicle 已注册车辆
+     * @return 客户端平台已注册车辆列表
+     */
+    @RequiresPermissions("iov:rsms:clientPlatform:listRegisteredVehicle")
+    @Override
+    @GetMapping(value = "/{clientPlatformId}/listRegisteredVehicle")
+    public TableDataInfo listRegisteredVehicle(@PathVariable Long clientPlatformId, RegisteredVehicleMpt registeredVehicle) {
+        logger.info("管理后台用户[{}]分页查询客户端平台[{}]下注册车辆", SecurityUtils.getUsername(), clientPlatformId);
+        startPage();
+        List<RegisteredVehiclePo> registeredVehiclePoList = clientPlatformAppService.listRegisteredVehicle(clientPlatformId);
+        List<RegisteredVehicleMpt> registeredVehicleMptList = RegisteredVehicleMptAssembler.INSTANCE.fromPoList(registeredVehiclePoList);
+        return getDataTable(registeredVehiclePoList, registeredVehicleMptList);
+    }
+
+    /**
      * 导出客户端平台
      *
      * @param response       响应
@@ -176,13 +197,32 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @Log(title = "客户端平台账号管理", businessType = BusinessType.INSERT)
     @RequiresPermissions("iov:rsms:clientPlatform:addAccount")
     @Override
-    @PostMapping("/{clientPlatformId}")
+    @PostMapping("/{clientPlatformId}/account")
     public AjaxResult addAccount(@PathVariable Long clientPlatformId, @Validated @RequestBody ClientPlatformAccountMpt clientPlatformAccount) {
         logger.info("管理后台用户[{}]新增客户端平台[{}]账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccount.getUsername());
         clientPlatformAccount.setClientPlatformId(clientPlatformId);
         ClientPlatformAccountPo clientPlatformAccountPo = ClientPlatformAccountMptAssembler.INSTANCE.toPo(clientPlatformAccount);
         clientPlatformAccountPo.setCreateBy(SecurityUtils.getUserId().toString());
         return toAjax(clientPlatformAppService.createClientPlatformAccount(clientPlatformAccountPo));
+    }
+
+    /**
+     * 新增客户端平台注册车辆
+     *
+     * @param clientPlatformId  客户端平台ID
+     * @param registeredVehicle 注册车辆
+     * @return 结果
+     */
+    @Log(title = "客户端平台注册车辆管理", businessType = BusinessType.INSERT)
+    @RequiresPermissions("iov:rsms:clientPlatform:addRegisteredVehicle")
+    @Override
+    @PostMapping("/{clientPlatformId}/registeredVehicle")
+    public AjaxResult addRegisteredVehicle(@PathVariable Long clientPlatformId, @Validated @RequestBody RegisteredVehicleMpt registeredVehicle) {
+        logger.info("管理后台用户[{}]新增客户端平台[{}]注册车辆[{}]", SecurityUtils.getUsername(), clientPlatformId, registeredVehicle.getVin());
+        registeredVehicle.setClientPlatformId(clientPlatformId);
+        RegisteredVehiclePo registeredVehiclePo = RegisteredVehicleMptAssembler.INSTANCE.toPo(registeredVehicle);
+        registeredVehiclePo.setCreateBy(SecurityUtils.getUserId().toString());
+        return toAjax(clientPlatformAppService.createRegisteredVehicle(registeredVehiclePo));
     }
 
     /**
@@ -212,7 +252,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @Log(title = "客户端平台账号管理", businessType = BusinessType.UPDATE)
     @RequiresPermissions("iov:rsms:clientPlatform:editAccount")
     @Override
-    @PutMapping("/{clientPlatformId}")
+    @PutMapping("/{clientPlatformId}/account")
     public AjaxResult editAccount(@PathVariable Long clientPlatformId, @Validated @RequestBody ClientPlatformAccountMpt clientPlatformAccount) {
         logger.info("管理后台用户[{}]修改保存客户端平台[{}]账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccount.getUsername());
         clientPlatformAccount.setClientPlatformId(clientPlatformId);
@@ -246,10 +286,26 @@ public class ClientPlatformMptController extends BaseController implements Clien
     @Log(title = "客户端平台账号管理", businessType = BusinessType.DELETE)
     @RequiresPermissions("iov:rsms:clientPlatform:removeAccount")
     @Override
-    @DeleteMapping("/{clientPlatformId}/{clientPlatformAccountIds}")
+    @DeleteMapping("/{clientPlatformId}/account/{clientPlatformAccountIds}")
     public AjaxResult removeAccount(@PathVariable Long clientPlatformId, @PathVariable Long[] clientPlatformAccountIds) {
         logger.info("管理后台用户[{}]删除客户端平台[{}]下账号[{}]", SecurityUtils.getUsername(), clientPlatformId, clientPlatformAccountIds);
         return toAjax(clientPlatformAppService.deleteClientPlatformAccountByIds(clientPlatformAccountIds));
+    }
+
+    /**
+     * 删除注册车辆
+     *
+     * @param clientPlatformId     客户端平台ID
+     * @param registeredVehicleIds 注册车辆ID数组
+     * @return 结果
+     */
+    @Log(title = "客户端平台注册车辆管理", businessType = BusinessType.DELETE)
+    @RequiresPermissions("iov:rsms:clientPlatform:removeRegisteredVehicle")
+    @Override
+    @DeleteMapping("/{clientPlatformId}/registeredVehicle/{registeredVehicleIds}")
+    public AjaxResult removeRegisteredVehicle(@PathVariable Long clientPlatformId, @PathVariable Long[] registeredVehicleIds) {
+        logger.info("管理后台用户[{}]删除客户端平台[{}]下注册车辆[{}]", SecurityUtils.getUsername(), clientPlatformId, registeredVehicleIds);
+        return toAjax(clientPlatformAppService.deleteRegisteredVehicleByIds(registeredVehicleIds));
     }
 
     /**
