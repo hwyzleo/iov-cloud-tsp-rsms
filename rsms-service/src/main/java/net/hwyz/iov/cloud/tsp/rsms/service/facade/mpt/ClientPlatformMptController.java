@@ -118,7 +118,7 @@ public class ClientPlatformMptController extends BaseController implements Clien
      */
     @RequiresPermissions("iov:rsms:clientPlatform:listRegisteredVehicle")
     @Override
-    @GetMapping(value = "/{clientPlatformId}/listRegisteredVehicle")
+    @GetMapping(value = "/{clientPlatformId}/registeredVehicle")
     public TableDataInfo listRegisteredVehicle(@PathVariable Long clientPlatformId, RegisteredVehicleMpt registeredVehicle) {
         logger.info("管理后台用户[{}]分页查询客户端平台[{}]下注册车辆", SecurityUtils.getUsername(), clientPlatformId);
         startPage();
