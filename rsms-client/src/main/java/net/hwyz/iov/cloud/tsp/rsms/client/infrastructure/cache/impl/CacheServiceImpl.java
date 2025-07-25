@@ -158,7 +158,6 @@ public class CacheServiceImpl implements CacheService {
             redisTemplate.opsForHash().put(REDIS_KEY_CLIENT_PLATFORM_STATE, clientPlatform.getUniqueKey(), String.valueOf(System.currentTimeMillis()));
         }
         redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_CLIENT_PLATFORM_LOGIN_STATE + clientPlatform.getUniqueKey(),
-                clientPlatform.getUsername() + "-" + clientPlatform.getCurrentHostname(),
-                String.valueOf(clientPlatform.isLogin()));
+                clientPlatform.getCurrentHostname(), String.valueOf(clientPlatform.isLogin()));
     }
 }
