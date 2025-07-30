@@ -1,5 +1,6 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checker;
 
+import cn.hutool.core.util.ObjUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -9,41 +10,39 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 连续等值检查器
+ * 连续空值检查器
  *
  * @author hwyz_leo
  */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class ContinuousMatchValueChecker extends AbstractChecker {
+public class ContinuousNullValueChecker extends AbstractChecker {
 
-    private Integer matchValue;
     private Date startTime;
     private Date endTime;
     private Long continuousCount;
     private List<String> errors;
 
-    public ContinuousMatchValueChecker(String vin, String category, String type, String item, Integer matchValue) {
+    public ContinuousNullValueChecker(String vin, String category, String type, String item) {
         this.vin = vin;
         this.category = category;
         this.type = type;
         this.item = item;
         this.count = 0L;
-        this.matchValue = matchValue;
         this.errorCount = 0L;
     }
 
     /**
      * 检查
      *
-     * @param object 1-待比较值，2-消息时间
+     * @param object 1-待检查值，2-消息时间
      */
     @Override
     public void check(Object... object) {
         Object value = object[0];
         Date messageTime = (Date) object[1];
-        if (Integer.parseInt(value.toString()) == this.matchValue) {
+        if (ObjUtil.isNull(value)) {
             this.continuousCount++;
             if (this.startTime == null) {
                 this.count++;
@@ -61,4 +60,6 @@ public class ContinuousMatchValueChecker extends AbstractChecker {
             this.continuousCount = 0L;
         }
     }
+
+
 }
