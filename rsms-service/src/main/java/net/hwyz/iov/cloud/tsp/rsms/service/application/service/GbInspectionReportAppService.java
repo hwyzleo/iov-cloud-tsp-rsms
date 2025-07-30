@@ -8,7 +8,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.impl.StandardInspectionHandler;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.StandardInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionReportDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;

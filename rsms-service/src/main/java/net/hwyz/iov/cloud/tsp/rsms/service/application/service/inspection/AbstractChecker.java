@@ -2,8 +2,6 @@ package net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection;
 
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * 检查器抽象类
  *
@@ -17,16 +15,31 @@ public abstract class AbstractChecker {
      */
     protected String vin;
     /**
-     * 消息时间
-     */
-    protected Date messageTime;
-    /**
      * 大类
      */
     protected String category;
     /**
+     * 小类
+     */
+    protected String type;
+    /**
      * 检查项
      */
     protected String item;
+    /**
+     * 总数
+     */
+    protected Long count;
+    /**
+     * 错误数
+     */
+    protected Long errorCount;
+
+    /**
+     * 进行检查
+     *
+     * @param object 入参
+     */
+    public abstract void check(Object... object);
 
 }
