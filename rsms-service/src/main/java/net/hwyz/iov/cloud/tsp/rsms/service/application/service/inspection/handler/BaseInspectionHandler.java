@@ -9,10 +9,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbReissueReportDataUnit
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.AbstractChecker;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.CheckItem;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.InspectionHandler;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checker.ContinuousMatchValueChecker;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checker.ContinuousNullValueChecker;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checker.MatchValueChecker;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checker.NullValueChecker;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checker.*;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionItemPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
 
@@ -35,6 +32,8 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
     protected static final String TYPE_INVALID_CONTINUOUS = "INVALID_CONTINUOUS";
     protected static final String TYPE_NULL = "NULL";
     protected static final String TYPE_NULL_CONTINUOUS = "NULL_CONTINUOUS";
+    protected static final String TYPE_RANGE = "RANGE";
+    protected static final String TYPE_RANGE_CONTINUOUS = "RANGE_CONTINUOUS";
 
     @Override
     public void inspect(GbInspectionReportPo report, List<GbMessage> gbMessages) {
@@ -191,6 +190,10 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
                         vehicleCheckers.put(mapKey, new NullValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey));
                 case TYPE_NULL_CONTINUOUS ->
                         vehicleCheckers.put(mapKey, new ContinuousNullValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey));
+                case TYPE_RANGE ->
+                        vehicleCheckers.put(mapKey, new RangeValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey, item.getMinValue(), item.getMaxValue()));
+                case TYPE_RANGE_CONTINUOUS ->
+                        vehicleCheckers.put(mapKey, new ContinuousRangeValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey, item.getMinValue(), item.getMaxValue()));
             }
         }
         return vehicleCheckers.get(mapKey);

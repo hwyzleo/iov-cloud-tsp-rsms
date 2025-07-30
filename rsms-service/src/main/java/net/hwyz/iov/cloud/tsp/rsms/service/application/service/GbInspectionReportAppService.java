@@ -8,6 +8,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.AccuracyInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.IntegrityInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.StandardInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionReportDao;
@@ -109,8 +110,10 @@ public class GbInspectionReportAppService {
         }
         StandardInspectionHandler standardInspectionHandler = ctx.getBean(StandardInspectionHandler.class);
         IntegrityInspectionHandler integrityInspectionHandler = ctx.getBean(IntegrityInspectionHandler.class);
+        AccuracyInspectionHandler accuracyInspectionHandler = ctx.getBean(AccuracyInspectionHandler.class);
         standardInspectionHandler.inspect(gbInspectionReport, gbMessages);
         integrityInspectionHandler.inspect(gbInspectionReport, gbMessages);
+        accuracyInspectionHandler.inspect(gbInspectionReport, gbMessages);
     }
 
     /**
