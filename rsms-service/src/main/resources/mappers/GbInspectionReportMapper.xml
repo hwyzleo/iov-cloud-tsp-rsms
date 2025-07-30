@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionReportDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="baseResultMap" type="net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo">
+        <id column="id" property="id" />
+        <result column="description" property="description" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="modify_by" property="modifyBy" />
+        <result column="row_version" property="rowVersion" />
+        <result column="row_valid" property="rowValid" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="report_type" property="reportType" />
+        <result column="report_state" property="reportState" />
+        <result column="vehicle" property="vehicle" />
+        <result column="vehicle_start_time" property="vehicleStartTime" />
+        <result column="vehicle_end_time" property="vehicleEndTime" />
+        <result column="vehicle_count" property="vehicleCount" />
+        <result column="vehicle_data_count" property="vehicleDataCount" />
+        <result column="vehicle_nodata_count" property="vehicleNodataCount" />
+        <result column="vehicle_error_count" property="vehicleErrorCount" />
+        <result column="scene" property="scene" />
+        <result column="scene_start_time" property="sceneStartTime" />
+        <result column="scene_end_time" property="sceneEndTime" />
+        <result column="message_count" property="messageCount" />
+        <result column="message_error_count" property="messageErrorCount" />
+        <result column="data_count" property="dataCount" />
+        <result column="data_error_count" property="dataErrorCount" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="baseColumnList">
+        id, start_time, end_time, report_type, report_state, vehicle, vehicle_start_time, vehicle_end_time, vehicle_count, vehicle_data_count, vehicle_nodata_count, vehicle_error_count, scene, scene_start_time, scene_end_time, message_count, message_error_count, data_count, data_error_count,
+        description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+    </sql>
+
+    <!-- 插入 -->
+    <insert id="insertPo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tb_gb_inspection_report (
+            id, start_time, end_time, report_type, report_state, vehicle, vehicle_start_time, vehicle_end_time, vehicle_count, vehicle_data_count, vehicle_nodata_count, vehicle_error_count, scene, scene_start_time, scene_end_time, message_count, message_error_count, data_count, data_error_count,
+            description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+        )
+        VALUES (
+            #{id}, #{startTime}, #{endTime}, #{reportType}, #{reportState}, #{vehicle}, #{vehicleStartTime}, #{vehicleEndTime}, #{vehicleCount}, #{vehicleDataCount}, #{vehicleNodataCount}, #{vehicleErrorCount}, #{scene}, #{sceneStartTime}, #{sceneEndTime}, #{messageCount}, #{messageErrorCount}, #{dataCount}, #{dataErrorCount},
+            #{description}, now(), #{createBy}, now(), #{modifyBy}, 1, 1
+        )
+    </insert>
+
+    <!-- 批量插入 -->
+    <insert id="batchInsertPo" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        INSERT INTO tb_gb_inspection_report (
+            id, start_time, end_time, report_type, report_state, vehicle, vehicle_start_time, vehicle_end_time, vehicle_count, vehicle_data_count, vehicle_nodata_count, vehicle_error_count, scene, scene_start_time, scene_end_time, message_count, message_error_count, data_count, data_error_count,
+            description, create_time, create_by, modify_time, modify_by, row_version, row_valid
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+            #{item.id}, #{item.startTime}, #{item.endTime}, #{item.reportType}, #{item.reportState}, #{item.vehicle}, #{item.vehicleStartTime}, #{item.vehicleEndTime}, #{item.vehicleCount}, #{item.vehicleDataCount}, #{item.vehicleNodataCount}, #{item.vehicleErrorCount}, #{item.scene}, #{item.sceneStartTime}, #{item.sceneEndTime}, #{item.messageCount}, #{item.messageErrorCount}, #{item.dataCount}, #{item.dataErrorCount},
+            #{item.description}, now(), #{item.createBy}, now(), #{item.modifyBy}, 1, 1
+        )
+        </foreach>
+    </insert>
+
+    <!-- 更新 -->
+    <update id="updatePo" parameterType="net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo">
+        UPDATE tb_gb_inspection_report t SET
+        <if test="startTime != null">
+            t.start_time = #{startTime},
+        </if>
+        <if test="endTime != null">
+            t.end_time = #{endTime},
+        </if>
+        <if test="reportType != null">
+            t.report_type = #{reportType},
+        </if>
+        <if test="reportState != null">
+            t.report_state = #{reportState},
+        </if>
+        <if test="vehicle != null and vehicle != ''">
+            t.vehicle = #{vehicle},
+        </if>
+        <if test="vehicleStartTime != null">
+            t.vehicle_start_time = #{vehicleStartTime},
+        </if>
+        <if test="vehicleEndTime != null">
+            t.vehicle_end_time = #{vehicleEndTime},
+        </if>
+        <if test="vehicleCount != null">
+            t.vehicle_count = #{vehicleCount},
+        </if>
+        <if test="vehicleDataCount != null">
+            t.vehicle_data_count = #{vehicleDataCount},
+        </if>
+        <if test="vehicleNodataCount != null">
+            t.vehicle_nodata_count = #{vehicleNodataCount},
+        </if>
+        <if test="vehicleErrorCount != null">
+            t.vehicle_error_count = #{vehicleErrorCount},
+        </if>
+        <if test="scene != null">
+            t.scene = #{scene},
+        </if>
+        <if test="sceneStartTime != null">
+            t.scene_start_time = #{sceneStartTime},
+        </if>
+        <if test="sceneEndTime != null">
+            t.scene_end_time = #{sceneEndTime},
+        </if>
+        <if test="messageCount != null">
+            t.message_count = #{messageCount},
+        </if>
+        <if test="messageErrorCount != null">
+            t.message_error_count = #{messageErrorCount},
+        </if>
+        <if test="dataCount != null">
+            t.data_count = #{dataCount},
+        </if>
+        <if test="dataErrorCount != null">
+            t.data_error_count = #{dataErrorCount},
+        </if>
+        <if test="description != null and description != ''">
+            t.description = #{description},
+        </if>
+        <if test="modifyBy != null">
+            t.modify_by = #{modifyBy},
+        </if>
+        t.row_version = t.row_version + 1,
+        t.modify_time = now()
+        WHERE id = #{id}
+    </update>
+
+    <!-- 逻辑删除 -->
+    <update id="logicalDeletePo" parameterType="Long">
+        UPDATE tb_gb_inspection_report t SET
+        t.row_version = t.row_version + 1,
+        t.modify_time = now(),
+        t.row_valid = 0
+        WHERE t.id = #{value}
+    </update>
+
+    <!-- 物理删除 -->
+    <delete id="physicalDeletePo" parameterType="Long">
+        DELETE FROM tb_gb_inspection_report t
+        WHERE t.id = #{value}
+    </delete>
+
+    <!-- 批量物理删除 -->
+    <delete id="batchPhysicalDeletePo" parameterType="Long">
+        DELETE FROM tb_gb_inspection_report t
+        WHERE t.id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据主键获取对应数据 -->
+    <select id="selectPoById" parameterType="Long" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_gb_inspection_report t
+        WHERE t.id = #{value}
+        AND t.row_valid = 1
+    </select>
+
+    <!-- 根据数据对象获取对应数据列表 -->
+    <select id="selectPoByExample" parameterType="net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_gb_inspection_report t
+        WHERE t.row_valid = 1
+        <if test="id != null">
+            AND t.id = #{id}
+        </if>
+        <if test="startTime != null">
+            AND t.start_time = #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND t.end_time = #{endTime}
+        </if>
+        <if test="reportType != null">
+            AND t.report_type = #{reportType}
+        </if>
+        <if test="reportState != null">
+            AND t.report_state = #{reportState}
+        </if>
+        <if test="vehicle != null and vehicle != ''">
+            AND t.vehicle = #{vehicle}
+        </if>
+        <if test="vehicleStartTime != null">
+            AND t.vehicle_start_time = #{vehicleStartTime}
+        </if>
+        <if test="vehicleEndTime != null">
+            AND t.vehicle_end_time = #{vehicleEndTime}
+        </if>
+        <if test="vehicleCount != null">
+            AND t.vehicle_count = #{vehicleCount}
+        </if>
+        <if test="vehicleDataCount != null">
+            AND t.vehicle_data_count = #{vehicleDataCount}
+        </if>
+        <if test="vehicleNodataCount != null">
+            AND t.vehicle_nodata_count = #{vehicleNodataCount}
+        </if>
+        <if test="vehicleErrorCount != null">
+            AND t.vehicle_error_count = #{vehicleErrorCount}
+        </if>
+        <if test="scene != null">
+            AND t.scene = #{scene}
+        </if>
+        <if test="sceneStartTime != null">
+            AND t.scene_start_time = #{sceneStartTime}
+        </if>
+        <if test="sceneEndTime != null">
+            AND t.scene_end_time = #{sceneEndTime}
+        </if>
+        <if test="messageCount != null">
+            AND t.message_count = #{messageCount}
+        </if>
+        <if test="messageErrorCount != null">
+            AND t.message_error_count = #{messageErrorCount}
+        </if>
+        <if test="dataCount != null">
+            AND t.data_count = #{dataCount}
+        </if>
+        <if test="dataErrorCount != null">
+            AND t.data_error_count = #{dataErrorCount}
+        </if>
+        <if test="description != null and description != ''">
+            AND t.description = #{description}
+        </if>
+        <if test="createTime != null">
+            AND t.create_time = #{createTime}
+        </if>
+        <if test="createBy != null and createBy != ''">
+            AND t.create_by = #{createBy}
+        </if>
+        <if test="modifyTime != null">
+            AND t.modify_time = #{modifyTime}
+        </if>
+        <if test="modifyBy != null and modifyBy != ''">
+            AND t.modify_by = #{modifyBy}
+        </if>
+        <if test="rowVersion != null">
+            AND t.row_version = #{rowVersion}
+        </if>
+        ORDER BY t.id DESC
+    </select>
+
+    <!-- 根据Map对象获取对应数据列表 -->
+    <select id="selectPoByMap" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_gb_inspection_report t
+        WHERE t.row_valid = 1
+        <!-- 添加自定义条件 -->
+        ORDER BY t.id DESC
+    </select>
+
+    <!-- 根据Map对象统计记录数 -->
+    <select id="countPoByMap" parameterType="java.util.Map" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_gb_inspection_report t
+        WHERE t.row_valid = 1
+        <!-- 添加自定义条件 -->
+    </select>
+</mapper>

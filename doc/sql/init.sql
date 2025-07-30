@@ -206,3 +206,59 @@ CREATE TABLE `db_rsms`.`tb_vehicle_gb_alarm`
     INDEX `idx_vin` (`vin`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='车辆国标报警';
+
+DROP TABLE IF EXISTS `db_rsms`.`tb_gb_inspection_report`;
+CREATE TABLE `db_rsms`.`tb_gb_inspection_report`
+(
+    `id`                       BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `start_time`               TIMESTAMP    NOT NULL COMMENT '检测开始时间',
+    `end_time`                 TIMESTAMP    NOT NULL COMMENT '检测结束时间',
+    `report_type`              SMALLINT     NOT NULL COMMENT '报告类型：1-单车报告，2-车型报告',
+    `report_state`             SMALLINT     NOT NULL COMMENT '报告状态：1-处理中，2-处理结束',
+    `vehicle`                  VARCHAR(255) NOT NULL COMMENT '车型或车架号',
+    `vehicle_start_time`       TIMESTAMP             DEFAULT NULL COMMENT '单车开始时间',
+    `vehicle_end_time`         TIMESTAMP             DEFAULT NULL COMMENT '单车结束时间',
+    `vehicle_count`            INT                   DEFAULT NULL COMMENT '车辆数',
+    `vehicle_data_count`       INT                   DEFAULT NULL COMMENT '有数据车辆数',
+    `vehicle_nodata_count`     INT                   DEFAULT NULL COMMENT '无数据车辆数',
+    `vehicle_error_count`      INT                   DEFAULT NULL COMMENT '错误车辆数',
+    `scene`                    SMALLINT     NOT NULL COMMENT '场景：0-不指定，1-车辆行驶，2-车辆充电，3-车辆报警，4-车辆补发，5-平台补发',
+    `scene_start_time`         TIMESTAMP             DEFAULT NULL COMMENT '单车场景开始时间',
+    `scene_end_time`           TIMESTAMP             DEFAULT NULL COMMENT '单车场景结束时间',
+    `message_count`            BIGINT                DEFAULT NULL COMMENT '数据总条数',
+    `message_error_count`      BIGINT                DEFAULT NULL COMMENT '错误数据条数',
+    `data_count`               BIGINT                DEFAULT NULL COMMENT '数据总条数',
+    `data_error_count`         BIGINT                DEFAULT NULL COMMENT '错误数据条数',
+    `description`              VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`              TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`                VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`              TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`                VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`              INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`                TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='国标数据质量检测报告';
+
+DROP TABLE IF EXISTS `db_rsms`.`tb_gb_inspection_item`;
+CREATE TABLE `db_rsms`.`tb_gb_inspection_item`
+(
+    `id`                       BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `report_id`                BIGINT       NOT NULL COMMENT '报告主键',
+    `item_category`            VARCHAR(255) NOT NULL COMMENT '检查项大类',
+    `item_type`                VARCHAR(255)          DEFAULT NULL COMMENT '检查项小类',
+    `item_code`                VARCHAR(255) NOT NULL COMMENT '检查项',
+    `total_data_count`         BIGINT                DEFAULT NULL COMMENT '总数量',
+    `error_data_count`         BIGINT                DEFAULT NULL COMMENT '错误数量',
+    `total_vehicle_count`      BIGINT                DEFAULT NULL COMMENT '总车辆数',
+    `error_vehicle_count`      BIGINT                DEFAULT NULL COMMENT '错误车辆数',
+    `description`              VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+    `create_time`              TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `create_by`                VARCHAR(64)           DEFAULT NULL COMMENT '创建者',
+    `modify_time`              TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `modify_by`                VARCHAR(64)           DEFAULT NULL COMMENT '修改者',
+    `row_version`              INT                   DEFAULT 1 COMMENT '记录版本',
+    `row_valid`                TINYINT               DEFAULT 1 COMMENT '记录是否有效',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='国标数据质量检测项';

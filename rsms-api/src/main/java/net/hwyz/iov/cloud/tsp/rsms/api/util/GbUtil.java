@@ -5,7 +5,6 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ByteUtil;
-import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.framework.common.util.StrUtil;
@@ -388,6 +387,7 @@ public class GbUtil {
         if (StrUtil.isNotBlank(vin) && !gbMessage.getHeader().getUniqueCode().equalsIgnoreCase(vin)) {
             logger.warn("解析国标消息车架号[{}]不一致[{}]", vin, gbMessage.getHeader().getUniqueCode());
         }
+        gbMessage.setVin(gbMessage.getHeader().getUniqueCode());
         // 解析数据单元
         startPos += GB_DATA_HEADER_LENGTH;
         int dataUnitLength = gbMessage.getHeader().getDataUnitLength();

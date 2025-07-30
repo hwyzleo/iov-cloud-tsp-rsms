@@ -12,9 +12,7 @@ import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.ReportVehicleMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ReportVehicleMptApi;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ClientPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ReportVehicleAppService;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ServerPlatformAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ReportVehicleMptAssembler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
 import org.springframework.validation.annotation.Validated;
@@ -34,8 +32,6 @@ import java.util.List;
 public class ReportVehicleMptController extends BaseController implements ReportVehicleMptApi {
 
     private final ReportVehicleAppService reportVehicleAppService;
-    private final ClientPlatformAppService clientPlatformAppService;
-    private final ServerPlatformAppService serverPlatformAppService;
 
     /**
      * 分页查询上报车辆
@@ -135,7 +131,7 @@ public class ReportVehicleMptController extends BaseController implements Report
     @Override
     @DeleteMapping("/{reportVehicleIds}")
     public AjaxResult remove(@PathVariable Long[] reportVehicleIds) {
-        logger.info("管理后台用户[{}]删除服务端平台[{}]", SecurityUtils.getUsername(), reportVehicleIds);
+        logger.info("管理后台用户[{}]删除上报车辆[{}]", SecurityUtils.getUsername(), reportVehicleIds);
         return toAjax(reportVehicleAppService.deleteReportVehicleByIds(reportVehicleIds));
     }
 
