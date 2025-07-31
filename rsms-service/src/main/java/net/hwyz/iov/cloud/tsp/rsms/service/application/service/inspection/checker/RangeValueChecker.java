@@ -35,13 +35,15 @@ public class RangeValueChecker extends AbstractChecker {
      * @param object 待比较值
      */
     @Override
-    public long check(Object... object) {
+    public int check(Object... object) {
+        int isError = 0;
         Object value = object[0];
         this.count++;
         if (Integer.parseInt(value.toString()) < this.minValue || Integer.parseInt(value.toString()) > this.maxValue) {
             this.errorCount++;
+            isError = 1;
         }
-        return this.errorCount;
+        return isError;
     }
 
 

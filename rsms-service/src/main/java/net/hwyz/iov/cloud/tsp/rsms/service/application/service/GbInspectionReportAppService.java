@@ -113,11 +113,13 @@ public class GbInspectionReportAppService {
         IntegrityInspectionHandler integrityInspectionHandler = ctx.getBean(IntegrityInspectionHandler.class);
         AccuracyInspectionHandler accuracyInspectionHandler = ctx.getBean(AccuracyInspectionHandler.class);
         ConsistencyInspectionHandler consistencyInspectionHandler = ctx.getBean(ConsistencyInspectionHandler.class);
+        TimelinessInspectionHandler timelinessInspectionHandler = ctx.getBean(TimelinessInspectionHandler.class);
         SummaryInspectionHandler summaryInspectionHandler = ctx.getBean(SummaryInspectionHandler.class);
         standardInspectionHandler.inspect(gbInspectionReport, gbMessages);
         integrityInspectionHandler.inspect(gbInspectionReport, gbMessages);
         accuracyInspectionHandler.inspect(gbInspectionReport, gbMessages);
         consistencyInspectionHandler.inspect(gbInspectionReport, gbMessages);
+        timelinessInspectionHandler.inspect(gbInspectionReport, gbMessages);
         summaryInspectionHandler.inspect(gbInspectionReport, gbMessages);
         gbInspectionReport.getItems().forEach(gbInspectionItemDao::insertPo);
         gbInspectionReport.setReportState(GbInspectionReportState.COMPLETED.getCode());

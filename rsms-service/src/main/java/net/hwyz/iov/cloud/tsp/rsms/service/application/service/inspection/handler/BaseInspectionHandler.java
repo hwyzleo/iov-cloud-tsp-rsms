@@ -26,6 +26,10 @@ import java.util.Map;
 public abstract class BaseInspectionHandler implements InspectionHandler {
 
     protected static final String CATEGORY_STANDARD = "STANDARD";
+    protected static final String CATEGORY_INTEGRITY = "INTEGRITY";
+    protected static final String CATEGORY_ACCURACY = "ACCURACY";
+    protected static final String CATEGORY_CONSISTENCY = "CONSISTENCY";
+    protected static final String CATEGORY_TIMELINESS = "TIMELINESS";
     protected static final String TYPE_ABNORMAL = "ABNORMAL";
     protected static final String TYPE_ABNORMAL_CONTINUOUS = "ABNORMAL_CONTINUOUS";
     protected static final String TYPE_INVALID = "INVALID";
@@ -35,6 +39,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
     protected static final String TYPE_RANGE = "RANGE";
     protected static final String TYPE_RANGE_CONTINUOUS = "RANGE_CONTINUOUS";
     protected static final String TYPE_INCONSISTENCY = "INCONSISTENCY";
+    protected static final String TYPE_DUPLICATE = "DUPLICATE";
 
     @Override
     public void inspect(GbInspectionReportPo report, List<GbMessage> gbMessages) {
@@ -42,8 +47,8 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
         gbMessages.forEach(message -> {
             String vin = message.getVin();
             Date messageTime = message.getMessageTime();
-            Map<String, AbstractChecker> vehicleCheckers = getVehicleChecker(vin, checkers);
-            long errorCount = 0;
+            Map<String, AbstractChecker> vehicleCheckers = getVehicleCheckers(vin, checkers);
+            int errorCount = 0;
             switch (message.getHeader().getCommandFlag()) {
                 case REALTIME_REPORT -> {
                     GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) message.getDataUnit();
@@ -68,7 +73,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param checkers 车辆检查器Map
      * @return 检查器
      */
-    protected Map<String, AbstractChecker> getVehicleChecker(String vin, Map<String, Map<String, AbstractChecker>> checkers) {
+    protected Map<String, AbstractChecker> getVehicleCheckers(String vin, Map<String, Map<String, AbstractChecker>> checkers) {
         if (!checkers.containsKey(vin)) {
             checkers.put(vin, initVehicleChecker(vin));
         }
@@ -94,8 +99,8 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param vehicleCheckers 车辆检查器
      * @return 错误数据数量
      */
-    protected long handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
-        long errorCount = 0;
+    protected int handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
+        int errorCount = 0;
         for (GbMessageDataInfo dataInfo : dataInfoList) {
             switch (dataInfo.getDataInfoType()) {
                 case VEHICLE -> {
@@ -197,15 +202,17 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
                 case TYPE_INVALID_CONTINUOUS ->
                         vehicleCheckers.put(mapKey, new ContinuousMatchValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey, item.getInvalidValue()));
                 case TYPE_NULL ->
-                        vehicleCheckers.put(mapKey, new NullValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey));
+                        vehicleCheckers.put(mapKey, new NullValueChecker(defaultChecker.getVin(), CATEGORY_INTEGRITY, type, itemKey));
                 case TYPE_NULL_CONTINUOUS ->
-                        vehicleCheckers.put(mapKey, new ContinuousNullValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey));
+                        vehicleCheckers.put(mapKey, new ContinuousNullValueChecker(defaultChecker.getVin(), CATEGORY_INTEGRITY, type, itemKey));
                 case TYPE_RANGE ->
-                        vehicleCheckers.put(mapKey, new RangeValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey, item.getMinValue(), item.getMaxValue()));
+                        vehicleCheckers.put(mapKey, new RangeValueChecker(defaultChecker.getVin(), CATEGORY_ACCURACY, type, itemKey, item.getMinValue(), item.getMaxValue()));
                 case TYPE_RANGE_CONTINUOUS ->
-                        vehicleCheckers.put(mapKey, new ContinuousRangeValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey, item.getMinValue(), item.getMaxValue()));
+                        vehicleCheckers.put(mapKey, new ContinuousRangeValueChecker(defaultChecker.getVin(), CATEGORY_ACCURACY, type, itemKey, item.getMinValue(), item.getMaxValue()));
                 case TYPE_INCONSISTENCY ->
-                        vehicleCheckers.put(mapKey, new MatchValueChecker(defaultChecker.getVin(), CATEGORY_STANDARD, type, itemKey, 1));
+                        vehicleCheckers.put(mapKey, new MatchValueChecker(defaultChecker.getVin(), CATEGORY_CONSISTENCY, type, itemKey, 1));
+                case TYPE_DUPLICATE ->
+                        vehicleCheckers.put(mapKey, new DuplicateTimeChecker(defaultChecker.getVin(), CATEGORY_TIMELINESS, type, itemKey));
             }
         }
         return vehicleCheckers.get(mapKey);
@@ -220,7 +227,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param vehicleCheckers 车辆检查器
      * @return 错误数量
      */
-    public long validate(Date messageTime, int value, CheckItem item, Map<String, AbstractChecker> vehicleCheckers) {
+    public int validate(Date messageTime, int value, CheckItem item, Map<String, AbstractChecker> vehicleCheckers) {
         return validate(messageTime, value, item, null, vehicleCheckers);
     }
 
@@ -234,7 +241,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param vehicleCheckers 车辆检查器
      * @return 错误数量
      */
-    public abstract long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers);
+    public abstract int validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers);
 
     /**
      * 汇总所有车辆检查数据
@@ -242,7 +249,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param report   检查报告
      * @param checkers 检查项
      */
-    private void summarize(GbInspectionReportPo report, Map<String, Map<String, AbstractChecker>> checkers) {
+    protected void summarize(GbInspectionReportPo report, Map<String, Map<String, AbstractChecker>> checkers) {
         Map<String, GbInspectionItemPo> map = new HashMap<>();
         checkers.forEach((vin, vehicleCheckers) -> {
             vehicleCheckers.forEach((item, checker) -> {

@@ -5,26 +5,29 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.AbstractChecker;
 
+import java.util.Date;
+import java.util.Set;
+
 /**
- * 等值检查器
+ * 重复时间检查器
  *
  * @author hwyz_leo
  */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class MatchValueChecker extends AbstractChecker {
+public class DuplicateTimeChecker extends AbstractChecker {
 
-    private Integer matchValue;
+    private Set<Long> timestamps;
 
-    public MatchValueChecker(String vin, String category, String type, String item, Integer matchValue) {
+    public DuplicateTimeChecker(String vin, String category, String type, String item) {
         this.vin = vin;
         this.category = category;
         this.type = type;
         this.item = item;
         this.count = 0L;
-        this.matchValue = matchValue;
         this.errorCount = 0L;
+        this.timestamps = Set.of();
     }
 
     /**
@@ -34,13 +37,14 @@ public class MatchValueChecker extends AbstractChecker {
      */
     @Override
     public int check(Object... object) {
+        Date value = (Date) object[0];
         int isError = 0;
-        Object value = object[0];
         this.count++;
-        if (Integer.parseInt(value.toString()) == this.matchValue) {
+        if (this.timestamps.contains(value.getTime())) {
             this.errorCount++;
             isError = 1;
         }
+        this.timestamps.add(value.getTime());
         return isError;
     }
 

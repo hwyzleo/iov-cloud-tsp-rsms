@@ -45,7 +45,7 @@ public class SummaryInspectionHandler extends BaseInspectionHandler implements I
     }
 
     @Override
-    public long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
+    public int validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
         return 0;
     }
 }

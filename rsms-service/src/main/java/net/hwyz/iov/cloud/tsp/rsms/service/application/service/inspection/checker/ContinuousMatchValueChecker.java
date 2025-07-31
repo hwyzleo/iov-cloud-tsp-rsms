@@ -41,7 +41,8 @@ public class ContinuousMatchValueChecker extends AbstractChecker {
      * @return 错误数量
      */
     @Override
-    public long check(Object... object) {
+    public int check(Object... object) {
+        int isError = 0;
         Object value = object[0];
         Date messageTime = (Date) object[1];
         if (Integer.parseInt(value.toString()) == this.matchValue) {
@@ -49,6 +50,7 @@ public class ContinuousMatchValueChecker extends AbstractChecker {
             if (this.startTime == null) {
                 this.count++;
                 this.errorCount++;
+                isError = 1;
                 this.startTime = messageTime;
             }
             this.endTime = messageTime;
@@ -61,6 +63,6 @@ public class ContinuousMatchValueChecker extends AbstractChecker {
             this.endTime = null;
             this.continuousCount = 0L;
         }
-        return this.errorCount;
+        return isError;
     }
 }

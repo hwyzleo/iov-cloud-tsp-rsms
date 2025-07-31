@@ -11,6 +11,10 @@ import lombok.Getter;
 public enum CheckItem {
 
     /**
+     * 消息时间
+     */
+    MESSAGE_TIME(0, 0, 0, 0),
+    /**
      * 车辆状态
      **/
     VEHICLE_STATE(254, 255, 1, 3),

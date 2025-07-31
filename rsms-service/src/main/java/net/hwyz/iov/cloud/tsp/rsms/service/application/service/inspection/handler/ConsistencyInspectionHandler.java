@@ -25,8 +25,8 @@ import java.util.Map;
 public class ConsistencyInspectionHandler extends BaseInspectionHandler implements InspectionHandler {
 
     @Override
-    protected long handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
-        long errorCount = 0;
+    protected int handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
+        int errorCount = 0;
         GbVehicleState vehicleState = null;
         Integer speed = null;
         GbChargingState chargingState = null;
@@ -206,9 +206,7 @@ public class ConsistencyInspectionHandler extends BaseInspectionHandler implemen
     }
 
     @Override
-    public long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
-        long errorCount = 0;
-        errorCount += getVehicleChecker(item, sn, TYPE_INCONSISTENCY, vehicleCheckers).check(value);
-        return errorCount;
+    public int validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
+        return getVehicleChecker(item, sn, TYPE_INCONSISTENCY, vehicleCheckers).check(value);
     }
 }
