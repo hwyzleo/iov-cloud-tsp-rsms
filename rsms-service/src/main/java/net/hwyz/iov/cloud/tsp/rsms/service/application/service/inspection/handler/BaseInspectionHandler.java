@@ -43,15 +43,19 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
             String vin = message.getVin();
             Date messageTime = message.getMessageTime();
             Map<String, AbstractChecker> vehicleCheckers = getVehicleChecker(vin, checkers);
+            long errorCount = 0;
             switch (message.getHeader().getCommandFlag()) {
                 case REALTIME_REPORT -> {
                     GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) message.getDataUnit();
-                    handleDataInfo(messageTime, dataUnit.getDataInfoList(), vehicleCheckers);
+                    errorCount = handleDataInfo(messageTime, dataUnit.getDataInfoList(), vehicleCheckers);
                 }
                 case REISSUE_REPORT -> {
                     GbReissueReportDataUnit dataUnit = (GbReissueReportDataUnit) message.getDataUnit();
-                    handleDataInfo(messageTime, dataUnit.getDataInfoList(), vehicleCheckers);
+                    errorCount = handleDataInfo(messageTime, dataUnit.getDataInfoList(), vehicleCheckers);
                 }
+            }
+            if (errorCount > 0) {
+                report.getErrorMessages().add(message);
             }
         });
         summarize(report, checkers);
@@ -88,79 +92,82 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param messageTime     消息时间
      * @param dataInfoList    数据信息列表
      * @param vehicleCheckers 车辆检查器
+     * @return 错误数据数量
      */
-    protected void handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
-        dataInfoList.forEach(dataInfo -> {
+    protected long handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
+        long errorCount = 0;
+        for (GbMessageDataInfo dataInfo : dataInfoList) {
             switch (dataInfo.getDataInfoType()) {
                 case VEHICLE -> {
                     GbVehicleDataDataInfo vehicleDataInfo = (GbVehicleDataDataInfo) dataInfo;
-                    validate(messageTime, vehicleDataInfo.getVehicleState().getCode(), CheckItem.VEHICLE_STATE, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getChargingState().getCode(), CheckItem.CHARGING_STATE, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getRunningMode().getCode(), CheckItem.RUNNING_MODE, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getSpeed(), CheckItem.SPEED, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getTotalOdometer(), CheckItem.TOTAL_ODOMETER, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getTotalVoltage(), CheckItem.TOTAL_VOLTAGE, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getTotalCurrent(), CheckItem.TOTAL_CURRENT, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getDcdcState().getCode(), CheckItem.DCDC_STATE, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getSoc(), CheckItem.SOC, vehicleCheckers);
-                    validate(messageTime, vehicleDataInfo.getInsulationResistance(), CheckItem.INSULATION_RESISTANCE, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getVehicleState().getCode(), CheckItem.VEHICLE_STATE, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getChargingState().getCode(), CheckItem.CHARGING_STATE, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getRunningMode().getCode(), CheckItem.RUNNING_MODE, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getSpeed(), CheckItem.SPEED, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getTotalOdometer(), CheckItem.TOTAL_ODOMETER, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getTotalVoltage(), CheckItem.TOTAL_VOLTAGE, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getTotalCurrent(), CheckItem.TOTAL_CURRENT, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getDcdcState().getCode(), CheckItem.DCDC_STATE, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getSoc(), CheckItem.SOC, vehicleCheckers);
+                    errorCount += validate(messageTime, vehicleDataInfo.getInsulationResistance(), CheckItem.INSULATION_RESISTANCE, vehicleCheckers);
                 }
                 case DRIVE_MOTOR -> {
                     GbDriveMotorDataInfo driveMotorDataInfo = (GbDriveMotorDataInfo) dataInfo;
-                    driveMotorDataInfo.getDriveMotorList().forEach(driveMotor -> {
-                        validate(messageTime, driveMotor.getState().getCode(), CheckItem.DRIVE_MOTOR_STATE, (int) driveMotor.getSn(), vehicleCheckers);
-                        validate(messageTime, driveMotor.getControllerTemperature(), CheckItem.DRIVE_MOTOR_CONTROLLER_TEMPERATURE, (int) driveMotor.getSn(), vehicleCheckers);
-                        validate(messageTime, driveMotor.getTorque(), CheckItem.DRIVE_MOTOR_TORQUE, (int) driveMotor.getSn(), vehicleCheckers);
-                        validate(messageTime, driveMotor.getTemperature(), CheckItem.DRIVE_MOTOR_TEMPERATURE, (int) driveMotor.getSn(), vehicleCheckers);
-                        validate(messageTime, driveMotor.getControllerInputVoltage(), CheckItem.DRIVE_MOTOR_CONTROLLER_INPUT_VOLTAGE, (int) driveMotor.getSn(), vehicleCheckers);
-                        validate(messageTime, driveMotor.getControllerDcBusCurrent(), CheckItem.DRIVE_MOTOR_CONTROLLER_DC_BUS_CURRENT, (int) driveMotor.getSn(), vehicleCheckers);
-                    });
+                    for (GbSingleDriveMotorDataInfo driveMotor : driveMotorDataInfo.getDriveMotorList()) {
+                        errorCount += validate(messageTime, driveMotor.getState().getCode(), CheckItem.DRIVE_MOTOR_STATE, (int) driveMotor.getSn(), vehicleCheckers);
+                        errorCount += validate(messageTime, driveMotor.getControllerTemperature(), CheckItem.DRIVE_MOTOR_CONTROLLER_TEMPERATURE, (int) driveMotor.getSn(), vehicleCheckers);
+                        errorCount += validate(messageTime, driveMotor.getTorque(), CheckItem.DRIVE_MOTOR_TORQUE, (int) driveMotor.getSn(), vehicleCheckers);
+                        errorCount += validate(messageTime, driveMotor.getTemperature(), CheckItem.DRIVE_MOTOR_TEMPERATURE, (int) driveMotor.getSn(), vehicleCheckers);
+                        errorCount += validate(messageTime, driveMotor.getControllerInputVoltage(), CheckItem.DRIVE_MOTOR_CONTROLLER_INPUT_VOLTAGE, (int) driveMotor.getSn(), vehicleCheckers);
+                        errorCount += validate(messageTime, driveMotor.getControllerDcBusCurrent(), CheckItem.DRIVE_MOTOR_CONTROLLER_DC_BUS_CURRENT, (int) driveMotor.getSn(), vehicleCheckers);
+                    }
                 }
                 case FUEL_CELL -> {
                     GbFuelCellDataInfo fuelCellDataInfo = (GbFuelCellDataInfo) dataInfo;
-                    validate(messageTime, fuelCellDataInfo.getVoltage(), CheckItem.FUEL_CELL_VOLTAGE, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getCurrent(), CheckItem.FUEL_CELL_CURRENT, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getConsumptionRate(), CheckItem.FUEL_CELL_CONSUMPTION_RATE, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getTemperatureProbeCount(), CheckItem.FUEL_CELL_TEMPERATURE_PROBE_COUNT, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHydrogenSystemMaxTemperature(), CheckItem.FUEL_CELL_HYDROGEN_SYSTEM_MAX_TEMPERATURE, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHydrogenSystemMaxTemperatureProbe(), CheckItem.FUEL_CELL_HYDROGEN_SYSTEM_MAX_TEMPERATURE_PROBE, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHydrogenMaxConcentration(), CheckItem.FUEL_CELL_HYDROGEN_MAX_CONCENTRATION, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHydrogenMaxConcentrationSensor(), CheckItem.FUEL_CELL_HYDROGEN_MAX_CONCENTRATION_SENSOR, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHydrogenMaxPressure(), CheckItem.FUEL_CELL_HYDROGEN_MAX_PRESSURE, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHydrogenMaxPressureSensor(), CheckItem.FUEL_CELL_HYDROGEN_MAX_PRESSURE_SENSOR, vehicleCheckers);
-                    validate(messageTime, fuelCellDataInfo.getHighPressureDcdcState().getCode(), CheckItem.FUEL_CELL_HIGH_PRESSURE_DCDC_STATE, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getVoltage(), CheckItem.FUEL_CELL_VOLTAGE, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getCurrent(), CheckItem.FUEL_CELL_CURRENT, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getConsumptionRate(), CheckItem.FUEL_CELL_CONSUMPTION_RATE, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getTemperatureProbeCount(), CheckItem.FUEL_CELL_TEMPERATURE_PROBE_COUNT, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHydrogenSystemMaxTemperature(), CheckItem.FUEL_CELL_HYDROGEN_SYSTEM_MAX_TEMPERATURE, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHydrogenSystemMaxTemperatureProbe(), CheckItem.FUEL_CELL_HYDROGEN_SYSTEM_MAX_TEMPERATURE_PROBE, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHydrogenMaxConcentration(), CheckItem.FUEL_CELL_HYDROGEN_MAX_CONCENTRATION, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHydrogenMaxConcentrationSensor(), CheckItem.FUEL_CELL_HYDROGEN_MAX_CONCENTRATION_SENSOR, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHydrogenMaxPressure(), CheckItem.FUEL_CELL_HYDROGEN_MAX_PRESSURE, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHydrogenMaxPressureSensor(), CheckItem.FUEL_CELL_HYDROGEN_MAX_PRESSURE_SENSOR, vehicleCheckers);
+                    errorCount += validate(messageTime, fuelCellDataInfo.getHighPressureDcdcState().getCode(), CheckItem.FUEL_CELL_HIGH_PRESSURE_DCDC_STATE, vehicleCheckers);
                 }
                 case ENGINE -> {
                     GbEngineDataInfo engineDataInfo = (GbEngineDataInfo) dataInfo;
-                    validate(messageTime, engineDataInfo.getState().getCode(), CheckItem.ENGINE_STATE, vehicleCheckers);
-                    validate(messageTime, engineDataInfo.getCrankshaftSpeed(), CheckItem.ENGINE_CRANKSHAFT_SPEED, vehicleCheckers);
-                    validate(messageTime, engineDataInfo.getConsumptionRate(), CheckItem.ENGINE_CONSUMPTION_RATE, vehicleCheckers);
+                    errorCount += validate(messageTime, engineDataInfo.getState().getCode(), CheckItem.ENGINE_STATE, vehicleCheckers);
+                    errorCount += validate(messageTime, engineDataInfo.getCrankshaftSpeed(), CheckItem.ENGINE_CRANKSHAFT_SPEED, vehicleCheckers);
+                    errorCount += validate(messageTime, engineDataInfo.getConsumptionRate(), CheckItem.ENGINE_CONSUMPTION_RATE, vehicleCheckers);
                 }
                 case EXTREMUM -> {
                     GbExtremumDataInfo extremumDataInfo = (GbExtremumDataInfo) dataInfo;
-                    validate(messageTime, extremumDataInfo.getMaxVoltageBatteryDeviceNo(), CheckItem.MAX_VOLTAGE_BATTERY_DEVICE_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMaxVoltageCellNo(), CheckItem.MAX_VOLTAGE_CELL_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getCellMaxVoltage(), CheckItem.CELL_MAX_VOLTAGE, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMinVoltageBatteryDeviceNo(), CheckItem.MIN_VOLTAGE_BATTERY_DEVICE_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMinVoltageCellNo(), CheckItem.MIN_VOLTAGE_CELL_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getCellMinVoltage(), CheckItem.CELL_MIN_VOLTAGE, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMaxTemperatureDeviceNo(), CheckItem.MAX_TEMPERATURE_DEVICE_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMaxTemperatureProbeNo(), CheckItem.MAX_TEMPERATURE_PROBE_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMaxTemperature(), CheckItem.MAX_TEMPERATURE, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMinTemperatureDeviceNo(), CheckItem.MIN_TEMPERATURE_DEVICE_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMinTemperatureProbeNo(), CheckItem.MIN_TEMPERATURE_PROBE_NO, vehicleCheckers);
-                    validate(messageTime, extremumDataInfo.getMinTemperature(), CheckItem.MIN_TEMPERATURE, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMaxVoltageBatteryDeviceNo(), CheckItem.MAX_VOLTAGE_BATTERY_DEVICE_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMaxVoltageCellNo(), CheckItem.MAX_VOLTAGE_CELL_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getCellMaxVoltage(), CheckItem.CELL_MAX_VOLTAGE, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMinVoltageBatteryDeviceNo(), CheckItem.MIN_VOLTAGE_BATTERY_DEVICE_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMinVoltageCellNo(), CheckItem.MIN_VOLTAGE_CELL_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getCellMinVoltage(), CheckItem.CELL_MIN_VOLTAGE, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMaxTemperatureDeviceNo(), CheckItem.MAX_TEMPERATURE_DEVICE_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMaxTemperatureProbeNo(), CheckItem.MAX_TEMPERATURE_PROBE_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMaxTemperature(), CheckItem.MAX_TEMPERATURE, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMinTemperatureDeviceNo(), CheckItem.MIN_TEMPERATURE_DEVICE_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMinTemperatureProbeNo(), CheckItem.MIN_TEMPERATURE_PROBE_NO, vehicleCheckers);
+                    errorCount += validate(messageTime, extremumDataInfo.getMinTemperature(), CheckItem.MIN_TEMPERATURE, vehicleCheckers);
                 }
                 case ALARM -> {
                     GbAlarmDataInfo alarmDataInfo = (GbAlarmDataInfo) dataInfo;
-                    validate(messageTime, alarmDataInfo.getMaxAlarmLevel().getCode(), CheckItem.MAX_ALARM_LEVEL, vehicleCheckers);
-                    validate(messageTime, alarmDataInfo.getBatteryFaultCount(), CheckItem.BATTERY_FAULT_COUNT, vehicleCheckers);
-                    validate(messageTime, alarmDataInfo.getDriveMotorFaultCount(), CheckItem.DRIVE_MOTOR_FAULT_COUNT, vehicleCheckers);
-                    validate(messageTime, alarmDataInfo.getEngineFaultCount(), CheckItem.ENGINE_FAULT_COUNT, vehicleCheckers);
-                    validate(messageTime, alarmDataInfo.getOtherFaultCount(), CheckItem.OTHER_FAULT_COUNT, vehicleCheckers);
+                    errorCount += validate(messageTime, alarmDataInfo.getMaxAlarmLevel().getCode(), CheckItem.MAX_ALARM_LEVEL, vehicleCheckers);
+                    errorCount += validate(messageTime, alarmDataInfo.getBatteryFaultCount(), CheckItem.BATTERY_FAULT_COUNT, vehicleCheckers);
+                    errorCount += validate(messageTime, alarmDataInfo.getDriveMotorFaultCount(), CheckItem.DRIVE_MOTOR_FAULT_COUNT, vehicleCheckers);
+                    errorCount += validate(messageTime, alarmDataInfo.getEngineFaultCount(), CheckItem.ENGINE_FAULT_COUNT, vehicleCheckers);
+                    errorCount += validate(messageTime, alarmDataInfo.getOtherFaultCount(), CheckItem.OTHER_FAULT_COUNT, vehicleCheckers);
                 }
             }
-        });
+        }
+        return errorCount;
     }
 
     /**
@@ -211,9 +218,10 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param value           检查项值
      * @param item            检查项
      * @param vehicleCheckers 车辆检查器
+     * @return 错误数量
      */
-    public void validate(Date messageTime, int value, CheckItem item, Map<String, AbstractChecker> vehicleCheckers) {
-        validate(messageTime, value, item, null, vehicleCheckers);
+    public long validate(Date messageTime, int value, CheckItem item, Map<String, AbstractChecker> vehicleCheckers) {
+        return validate(messageTime, value, item, null, vehicleCheckers);
     }
 
     /**
@@ -224,8 +232,9 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      * @param item            检查项
      * @param sn              检查项序号
      * @param vehicleCheckers 车辆检查器
+     * @return 错误数量
      */
-    public abstract void validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers);
+    public abstract long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers);
 
     /**
      * 汇总所有车辆检查数据

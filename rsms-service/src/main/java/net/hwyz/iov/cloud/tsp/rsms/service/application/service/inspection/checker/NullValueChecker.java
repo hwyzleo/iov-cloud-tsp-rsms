@@ -33,12 +33,13 @@ public class NullValueChecker extends AbstractChecker {
      * @param object 待检查值
      */
     @Override
-    public void check(Object... object) {
+    public long check(Object... object) {
         Object value = object[0];
         this.count++;
         if (ObjUtil.isNull(value)) {
             this.errorCount++;
         }
+        return this.errorCount;
     }
 
 

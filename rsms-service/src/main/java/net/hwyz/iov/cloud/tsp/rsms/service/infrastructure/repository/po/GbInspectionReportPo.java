@@ -8,10 +8,12 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import net.hwyz.iov.cloud.framework.mysql.po.BasePo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 
 /**
  * <p>
@@ -68,40 +70,28 @@ public class GbInspectionReportPo extends BasePo {
     private String vehicle;
 
     /**
-     * 单车开始时间
+     * 数据开始时间
      */
-    @TableField("vehicle_start_time")
-    private Date vehicleStartTime;
+    @TableField("data_start_time")
+    private Date dataStartTime;
 
     /**
      * 单车结束时间
      */
-    @TableField("vehicle_end_time")
-    private Date vehicleEndTime;
+    @TableField("data_end_time")
+    private Date dataEndTime;
 
     /**
      * 车辆数
      */
     @TableField("vehicle_count")
-    private Integer vehicleCount;
-
-    /**
-     * 有数据车辆数
-     */
-    @TableField("vehicle_data_count")
-    private Integer vehicleDataCount;
-
-    /**
-     * 无数据车辆数
-     */
-    @TableField("vehicle_nodata_count")
-    private Integer vehicleNodataCount;
+    private Long vehicleCount;
 
     /**
      * 错误车辆数
      */
     @TableField("vehicle_error_count")
-    private Integer vehicleErrorCount;
+    private Long vehicleErrorCount;
 
     /**
      * 场景：0-不指定，1-车辆行驶，2-车辆充电，3-车辆报警，4-车辆补发，5-平台补发
@@ -149,4 +139,9 @@ public class GbInspectionReportPo extends BasePo {
      * 检测项
      */
     private List<GbInspectionItemPo> items;
+
+    /**
+     * 错误数据
+     */
+    private Set<GbMessage> errorMessages;
 }

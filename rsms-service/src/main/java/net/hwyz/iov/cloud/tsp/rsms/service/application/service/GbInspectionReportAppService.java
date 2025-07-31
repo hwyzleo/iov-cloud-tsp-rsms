@@ -8,10 +8,8 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.AccuracyInspectionHandler;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.ConsistencyInspectionHandler;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.IntegrityInspectionHandler;
-import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.StandardInspectionHandler;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.*;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionItemDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionReportDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;
@@ -32,6 +30,7 @@ import java.util.*;
 public class GbInspectionReportAppService {
 
     private final ApplicationContext ctx;
+    private final GbInspectionItemDao gbInspectionItemDao;
     private final GbInspectionReportDao gbInspectionReportDao;
     private final VehicleGbMessageAppService vehicleGbMessageAppService;
 
@@ -103,7 +102,7 @@ public class GbInspectionReportAppService {
     public void handleReport(GbInspectionReportPo gbInspectionReport) {
         List<GbMessage> gbMessages = findGbMessages(gbInspectionReport);
         if (gbMessages.isEmpty()) {
-            gbInspectionReport.setVehicleCount(0);
+            gbInspectionReport.setVehicleCount(0L);
             gbInspectionReport.setMessageCount(0L);
             gbInspectionReport.setDataCount(0L);
             gbInspectionReport.setReportState(GbInspectionReportState.COMPLETED.getCode());
@@ -114,10 +113,15 @@ public class GbInspectionReportAppService {
         IntegrityInspectionHandler integrityInspectionHandler = ctx.getBean(IntegrityInspectionHandler.class);
         AccuracyInspectionHandler accuracyInspectionHandler = ctx.getBean(AccuracyInspectionHandler.class);
         ConsistencyInspectionHandler consistencyInspectionHandler = ctx.getBean(ConsistencyInspectionHandler.class);
+        SummaryInspectionHandler summaryInspectionHandler = ctx.getBean(SummaryInspectionHandler.class);
         standardInspectionHandler.inspect(gbInspectionReport, gbMessages);
         integrityInspectionHandler.inspect(gbInspectionReport, gbMessages);
         accuracyInspectionHandler.inspect(gbInspectionReport, gbMessages);
         consistencyInspectionHandler.inspect(gbInspectionReport, gbMessages);
+        summaryInspectionHandler.inspect(gbInspectionReport, gbMessages);
+        gbInspectionReport.getItems().forEach(gbInspectionItemDao::insertPo);
+        gbInspectionReport.setReportState(GbInspectionReportState.COMPLETED.getCode());
+        gbInspectionReportDao.updatePo(gbInspectionReport);
     }
 
     /**

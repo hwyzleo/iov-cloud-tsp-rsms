@@ -39,7 +39,8 @@ public abstract class AbstractChecker {
      * 进行检查
      *
      * @param object 入参
+     * @return 错误数
      */
-    public abstract void check(Object... object);
+    public abstract long check(Object... object);
 
 }

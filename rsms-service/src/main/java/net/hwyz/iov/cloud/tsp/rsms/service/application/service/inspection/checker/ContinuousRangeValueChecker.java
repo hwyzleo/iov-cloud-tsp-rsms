@@ -40,9 +40,10 @@ public class ContinuousRangeValueChecker extends AbstractChecker {
      * 检查
      *
      * @param object 1-待比较值，2-消息时间
+     * @return 错误数量
      */
     @Override
-    public void check(Object... object) {
+    public long check(Object... object) {
         Object value = object[0];
         Date messageTime = (Date) object[1];
         if (Integer.parseInt(value.toString()) < this.minValue || Integer.parseInt(value.toString()) > this.maxValue) {
@@ -62,5 +63,6 @@ public class ContinuousRangeValueChecker extends AbstractChecker {
             this.endTime = null;
             this.continuousCount = 0L;
         }
+        return this.errorCount;
     }
 }

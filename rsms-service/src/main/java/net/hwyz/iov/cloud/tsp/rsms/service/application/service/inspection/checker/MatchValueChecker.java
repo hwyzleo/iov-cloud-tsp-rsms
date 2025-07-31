@@ -33,12 +33,13 @@ public class MatchValueChecker extends AbstractChecker {
      * @param object 待比较值
      */
     @Override
-    public void check(Object... object) {
+    public long check(Object... object) {
         Object value = object[0];
         this.count++;
         if (Integer.parseInt(value.toString()) == this.matchValue) {
             this.errorCount++;
         }
+        return this.errorCount;
     }
 
 

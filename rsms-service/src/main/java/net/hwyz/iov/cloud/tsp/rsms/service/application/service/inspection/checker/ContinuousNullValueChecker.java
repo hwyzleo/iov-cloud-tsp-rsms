@@ -37,9 +37,10 @@ public class ContinuousNullValueChecker extends AbstractChecker {
      * 检查
      *
      * @param object 1-待检查值，2-消息时间
+     * @return 错误数量
      */
     @Override
-    public void check(Object... object) {
+    public long check(Object... object) {
         Object value = object[0];
         Date messageTime = (Date) object[1];
         if (ObjUtil.isNull(value)) {
@@ -59,6 +60,7 @@ public class ContinuousNullValueChecker extends AbstractChecker {
             this.endTime = null;
             this.continuousCount = 0L;
         }
+        return this.errorCount;
     }
 
 

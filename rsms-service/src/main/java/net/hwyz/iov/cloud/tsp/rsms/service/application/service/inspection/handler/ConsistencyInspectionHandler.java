@@ -25,7 +25,8 @@ import java.util.Map;
 public class ConsistencyInspectionHandler extends BaseInspectionHandler implements InspectionHandler {
 
     @Override
-    protected void handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
+    protected long handleDataInfo(Date messageTime, List<GbMessageDataInfo> dataInfoList, Map<String, AbstractChecker> vehicleCheckers) {
+        long errorCount = 0;
         GbVehicleState vehicleState = null;
         Integer speed = null;
         GbChargingState chargingState = null;
@@ -142,69 +143,72 @@ public class ConsistencyInspectionHandler extends BaseInspectionHandler implemen
             }
         }
         if (ObjUtil.isNotNull(vehicleState) && ObjUtil.isNotNull(speed)) {
-            validate(messageTime, GbVehicleState.POWER_ON != vehicleState && speed > 0 ? 1 : 0, CheckItem.VEHICLE_STATE,
+            errorCount += validate(messageTime, GbVehicleState.POWER_ON != vehicleState && speed > 0 ? 1 : 0, CheckItem.VEHICLE_STATE,
                     vehicleCheckers);
         }
         if (ObjUtil.isNotNull(chargingState) && ObjUtil.isNotNull(speed) && ObjUtil.isNotNull(totalCurrent)) {
-            validate(messageTime, GbChargingState.PARKING_CHARGING == chargingState && (speed > 0 || totalCurrent >= 0) ? 1 : 0,
+            errorCount += validate(messageTime, GbChargingState.PARKING_CHARGING == chargingState && (speed > 0 || totalCurrent >= 0) ? 1 : 0,
                     CheckItem.CHARGING_STATE, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(totalVoltage) && ObjUtil.isNotNull(batteryVoltageSum)) {
-            validate(messageTime, Math.abs(totalVoltage * 100 - batteryVoltageSum) > totalVoltage ? 1 : 0,
+            errorCount += validate(messageTime, Math.abs(totalVoltage * 100 - batteryVoltageSum) > totalVoltage ? 1 : 0,
                     CheckItem.TOTAL_VOLTAGE, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(maxVoltageDeviceNo) && ObjUtil.isNotNull(batteryMaxVoltageDeviceNo)) {
-            validate(messageTime, maxVoltageDeviceNo.intValue() != batteryMaxVoltageDeviceNo ? 1 : 0,
+            errorCount += validate(messageTime, maxVoltageDeviceNo.intValue() != batteryMaxVoltageDeviceNo ? 1 : 0,
                     CheckItem.MAX_VOLTAGE_BATTERY_DEVICE_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(maxVoltageCellNo) && ObjUtil.isNotNull(batteryMaxVoltageCellNo)) {
-            validate(messageTime, maxVoltageCellNo.intValue() != batteryMaxVoltageCellNo ? 1 : 0,
+            errorCount += validate(messageTime, maxVoltageCellNo.intValue() != batteryMaxVoltageCellNo ? 1 : 0,
                     CheckItem.MAX_VOLTAGE_CELL_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(cellMaxVoltage) && ObjUtil.isNotNull(batteryMaxVoltage)) {
-            validate(messageTime, cellMaxVoltage.intValue() != batteryMaxVoltage ? 1 : 0,
+            errorCount += validate(messageTime, cellMaxVoltage.intValue() != batteryMaxVoltage ? 1 : 0,
                     CheckItem.CELL_MAX_VOLTAGE, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(minVoltageDeviceNo) && ObjUtil.isNotNull(batteryMinVoltageDeviceNo)) {
-            validate(messageTime, minVoltageDeviceNo.intValue() != batteryMinVoltageDeviceNo ? 1 : 0,
+            errorCount += validate(messageTime, minVoltageDeviceNo.intValue() != batteryMinVoltageDeviceNo ? 1 : 0,
                     CheckItem.MIN_VOLTAGE_BATTERY_DEVICE_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(minVoltageCellNo) && ObjUtil.isNotNull(batteryMinVoltageCellNo)) {
-            validate(messageTime, minVoltageCellNo.intValue() != batteryMinVoltageCellNo ? 1 : 0,
+            errorCount += validate(messageTime, minVoltageCellNo.intValue() != batteryMinVoltageCellNo ? 1 : 0,
                     CheckItem.MIN_VOLTAGE_CELL_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(cellMinVoltage) && ObjUtil.isNotNull(batteryMinVoltage)) {
-            validate(messageTime, cellMinVoltage.intValue() != batteryMinVoltage ? 1 : 0,
+            errorCount += validate(messageTime, cellMinVoltage.intValue() != batteryMinVoltage ? 1 : 0,
                     CheckItem.CELL_MIN_VOLTAGE, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(maxTemperatureDeviceNo) && ObjUtil.isNotNull(batteryMaxTemperatureDeviceNo)) {
-            validate(messageTime, maxTemperatureDeviceNo.intValue() != batteryMaxTemperatureDeviceNo ? 1 : 0,
+            errorCount += validate(messageTime, maxTemperatureDeviceNo.intValue() != batteryMaxTemperatureDeviceNo ? 1 : 0,
                     CheckItem.MAX_TEMPERATURE_DEVICE_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(maxTemperatureProbeNo) && ObjUtil.isNotNull(batteryMaxTemperatureProbeNo)) {
-            validate(messageTime, maxTemperatureProbeNo.intValue() != batteryMaxTemperatureProbeNo ? 1 : 0,
+            errorCount += validate(messageTime, maxTemperatureProbeNo.intValue() != batteryMaxTemperatureProbeNo ? 1 : 0,
                     CheckItem.MAX_TEMPERATURE_PROBE_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(maxTemperature) && ObjUtil.isNotNull(batteryMaxTemperature)) {
-            validate(messageTime, maxTemperature.intValue() != batteryMaxTemperature ? 1 : 0,
+            errorCount += validate(messageTime, maxTemperature.intValue() != batteryMaxTemperature ? 1 : 0,
                     CheckItem.MAX_TEMPERATURE, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(minTemperatureDeviceNo) && ObjUtil.isNotNull(batteryMinTemperatureDeviceNo)) {
-            validate(messageTime, minTemperatureDeviceNo.intValue() != batteryMinTemperatureDeviceNo ? 1 : 0,
+            errorCount += validate(messageTime, minTemperatureDeviceNo.intValue() != batteryMinTemperatureDeviceNo ? 1 : 0,
                     CheckItem.MIN_TEMPERATURE_DEVICE_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(minTemperatureProbeNo) && ObjUtil.isNotNull(batteryMinTemperatureProbeNo)) {
-            validate(messageTime, minTemperatureProbeNo.intValue() != batteryMinTemperatureProbeNo ? 1 : 0,
+            errorCount += validate(messageTime, minTemperatureProbeNo.intValue() != batteryMinTemperatureProbeNo ? 1 : 0,
                     CheckItem.MIN_TEMPERATURE_PROBE_NO, vehicleCheckers);
         }
         if (ObjUtil.isNotNull(minTemperature) && ObjUtil.isNotNull(batteryMinTemperature)) {
-            validate(messageTime, minTemperature.intValue() != batteryMinTemperature ? 1 : 0,
+            errorCount += validate(messageTime, minTemperature.intValue() != batteryMinTemperature ? 1 : 0,
                     CheckItem.MIN_TEMPERATURE, vehicleCheckers);
         }
+        return errorCount;
     }
 
     @Override
-    public void validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
-        getVehicleChecker(item, sn, TYPE_INCONSISTENCY, vehicleCheckers).check(value);
+    public long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
+        long errorCount = 0;
+        errorCount += getVehicleChecker(item, sn, TYPE_INCONSISTENCY, vehicleCheckers).check(value);
+        return errorCount;
     }
 }

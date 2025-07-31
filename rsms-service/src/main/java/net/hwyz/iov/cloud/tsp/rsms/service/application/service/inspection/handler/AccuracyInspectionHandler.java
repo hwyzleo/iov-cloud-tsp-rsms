@@ -18,8 +18,10 @@ import java.util.Map;
 public class AccuracyInspectionHandler extends BaseInspectionHandler implements InspectionHandler {
 
     @Override
-    public void validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
-        getVehicleChecker(item, sn, TYPE_RANGE, vehicleCheckers).check(value);
-        getVehicleChecker(item, sn, TYPE_RANGE_CONTINUOUS, vehicleCheckers).check(value);
+    public long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
+        long errorCount = 0;
+        errorCount += getVehicleChecker(item, sn, TYPE_RANGE, vehicleCheckers).check(value);
+        errorCount += getVehicleChecker(item, sn, TYPE_RANGE_CONTINUOUS, vehicleCheckers).check(value);
+        return errorCount;
     }
 }

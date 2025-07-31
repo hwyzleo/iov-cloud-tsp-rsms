@@ -17,21 +17,14 @@ import java.util.Map;
 @Component
 public class StandardInspectionHandler extends BaseInspectionHandler implements InspectionHandler {
 
-    /**
-     * 验证检查项相关类型
-     *
-     * @param messageTime     消息时间
-     * @param value           检查项值
-     * @param item            检查项
-     * @param sn              检查项序号
-     * @param vehicleCheckers 车辆检查器
-     */
     @Override
-    public void validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
-        getVehicleChecker(item, sn, TYPE_ABNORMAL, vehicleCheckers).check(value);
-        getVehicleChecker(item, sn, TYPE_ABNORMAL_CONTINUOUS, vehicleCheckers).check(value, messageTime);
-        getVehicleChecker(item, sn, TYPE_INVALID, vehicleCheckers).check(value);
-        getVehicleChecker(item, sn, TYPE_INVALID_CONTINUOUS, vehicleCheckers).check(value, messageTime);
+    public long validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
+        long errorCount = 0;
+        errorCount += getVehicleChecker(item, sn, TYPE_ABNORMAL, vehicleCheckers).check(value);
+        errorCount += getVehicleChecker(item, sn, TYPE_ABNORMAL_CONTINUOUS, vehicleCheckers).check(value, messageTime);
+        errorCount += getVehicleChecker(item, sn, TYPE_INVALID, vehicleCheckers).check(value);
+        errorCount += getVehicleChecker(item, sn, TYPE_INVALID_CONTINUOUS, vehicleCheckers).check(value, messageTime);
+        return errorCount;
     }
 
 }
