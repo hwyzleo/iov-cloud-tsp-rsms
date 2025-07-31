@@ -9,6 +9,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.AccuracyInspectionHandler;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.ConsistencyInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.IntegrityInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.StandardInspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionReportDao;
@@ -69,6 +70,7 @@ public class GbInspectionReportAppService {
      * @return 结果
      */
     public int createGbInspectionReport(GbInspectionReportPo gbInspectionReport) {
+        gbInspectionReport.setReportState(GbInspectionReportState.PROCESSING.getCode());
         return gbInspectionReportDao.insertPo(gbInspectionReport);
     }
 
@@ -111,9 +113,11 @@ public class GbInspectionReportAppService {
         StandardInspectionHandler standardInspectionHandler = ctx.getBean(StandardInspectionHandler.class);
         IntegrityInspectionHandler integrityInspectionHandler = ctx.getBean(IntegrityInspectionHandler.class);
         AccuracyInspectionHandler accuracyInspectionHandler = ctx.getBean(AccuracyInspectionHandler.class);
+        ConsistencyInspectionHandler consistencyInspectionHandler = ctx.getBean(ConsistencyInspectionHandler.class);
         standardInspectionHandler.inspect(gbInspectionReport, gbMessages);
         integrityInspectionHandler.inspect(gbInspectionReport, gbMessages);
         accuracyInspectionHandler.inspect(gbInspectionReport, gbMessages);
+        consistencyInspectionHandler.inspect(gbInspectionReport, gbMessages);
     }
 
     /**
