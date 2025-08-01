@@ -246,6 +246,12 @@
         <if test="reportState != null">
             AND t.report_state = #{reportState}
         </if>
+        <if test="vehicles != null">
+            AND t.vin IN
+            <foreach item="vin" collection="vehicles" separator="," open="(" close=")">
+                #{vin}
+            </foreach>
+        </if>
         <if test="beginTime != null">
             AND date_format(t.create_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
         </if>

@@ -14,6 +14,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.contract.ReportVehicleMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.ReportVehicleMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.ReportVehicleAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.ReportVehicleMptAssembler;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,7 @@ import java.util.List;
 @RequestMapping(value = "/mpt/reportVehicle")
 public class ReportVehicleMptController extends BaseController implements ReportVehicleMptApi {
 
+    private final CacheService cacheService;
     private final ReportVehicleAppService reportVehicleAppService;
 
     /**
@@ -46,8 +48,11 @@ public class ReportVehicleMptController extends BaseController implements Report
         logger.info("管理后台用户[{}]分页查询上报车辆", SecurityUtils.getUsername());
         startPage();
         List<ReportVehiclePo> reportVehiclePoList = reportVehicleAppService.search(reportVehicle.getVin(),
-                reportVehicle.getReportState(), getBeginTime(reportVehicle), getEndTime(reportVehicle));
+                reportVehicle.getReportState(), reportVehicle.getOfflineDays(), getBeginTime(reportVehicle), getEndTime(reportVehicle));
         List<ReportVehicleMpt> reportVehicleMptList = ReportVehicleMptAssembler.INSTANCE.fromPoList(reportVehiclePoList);
+        reportVehicleMptList.forEach(reportVehicleMpt -> {
+            cacheService.getVehicleTime(reportVehicleMpt.getVin()).ifPresent(reportVehicleMpt::setVehicleTime);
+        });
         return getDataTable(reportVehiclePoList, reportVehicleMptList);
     }
 

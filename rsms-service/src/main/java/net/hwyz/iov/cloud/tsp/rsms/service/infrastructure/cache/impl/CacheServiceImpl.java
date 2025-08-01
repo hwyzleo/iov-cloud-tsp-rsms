@@ -4,11 +4,11 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
+import org.springframework.data.geo.Point;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 缓存服务实现类
@@ -34,6 +34,14 @@ public class CacheServiceImpl implements CacheService {
      * Redis Key前缀：车辆报警
      */
     private static final String REDIS_KEY_PREFIX_VEHICLE_ALARM = "rsms:vehicleAlarm:";
+    /**
+     * Redis Key：车辆更新时间
+     */
+    private static final String REDIS_KEY_VEHICLE_TIME = "rsms:vehicleTime";
+    /**
+     * Redis Key：车辆位置
+     */
+    private static final String REDIS_KEY_VEHICLE_POSITION = "rsms:vehiclePosition";
 
     @Override
     public Map<String, Boolean> getClientPlatformConnectState(String clientPlatformUniqueKey) {
@@ -77,5 +85,44 @@ public class CacheServiceImpl implements CacheService {
             }
             alarmMap.forEach((key, value) -> redisTemplate.opsForHash().put(REDIS_KEY_PREFIX_VEHICLE_ALARM + vin, key.toString(), value.toString()));
         }
+    }
+
+    @Override
+    public void setVehicleStatus(String vin, Map<String, Object> vehicleStatus) {
+        logger.debug("设置车辆[{}]状态", vin);
+        Object messageTime = vehicleStatus.get("messageTime");
+        if (ObjUtil.isNotNull(messageTime)) {
+            redisTemplate.opsForZSet().add(REDIS_KEY_VEHICLE_TIME, vin, Double.parseDouble(messageTime.toString()));
+        }
+        Object latitude = vehicleStatus.get("latitude");
+        Object longitude = vehicleStatus.get("longitude");
+        if (ObjUtil.isAllNotEmpty(latitude, longitude)) {
+            Point point = new Point(Double.parseDouble(longitude.toString()) / 1000000, Double.parseDouble(latitude.toString()) / 1000000);
+            redisTemplate.opsForGeo().add(REDIS_KEY_VEHICLE_POSITION, point, vin);
+        }
+    }
+
+    @Override
+    public Optional<Date> getVehicleTime(String vin) {
+        logger.debug("获取车辆[{}]更新时间", vin);
+        Double timestamp = redisTemplate.opsForZSet().score(REDIS_KEY_VEHICLE_TIME, vin);
+        if (ObjUtil.isNotNull(timestamp)) {
+            return Optional.of(new Date(timestamp.longValue()));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<String> getVehiclesByTimeRange(Date endTime) {
+        return getVehiclesByTimeRange(new Date(0), endTime);
+    }
+
+    @Override
+    public List<String> getVehiclesByTimeRange(Date startTime, Date endTime) {
+        Set<String> vehicleSet = redisTemplate.opsForZSet().rangeByScore(REDIS_KEY_VEHICLE_TIME, startTime.getTime(), endTime.getTime());
+        if (ObjUtil.isNotNull(vehicleSet)) {
+            return new ArrayList<>(vehicleSet);
+        }
+        return new ArrayList<>();
     }
 }

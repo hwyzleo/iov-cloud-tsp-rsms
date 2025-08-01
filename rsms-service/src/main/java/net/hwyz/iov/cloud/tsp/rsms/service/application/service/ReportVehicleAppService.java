@@ -3,13 +3,22 @@ package net.hwyz.iov.cloud.tsp.rsms.service.application.service;
 import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.GbPositionDataInfo;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbRealtimeReportDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.ClientPlatformCmd;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbDataInfoType;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.VehicleReportState;
+import net.hwyz.iov.cloud.tsp.rsms.service.application.event.event.VehicleGbRealtimeMessageEvent;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ReportVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,6 +33,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ReportVehicleAppService {
 
+    private final CacheService cacheService;
     private final ReportVehicleDao reportVehicleDao;
     private final RegisteredVehicleDao registeredVehicleDao;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
@@ -33,14 +43,19 @@ public class ReportVehicleAppService {
      *
      * @param vin         车架号
      * @param reportState 车辆上报状态
+     * @param offlineDays 离线天数
      * @param beginTime   开始时间
      * @param endTime     结束时间
      * @return 上报车辆列表
      */
-    public List<ReportVehiclePo> search(String vin, Integer reportState, Date beginTime, Date endTime) {
+    public List<ReportVehiclePo> search(String vin, Integer reportState, Integer offlineDays, Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("vin", vin);
         map.put("reportState", reportState);
+        if (ObjUtil.isNotNull(offlineDays)) {
+            List<String> vehicles = cacheService.getVehiclesByTimeRange(new Date(System.currentTimeMillis() - offlineDays * 24 * 60 * 60 * 1000));
+            map.put("vehicles", vehicles);
+        }
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);
         return reportVehicleDao.selectPoByMap(map);
@@ -128,6 +143,39 @@ public class ReportVehicleAppService {
             });
         }
         clientPlatformIds.forEach(clientPlatformId -> clientPlatformCmdProducer.send(clientPlatformId, ClientPlatformCmd.SYNC_VEHICLE));
+    }
+
+    /**
+     * 刷新车辆状态
+     *
+     * @param vin       车架号
+     * @param gbMessage 国标消息
+     */
+    public void refreshVehicleStatus(String vin, GbMessage gbMessage) {
+        gbMessage.parseDataUnit(gbMessage.getDataUnitBytes());
+        Map<String, Object> vehicleStatus = new HashMap<>();
+        vehicleStatus.put("messageTime", gbMessage.getMessageTime().getTime());
+        GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
+        for (GbMessageDataInfo dataInfo : dataUnit.getDataInfoList()) {
+            if (dataInfo.getDataInfoType() == GbDataInfoType.POSITION) {
+                GbPositionDataInfo positionDataInfo = (GbPositionDataInfo) dataInfo;
+                vehicleStatus.put("latitude", positionDataInfo.getLatitude());
+                vehicleStatus.put("longitude", positionDataInfo.getLongitude());
+                break;
+            }
+        }
+        cacheService.setVehicleStatus(vin, vehicleStatus);
+    }
+
+    /**
+     * 订阅车辆国标实时消息事件
+     *
+     * @param event 车辆国标实时消息事件
+     */
+    @Async
+    @EventListener
+    public void onVehicleGbRealtimeMessageEvent(VehicleGbRealtimeMessageEvent event) {
+        refreshVehicleStatus(event.getVin(), event.getGbMessage());
     }
 
 }

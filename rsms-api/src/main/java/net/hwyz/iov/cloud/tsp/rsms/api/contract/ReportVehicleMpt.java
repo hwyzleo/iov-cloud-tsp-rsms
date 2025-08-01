@@ -28,6 +28,16 @@ public class ReportVehicleMpt extends BaseRequest {
     private String vin;
 
     /**
+     * 车辆更新时间
+     */
+    private Date vehicleTime;
+
+    /**
+     * 离线天数
+     */
+    private Integer offlineDays;
+
+    /**
      * 上报状态
      */
     private Integer reportState;
