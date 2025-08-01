@@ -37,6 +37,13 @@ public interface GbInspectionReportMptApi {
     AjaxResult listGbInspectionReportState();
 
     /**
+     * 获取国标检测报告场景列表
+     *
+     * @return 国标检测报告场景列表
+     */
+    AjaxResult listGbInspectionReportScene();
+
+    /**
      * 导出国标检测报告
      *
      * @param response           响应

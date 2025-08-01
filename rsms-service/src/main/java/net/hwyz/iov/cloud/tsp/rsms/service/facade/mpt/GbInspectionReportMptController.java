@@ -11,6 +11,7 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbInspectionReportMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportScene;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.GbInspectionReportMptApi;
@@ -85,6 +86,26 @@ public class GbInspectionReportMptController extends BaseController implements G
         logger.info("管理后台用户[{}]获取国标检测报告状态列表", SecurityUtils.getUsername());
         List<Map<String, Object>> list = new ArrayList<>();
         Arrays.stream(GbInspectionReportState.values()).forEach(type -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("code", type.getCode());
+            map.put("name", type.getName());
+            list.add(map);
+        });
+        return success(list);
+    }
+
+    /**
+     * 获取国标检测报告场景列表
+     *
+     * @return 国标检测报告场景列表
+     */
+    @RequiresPermissions("iov:rsms:gbInspectionReport:listGbInspectionReportScene")
+    @Override
+    @GetMapping(value = "/listGbInspectionReportScene")
+    public AjaxResult listGbInspectionReportScene() {
+        logger.info("管理后台用户[{}]获取国标检测报告场景列表", SecurityUtils.getUsername());
+        List<Map<String, Object>> list = new ArrayList<>();
+        Arrays.stream(GbInspectionReportScene.values()).forEach(type -> {
             Map<String, Object> map = new HashMap<>();
             map.put("code", type.getCode());
             map.put("name", type.getName());
