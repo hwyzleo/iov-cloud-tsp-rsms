@@ -54,6 +54,9 @@ public class ReportVehicleAppService {
         map.put("reportState", reportState);
         if (ObjUtil.isNotNull(offlineDays)) {
             List<String> vehicles = cacheService.getVehiclesByTimeRange(new Date(System.currentTimeMillis() - offlineDays * 24 * 60 * 60 * 1000));
+            if (vehicles.isEmpty()) {
+                vehicles.add("");
+            }
             map.put("vehicles", vehicles);
         }
         map.put("beginTime", beginTime);
