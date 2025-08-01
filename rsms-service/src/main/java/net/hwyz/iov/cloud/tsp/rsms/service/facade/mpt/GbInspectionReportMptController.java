@@ -20,10 +20,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspec
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 国标检测报告相关管理接口实现类
@@ -66,9 +63,14 @@ public class GbInspectionReportMptController extends BaseController implements G
     @GetMapping(value = "/listGbInspectionReportType")
     public AjaxResult listGbInspectionReportType() {
         logger.info("管理后台用户[{}]获取国标检测报告类型列表", SecurityUtils.getUsername());
-        Map<Integer, String> map = new LinkedHashMap<>();
-        Arrays.stream(GbInspectionReportType.values()).forEach(type -> map.put(type.getCode(), type.getName()));
-        return success(map);
+        List<Map<String, Object>> list = new ArrayList<>();
+        Arrays.stream(GbInspectionReportType.values()).forEach(type -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("code", type.getCode());
+            map.put("name", type.getName());
+            list.add(map);
+        });
+        return success(list);
     }
 
     /**
@@ -81,9 +83,14 @@ public class GbInspectionReportMptController extends BaseController implements G
     @GetMapping(value = "/listGbInspectionReportState")
     public AjaxResult listGbInspectionReportState() {
         logger.info("管理后台用户[{}]获取国标检测报告状态列表", SecurityUtils.getUsername());
-        Map<Integer, String> map = new LinkedHashMap<>();
-        Arrays.stream(GbInspectionReportState.values()).forEach(type -> map.put(type.getCode(), type.getName()));
-        return success(map);
+        List<Map<String, Object>> list = new ArrayList<>();
+        Arrays.stream(GbInspectionReportState.values()).forEach(type -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("code", type.getCode());
+            map.put("name", type.getName());
+            list.add(map);
+        });
+        return success(list);
     }
 
     /**
