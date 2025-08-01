@@ -11,6 +11,8 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbInspectionReportMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.GbInspectionReportMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.GbInspectionReportAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.GbInspectionReportMptAssembler;
@@ -18,7 +20,10 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspec
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 国标检测报告相关管理接口实现类
@@ -49,6 +54,36 @@ public class GbInspectionReportMptController extends BaseController implements G
                 gbInspectionReport.getReportState(), getBeginTime(gbInspectionReport), getEndTime(gbInspectionReport));
         List<GbInspectionReportMpt> gbInspectionReportMptList = GbInspectionReportMptAssembler.INSTANCE.fromPoList(gbInspectionReportPoList);
         return getDataTable(gbInspectionReportPoList, gbInspectionReportMptList);
+    }
+
+    /**
+     * 获取国标检测报告类型列表
+     *
+     * @return 国标检测报告类型列表
+     */
+    @RequiresPermissions("iov:rsms:gbInspectionReport:listGbInspectionReportType")
+    @Override
+    @GetMapping(value = "/listGbInspectionReportType")
+    public AjaxResult listGbInspectionReportType() {
+        logger.info("管理后台用户[{}]获取国标检测报告类型列表", SecurityUtils.getUsername());
+        Map<Integer, String> map = new LinkedHashMap<>();
+        Arrays.stream(GbInspectionReportType.values()).forEach(type -> map.put(type.getCode(), type.getName()));
+        return success(map);
+    }
+
+    /**
+     * 获取国标检测报告状态列表
+     *
+     * @return 国标检测报告状态列表
+     */
+    @RequiresPermissions("iov:rsms:gbInspectionReport:listGbInspectionReportState")
+    @Override
+    @GetMapping(value = "/listGbInspectionReportState")
+    public AjaxResult listGbInspectionReportState() {
+        logger.info("管理后台用户[{}]获取国标检测报告状态列表", SecurityUtils.getUsername());
+        Map<Integer, String> map = new LinkedHashMap<>();
+        Arrays.stream(GbInspectionReportState.values()).forEach(type -> map.put(type.getCode(), type.getName()));
+        return success(map);
     }
 
     /**

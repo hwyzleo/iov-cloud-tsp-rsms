@@ -5,6 +5,8 @@ import net.hwyz.iov.cloud.framework.common.web.domain.AjaxResult;
 import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbInspectionReportMpt;
 
+import java.util.Map;
+
 /**
  * 国标检测报告相关管理后台接口
  *
@@ -19,6 +21,20 @@ public interface GbInspectionReportMptApi {
      * @return 国标检测报告列表
      */
     TableDataInfo list(GbInspectionReportMpt gbInspectionReport);
+
+    /**
+     * 获取国标检测报告类型列表
+     *
+     * @return 国标检测报告类型列表
+     */
+    AjaxResult listGbInspectionReportType();
+
+    /**
+     * 获取国标检测报告状态列表
+     *
+     * @return 国标检测报告状态列表
+     */
+    AjaxResult listGbInspectionReportState();
 
     /**
      * 导出国标检测报告

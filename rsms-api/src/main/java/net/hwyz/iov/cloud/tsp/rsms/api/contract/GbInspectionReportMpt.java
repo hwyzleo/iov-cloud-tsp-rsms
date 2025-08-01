@@ -48,29 +48,19 @@ public class GbInspectionReportMpt extends BaseRequest {
     private String vehicle;
 
     /**
-     * 单车开始时间
+     * 数据开始时间
      */
-    private Date vehicleStartTime;
+    private Date dataStartTime;
 
     /**
-     * 单车结束时间
+     * 数据结束时间
      */
-    private Date vehicleEndTime;
+    private Date dataEndTime;
 
     /**
      * 车辆数
      */
     private Integer vehicleCount;
-
-    /**
-     * 有数据车辆数
-     */
-    private Integer vehicleDataCount;
-
-    /**
-     * 无数据车辆数
-     */
-    private Integer vehicleNodataCount;
 
     /**
      * 错误车辆数
