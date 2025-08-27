@@ -155,7 +155,7 @@ public class ReportVehicleAppService {
      * @param gbMessage 国标消息
      */
     public void refreshVehicleStatus(String vin, GbMessage gbMessage) {
-        logger.debug("刷新车辆[{}]状态", gbMessage.getVin());
+        logger.debug("刷新车辆[{}]状态[{}]", gbMessage.getVin(), gbMessage.getMessageTime().getTime());
         Map<String, Object> vehicleStatus = new HashMap<>();
         vehicleStatus.put("messageTime", gbMessage.getMessageTime().getTime());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
