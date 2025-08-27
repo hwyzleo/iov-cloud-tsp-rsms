@@ -106,7 +106,8 @@ public class VehicleGbAlarmAppService {
      * @param gbMessage 国标实时消息
      */
     private void parseGeneralAlarm(GbMessage gbMessage) {
-        logger.info("解析车辆[{}]国标消息中通用报警信息", gbMessage.getVin());
+        logger.debug("解析车辆[{}]国标消息中通用报警信息", gbMessage.getVin());
+        gbMessage.parseDataUnit(gbMessage.getDataUnitBytes());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
         if (dataUnit == null) {
             logger.warn("车辆[{}]国标实时信号[{}]消息数据单元为空", gbMessage.getVin(), JSONUtil.toJsonStr(gbMessage));
