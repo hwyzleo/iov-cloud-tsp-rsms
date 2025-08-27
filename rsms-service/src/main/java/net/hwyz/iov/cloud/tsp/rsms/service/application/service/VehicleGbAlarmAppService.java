@@ -3,7 +3,6 @@ package net.hwyz.iov.cloud.tsp.rsms.service.application.service;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
@@ -108,7 +107,7 @@ public class VehicleGbAlarmAppService {
     private void parseGeneralAlarm(GbMessage gbMessage) {
         logger.debug("解析车辆[{}]国标消息中通用报警信息", gbMessage.getVin());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
-        List<GbAlarmLevel> alarmRange = ListUtil.of(GbAlarmLevel.LEVEL1, GbAlarmLevel.LEVEL2, GbAlarmLevel.LEVEL2);
+        List<GbAlarmLevel> alarmRange = ListUtil.of(GbAlarmLevel.LEVEL1, GbAlarmLevel.LEVEL2, GbAlarmLevel.LEVEL3);
         for (GbMessageDataInfo dataInfo : dataUnit.getDataInfoList()) {
             if (dataInfo.getDataInfoType() == GbDataInfoType.ALARM) {
                 GbAlarmDataInfo alarmDataInfo = (GbAlarmDataInfo) dataInfo;
