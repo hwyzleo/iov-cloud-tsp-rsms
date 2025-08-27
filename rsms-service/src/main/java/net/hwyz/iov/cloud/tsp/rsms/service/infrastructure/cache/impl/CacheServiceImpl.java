@@ -89,7 +89,7 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public void setVehicleStatus(String vin, Map<String, Object> vehicleStatus) {
-        logger.debug("设置车辆[{}]状态", vin);
+        logger.debug("设置车辆[{}]状态缓存", vin);
         Object messageTime = vehicleStatus.get("messageTime");
         if (ObjUtil.isNotNull(messageTime)) {
             redisTemplate.opsForZSet().add(REDIS_KEY_VEHICLE_TIME, vin, Double.parseDouble(messageTime.toString()));

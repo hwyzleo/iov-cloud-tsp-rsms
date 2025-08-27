@@ -156,7 +156,6 @@ public class ReportVehicleAppService {
      */
     public void refreshVehicleStatus(String vin, GbMessage gbMessage) {
         logger.debug("刷新车辆[{}]状态", gbMessage.getVin());
-        gbMessage.parseDataUnit(gbMessage.getDataUnitBytes());
         Map<String, Object> vehicleStatus = new HashMap<>();
         vehicleStatus.put("messageTime", gbMessage.getMessageTime().getTime());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();

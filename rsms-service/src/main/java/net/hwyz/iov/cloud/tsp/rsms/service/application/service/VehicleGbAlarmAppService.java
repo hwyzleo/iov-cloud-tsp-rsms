@@ -107,12 +107,7 @@ public class VehicleGbAlarmAppService {
      */
     private void parseGeneralAlarm(GbMessage gbMessage) {
         logger.debug("解析车辆[{}]国标消息中通用报警信息", gbMessage.getVin());
-        gbMessage.parseDataUnit(gbMessage.getDataUnitBytes());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
-        if (dataUnit == null) {
-            logger.warn("车辆[{}]国标实时信号[{}]消息数据单元为空", gbMessage.getVin(), JSONUtil.toJsonStr(gbMessage));
-            return;
-        }
         List<GbAlarmLevel> alarmRange = ListUtil.of(GbAlarmLevel.LEVEL1, GbAlarmLevel.LEVEL2, GbAlarmLevel.LEVEL2);
         for (GbMessageDataInfo dataInfo : dataUnit.getDataInfoList()) {
             if (dataInfo.getDataInfoType() == GbDataInfoType.ALARM) {

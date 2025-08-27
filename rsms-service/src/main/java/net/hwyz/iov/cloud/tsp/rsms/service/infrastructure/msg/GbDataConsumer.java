@@ -53,7 +53,7 @@ public class GbDataConsumer {
                     String vin = null;
                     try {
                         vin = new String(record.key());
-                        GbUtil.parseMessage(record.value(), vin, false).ifPresent(gbMessage -> {
+                        GbUtil.parseMessage(record.value(), vin, true).ifPresent(gbMessage -> {
                             gbMessagePublish.sendVehicleData(gbMessage.getVin(), gbMessage);
                             if (GbCommandFlag.REALTIME_REPORT == gbMessage.getHeader().getCommandFlag()) {
                                 gbMessagePublish.sendVehicleRealtimeData(gbMessage.getVin(), gbMessage);
