@@ -51,7 +51,7 @@ public class GbVehicleLoginDataUnit extends GbMessageDataUnit {
         this.iccid = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 8, 28));
         this.deviceCount = dataUnitBytes[28];
         this.deviceCodeLength = dataUnitBytes[29];
-        this.deviceCode = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 30, this.deviceCount * this.deviceCodeLength));
+        this.deviceCode = GbUtil.bytesToString(Arrays.copyOfRange(dataUnitBytes, 30, 30 + this.deviceCount * this.deviceCodeLength));
     }
 
     @Override

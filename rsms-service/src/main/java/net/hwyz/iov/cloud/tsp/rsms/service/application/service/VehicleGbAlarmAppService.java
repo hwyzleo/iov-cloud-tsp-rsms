@@ -102,6 +102,7 @@ public class VehicleGbAlarmAppService {
      * @param gbMessage 国标实时消息
      */
     private void parseGeneralAlarm(GbMessage gbMessage) {
+        logger.info("解析车辆[{}]国标消息中通用报警信息", gbMessage.getVin());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
         List<GbAlarmLevel> alarmRange = ListUtil.of(GbAlarmLevel.LEVEL1, GbAlarmLevel.LEVEL2, GbAlarmLevel.LEVEL2);
         for (GbMessageDataInfo dataInfo : dataUnit.getDataInfoList()) {
