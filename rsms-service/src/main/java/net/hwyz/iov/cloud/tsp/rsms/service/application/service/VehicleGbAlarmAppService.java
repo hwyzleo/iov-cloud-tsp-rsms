@@ -3,6 +3,7 @@ package net.hwyz.iov.cloud.tsp.rsms.service.application.service;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
@@ -20,7 +21,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -104,6 +108,10 @@ public class VehicleGbAlarmAppService {
     private void parseGeneralAlarm(GbMessage gbMessage) {
         logger.info("解析车辆[{}]国标消息中通用报警信息", gbMessage.getVin());
         GbRealtimeReportDataUnit dataUnit = (GbRealtimeReportDataUnit) gbMessage.getDataUnit();
+        if (dataUnit == null) {
+            logger.warn("车辆[{}]国标实时信号[{}]消息数据单元为空", gbMessage.getVin(), JSONUtil.toJsonStr(gbMessage));
+            return;
+        }
         List<GbAlarmLevel> alarmRange = ListUtil.of(GbAlarmLevel.LEVEL1, GbAlarmLevel.LEVEL2, GbAlarmLevel.LEVEL2);
         for (GbMessageDataInfo dataInfo : dataUnit.getDataInfoList()) {
             if (dataInfo.getDataInfoType() == GbDataInfoType.ALARM) {
