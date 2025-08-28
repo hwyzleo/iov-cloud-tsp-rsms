@@ -15,6 +15,7 @@ import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.VehicleGbMessageMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbRealtimeReportDataUnit;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.dataunit.GbReissueReportDataUnit;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.CommandFlag;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.VehicleGbMessageMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.VehicleGbMessageAppService;
@@ -23,7 +24,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleG
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * 车辆国标消息历史相关管理接口实现类
@@ -54,6 +55,24 @@ public class VehicleGbMessageMptController extends BaseController implements Veh
                 vehicleGbMessage.getCommandFlag(), getBeginTime(vehicleGbMessage), getEndTime(vehicleGbMessage));
         List<VehicleGbMessageMpt> vehicleGbMessageMptList = VehicleGbMessageMptAssembler.INSTANCE.fromPoList(vehicleGbMessagePoList);
         return getDataTable(vehicleGbMessagePoList, vehicleGbMessageMptList);
+    }
+
+    @RequiresPermissions("iov:rsms:vehicleGbMessage:listAllCommandFlag")
+    @Override
+    @GetMapping(value = "/listAllCommandFlag")
+    public AjaxResult listAllCommandFlag() {
+        List<Map<String, String>> list = new ArrayList<>();
+        for (CommandFlag value : CommandFlag.values()) {
+            Map<String, String> map = new HashMap<>();
+            map.put("code", value.name());
+            map.put("label", value.getLabel());
+            // 过滤掉平台指令
+            if (value.name().startsWith("PLATFORM")) {
+                continue;
+            }
+            list.add(map);
+        }
+        return success(list);
     }
 
     /**

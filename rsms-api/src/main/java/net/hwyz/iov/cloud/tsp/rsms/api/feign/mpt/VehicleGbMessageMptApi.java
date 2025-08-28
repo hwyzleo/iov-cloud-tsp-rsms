@@ -21,6 +21,13 @@ public interface VehicleGbMessageMptApi {
     TableDataInfo list(VehicleGbMessageMpt vehicleGbMessage);
 
     /**
+     * 列出所有命令标识
+     *
+     * @return 命令标识列表
+     */
+    AjaxResult listAllCommandFlag();
+
+    /**
      * 导出车辆国标消息历史
      *
      * @param response         响应

@@ -14,18 +14,14 @@ import java.util.Arrays;
 @AllArgsConstructor
 public enum CommandFlag {
 
-    /** 车辆登入 **/
-    VEHICLE_LOGIN,
-    /** 实时信息上报 **/
-    REALTIME_REPORT,
-    /** 补发信息上报 **/
-    REISSUE_REPORT,
-    /** 车辆登出 **/
-    VEHICLE_LOGOUT,
-    /** 平台登入 **/
-    PLATFORM_LOGIN,
-    /** 平台登出 **/
-    PLATFORM_LOGOUT;
+    VEHICLE_LOGIN("车辆登入"),
+    REALTIME_REPORT("实时信息上报"),
+    REISSUE_REPORT("补发信息上报"),
+    VEHICLE_LOGOUT("车辆登出"),
+    PLATFORM_LOGIN("平台登入"),
+    PLATFORM_LOGOUT("平台登出");
+
+    private final String label;
 
     public static CommandFlag valOf(String val) {
         return Arrays.stream(CommandFlag.values())
