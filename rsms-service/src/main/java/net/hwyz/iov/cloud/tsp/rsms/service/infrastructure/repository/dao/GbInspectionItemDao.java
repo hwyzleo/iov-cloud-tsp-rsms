@@ -15,4 +15,12 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface GbInspectionItemDao extends BaseDao<GbInspectionItemPo, Long> {
 
+    /**
+     * 根据检测报告ID批量删除
+     *
+     * @param reportId 检测报告ID
+     * @return 删除数量
+     */
+    int batchPhysicalDeletePoByReportId(Long reportId);
+
 }

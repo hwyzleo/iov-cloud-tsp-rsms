@@ -108,6 +108,12 @@
         WHERE t.id = #{value}
     </delete>
 
+    <!-- 根据检测报告ID批量删除 -->
+    <delete id="batchPhysicalDeletePoByReportId" parameterType="Long">
+        DELETE FROM tb_gb_inspection_item t
+        WHERE t.report_id = #{value}
+    </delete>
+
     <!-- 根据主键获取对应数据 -->
     <select id="selectPoById" parameterType="Long" resultMap="baseResultMap">
         SELECT <include refid="baseColumnList"/>

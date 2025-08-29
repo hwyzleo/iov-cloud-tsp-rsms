@@ -90,6 +90,9 @@ public class GbInspectionReportAppService {
      * @return 结果
      */
     public int deleteGbInspectionReportByIds(Long[] ids) {
+        for (Long id : ids) {
+            gbInspectionItemDao.batchPhysicalDeletePoByReportId(id);
+        }
         return gbInspectionReportDao.batchPhysicalDeletePo(ids);
     }
 
