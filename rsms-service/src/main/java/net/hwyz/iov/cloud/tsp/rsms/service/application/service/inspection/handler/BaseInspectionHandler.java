@@ -1,6 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler;
 
 import cn.hutool.core.util.ObjUtil;
+import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessage;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbMessageDataInfo;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.datainfo.*;
@@ -20,6 +21,7 @@ import java.util.*;
  *
  * @author hwyz_leo
  */
+@Slf4j
 public abstract class BaseInspectionHandler implements InspectionHandler {
 
     protected static final String CATEGORY_STANDARD = "STANDARD";
@@ -87,7 +89,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      */
     private Map<String, AbstractChecker> initVehicleChecker(String vin) {
         Map<String, AbstractChecker> vehicleCheckers = new HashMap<>();
-        vehicleCheckers.put("DEFAULT", new MatchValueChecker(vin, null, null, null, null));
+        vehicleCheckers.put("DEFAULT", new MatchValueChecker(vin, "DEFAULT", null, "DEFAULT", null));
         return vehicleCheckers;
     }
 
@@ -252,17 +254,20 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
     protected void summarize(GbInspectionReportPo report, Map<String, Map<String, AbstractChecker>> checkers) {
         Map<String, GbInspectionItemPo> map = new HashMap<>();
         checkers.forEach((vin, vehicleCheckers) -> {
-            vehicleCheckers.forEach((item, checker) -> {
+            vehicleCheckers.forEach((item, vehicleChecker) -> {
                 GbInspectionItemPo itemPo = map.get(item);
                 if (ObjUtil.isNull(itemPo)) {
-                    itemPo = new GbInspectionItemPo(report.getId(), checker.getCategory(), item);
+                    if (vehicleChecker.getCategory() == null || vehicleChecker.getItem() == null) {
+                        logger.warn("车辆检查器[{}][{}][{}]为空", vin, vehicleChecker.getCategory(), vehicleChecker.getItem());
+                    }
+                    itemPo = new GbInspectionItemPo(report.getId(), vehicleChecker.getCategory(), item);
                 }
                 itemPo.getVehicleSet().add(vin);
-                itemPo.setTotalDataCount(itemPo.getTotalDataCount() + checker.getCount());
-                if (checker.getErrorCount() > 0) {
+                itemPo.setTotalDataCount(itemPo.getTotalDataCount() + vehicleChecker.getCount());
+                if (vehicleChecker.getErrorCount() > 0) {
                     itemPo.getErrorVehicleSet().add(vin);
                 }
-                itemPo.setErrorDataCount(itemPo.getErrorDataCount() + checker.getErrorCount());
+                itemPo.setErrorDataCount(itemPo.getErrorDataCount() + vehicleChecker.getErrorCount());
                 map.put(item, itemPo);
             });
         });
