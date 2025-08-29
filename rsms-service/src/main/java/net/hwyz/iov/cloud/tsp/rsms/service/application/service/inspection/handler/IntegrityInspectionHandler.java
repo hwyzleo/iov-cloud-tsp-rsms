@@ -21,7 +21,7 @@ public class IntegrityInspectionHandler extends BaseInspectionHandler implements
     public int validate(Date messageTime, int value, CheckItem item, Integer sn, Map<String, AbstractChecker> vehicleCheckers) {
         int errorCount = 0;
         errorCount += getVehicleChecker(item, sn, TYPE_NULL, vehicleCheckers).check(value);
-        errorCount += getVehicleChecker(item, sn, TYPE_NULL_CONTINUOUS, vehicleCheckers).check(value);
+        errorCount += getVehicleChecker(item, sn, TYPE_NULL_CONTINUOUS, vehicleCheckers).check(value, messageTime);
         return errorCount;
     }
 
