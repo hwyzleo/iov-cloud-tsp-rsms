@@ -192,8 +192,16 @@ public class GbInspectionReportMptController extends BaseController implements G
             JSONObject item = type.getJSONObject(itemPo.getItemCode());
             item.set("totalVehicleCount", itemPo.getTotalVehicleCount());
             item.set("errorVehicleCount", itemPo.getErrorVehicleCount());
+            BigDecimal errorVehiclePercentage = new BigDecimal(itemPo.getErrorVehicleCount())
+                    .multiply(new BigDecimal(100))
+                    .divide(new BigDecimal(itemPo.getTotalVehicleCount()), 2, RoundingMode.HALF_UP);
+            item.set("errorVehiclePercentage", errorVehiclePercentage.doubleValue());
             item.set("totalDataCount", itemPo.getTotalDataCount());
             item.set("errorDataCount", itemPo.getErrorDataCount());
+            BigDecimal errorDataPercentage = new BigDecimal(itemPo.getErrorDataCount())
+                    .multiply(new BigDecimal(100))
+                    .divide(new BigDecimal(itemPo.getTotalDataCount()), 2, RoundingMode.HALF_UP);
+            item.set("errorDataPercentage", errorDataPercentage.doubleValue());
         }
         result.setItems(items);
         return success(result);
