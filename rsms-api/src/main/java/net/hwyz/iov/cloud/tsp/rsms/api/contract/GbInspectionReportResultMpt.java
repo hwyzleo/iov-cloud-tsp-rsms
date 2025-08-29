@@ -65,6 +65,11 @@ public class GbInspectionReportResultMpt {
     private Long vehicleErrorCount;
 
     /**
+     * 错误车辆数数占比
+     */
+    private Double vehicleErrorPercentage;
+
+    /**
      * 场景：0-不指定，1-车辆行驶，2-车辆充电，3-车辆报警，4-车辆补发，5-平台补发
      */
     private Integer scene;

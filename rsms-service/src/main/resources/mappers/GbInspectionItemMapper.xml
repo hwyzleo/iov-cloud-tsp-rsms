@@ -184,6 +184,16 @@
         ORDER BY t.id DESC
     </select>
 
+    <!-- 根据检测报告ID查询错误项 -->
+    <select id="selectErrorItemByReportId" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM tb_gb_inspection_item t
+        WHERE t.row_valid = 1
+        AND t.report_id = #{reportId}
+        AND t.error_data_count > 0
+        ORDER BY t.id DESC
+    </select>
+
     <!-- 根据Map对象统计记录数 -->
     <select id="countPoByMap" parameterType="java.util.Map" resultType="int">
         SELECT COUNT(*)

@@ -4,6 +4,8 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspec
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 国标数据质量检测项 DAO
@@ -22,5 +24,13 @@ public interface GbInspectionItemDao extends BaseDao<GbInspectionItemPo, Long> {
      * @return 删除数量
      */
     int batchPhysicalDeletePoByReportId(Long reportId);
+
+    /**
+     * 根据检测报告ID查询错误项
+     *
+     * @param reportId 检测报告ID
+     * @return 错误项
+     */
+    List<GbInspectionItemPo> selectErrorItemByReportId(Long reportId);
 
 }

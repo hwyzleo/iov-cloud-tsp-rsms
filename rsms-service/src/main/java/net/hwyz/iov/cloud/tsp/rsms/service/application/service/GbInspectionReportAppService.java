@@ -60,8 +60,18 @@ public class GbInspectionReportAppService {
      * @return 国标检测报告
      */
     public GbInspectionReportPo getGbInspectionReportById(Long id) {
+        return gbInspectionReportDao.selectPoById(id);
+    }
+
+    /**
+     * 根据主键ID获取国标检测报告结果
+     *
+     * @param id 主键ID
+     * @return 国标检测报告结果
+     */
+    public GbInspectionReportPo getGbInspectionReportResultById(Long id) {
         GbInspectionReportPo gbInspectionReport = gbInspectionReportDao.selectPoById(id);
-        gbInspectionReport.setItems(gbInspectionItemDao.selectPoByExample(GbInspectionItemPo.builder().reportId(id).build()));
+        gbInspectionReport.setItems(gbInspectionItemDao.selectErrorItemByReportId(id));
         return gbInspectionReport;
     }
 

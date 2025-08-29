@@ -161,8 +161,12 @@ public class GbInspectionReportMptController extends BaseController implements G
     public AjaxResult getResult(@PathVariable Long gbInspectionReportId) {
         logger.info("管理后台用户[{}]根据国标检测报告ID[{}]获取国标检测报告结果", SecurityUtils.getUsername(), gbInspectionReportId);
         GbInspectionReportResultMpt result = new GbInspectionReportResultMpt();
-        GbInspectionReportPo gbInspectionReportPo = gbInspectionReportAppService.getGbInspectionReportById(gbInspectionReportId);
+        GbInspectionReportPo gbInspectionReportPo = gbInspectionReportAppService.getGbInspectionReportResultById(gbInspectionReportId);
         BeanUtil.copyProperties(gbInspectionReportPo, result);
+        BigDecimal vehicleErrorPercentage = new BigDecimal(result.getVehicleErrorCount())
+                .multiply(new BigDecimal(100))
+                .divide(new BigDecimal(result.getVehicleCount()), 2, RoundingMode.HALF_UP);
+        result.setVehicleErrorPercentage(vehicleErrorPercentage.doubleValue());
         BigDecimal messageErrorPercentage = new BigDecimal(result.getMessageErrorCount())
                 .multiply(new BigDecimal(100))
                 .divide(new BigDecimal(result.getMessageCount()), 2, RoundingMode.HALF_UP);
