@@ -102,6 +102,7 @@ public class GbInspectionReportAppService {
     public void handleReport(GbInspectionReportPo gbInspectionReport) {
         List<GbMessage> gbMessages = findGbMessages(gbInspectionReport);
         if (gbMessages.isEmpty()) {
+            logger.info("国标检测报告[{}]无匹配国标消息，直接完成处理", gbInspectionReport.getId());
             gbInspectionReport.setVehicleCount(0L);
             gbInspectionReport.setMessageCount(0L);
             gbInspectionReport.setDataCount(0L);

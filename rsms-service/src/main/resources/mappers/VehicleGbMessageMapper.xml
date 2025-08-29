@@ -170,10 +170,10 @@
             AND t.command_flag = #{commandFlag}
         </if>
         <if test="beginTime != null">
-            AND date_format(t.message_time,'%Y%m%d') &gt;= date_format(#{beginTime},'%Y%m%d')
+            AND t.message_time &gt;= #{beginTime}
         </if>
         <if test="endTime != null">
-            AND date_format(t.message_time,'%Y%m%d') &lt;= date_format(#{endTime},'%Y%m%d')
+            AND t.message_time &lt;= #{endTime}
         </if>
         ORDER BY t.id DESC
     </select>
