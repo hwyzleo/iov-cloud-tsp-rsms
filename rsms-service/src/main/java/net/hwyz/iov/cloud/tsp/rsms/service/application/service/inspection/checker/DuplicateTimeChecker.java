@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.AbstractChecker;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -27,7 +28,7 @@ public class DuplicateTimeChecker extends AbstractChecker {
         this.item = item;
         this.count = 0L;
         this.errorCount = 0L;
-        this.timestamps = Set.of();
+        this.timestamps = new HashSet<>();
     }
 
     /**
