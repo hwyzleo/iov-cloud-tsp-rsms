@@ -5,6 +5,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.Abstra
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.CheckItem;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.InspectionHandler;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import static net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection
  *
  * @author hwyz_leo
  */
+@Component
 public class TimelinessInspectionHandler extends BaseInspectionHandler implements InspectionHandler {
 
     @Override
