@@ -13,10 +13,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.checke
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionItemPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 国标数据质量检测处理器基础类
@@ -60,6 +57,9 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
                 }
             }
             if (errorCount > 0) {
+                if (ObjUtil.isNull(report.getErrorMessages())) {
+                    report.setErrorMessages(new HashSet<>());
+                }
                 report.getErrorMessages().add(message);
             }
         });
