@@ -39,12 +39,13 @@ public class VehicleGbMessageAppService {
      * @param endTime     结束时间
      * @return 车辆国标消息列表
      */
-    public List<VehicleGbMessagePo> search(String vin, String commandFlag, Date beginTime, Date endTime) {
+    public List<VehicleGbMessagePo> search(String vin, String commandFlag, Date beginTime, Date endTime, String sort) {
         Map<String, Object> map = new HashMap<>();
         map.put("vin", vin);
         map.put("commandFlag", commandFlag);
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);
+        map.put("sort", sort);
         return vehicleGbMessageDao.selectPoByMap(map);
     }
 

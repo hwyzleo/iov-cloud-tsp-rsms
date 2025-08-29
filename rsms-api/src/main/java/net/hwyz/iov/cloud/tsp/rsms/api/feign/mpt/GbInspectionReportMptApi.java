@@ -60,6 +60,14 @@ public interface GbInspectionReportMptApi {
     AjaxResult getInfo(Long gbInspectionReportId);
 
     /**
+     * 根据国标检测报告ID获取国标检测报告结果
+     *
+     * @param gbInspectionReportId 国标检测报告ID
+     * @return 国标检测报告结果
+     */
+    AjaxResult getResult(Long gbInspectionReportId);
+
+    /**
      * 新增国标检测报告
      *
      * @param gbInspectionReport 国标检测报告

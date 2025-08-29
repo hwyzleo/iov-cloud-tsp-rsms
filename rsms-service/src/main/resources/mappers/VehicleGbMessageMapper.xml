@@ -159,7 +159,8 @@
 
     <!-- 根据Map对象获取对应数据列表 -->
     <select id="selectPoByMap" parameterType="java.util.Map" resultMap="baseResultMap">
-        SELECT <include refid="baseColumnList"/>
+        SELECT
+        <include refid="baseColumnList"/>
         FROM tb_vehicle_gb_message t
         WHERE t.row_valid = 1
         <!-- 添加自定义条件 -->
@@ -175,7 +176,14 @@
         <if test="endTime != null">
             AND t.message_time &lt;= #{endTime}
         </if>
-        ORDER BY t.id DESC
+        <if test="sort != null">
+            <if test="sort == 'MESSAGE_TIME_ASC'">
+                ORDER BY t.message_time ASC
+            </if>
+        </if>
+        <if test="sort == null">
+            ORDER BY t.id DESC
+        </if>
     </select>
 
     <!-- 根据Map对象统计记录数 -->

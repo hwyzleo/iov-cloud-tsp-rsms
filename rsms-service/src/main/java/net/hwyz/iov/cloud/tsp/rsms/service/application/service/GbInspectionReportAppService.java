@@ -11,6 +11,7 @@ import net.hwyz.iov.cloud.tsp.rsms.api.util.GbUtil;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.inspection.handler.*;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionItemDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.GbInspectionReportDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionItemPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbMessagePo;
 import org.springframework.context.ApplicationContext;
@@ -59,7 +60,9 @@ public class GbInspectionReportAppService {
      * @return 国标检测报告
      */
     public GbInspectionReportPo getGbInspectionReportById(Long id) {
-        return gbInspectionReportDao.selectPoById(id);
+        GbInspectionReportPo gbInspectionReport = gbInspectionReportDao.selectPoById(id);
+        gbInspectionReport.setItems(gbInspectionItemDao.selectPoByExample(GbInspectionItemPo.builder().reportId(id).build()));
+        return gbInspectionReport;
     }
 
     /**
@@ -142,7 +145,7 @@ public class GbInspectionReportAppService {
         List<VehicleGbMessagePo> messages = null;
         if (GbInspectionReportType.VEHICLE.getCode() == gbInspectionReport.getReportType()) {
             messages = vehicleGbMessageAppService.search(gbInspectionReport.getVehicle(), null,
-                    gbInspectionReport.getStartTime(), gbInspectionReport.getEndTime());
+                    gbInspectionReport.getStartTime(), gbInspectionReport.getEndTime(), "MESSAGE_TIME_ASC");
         }
         if (ObjUtil.isNotNull(messages)) {
             messages.forEach(message -> {

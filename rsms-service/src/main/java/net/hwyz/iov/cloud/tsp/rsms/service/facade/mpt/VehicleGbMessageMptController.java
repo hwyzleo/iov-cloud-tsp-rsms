@@ -52,7 +52,7 @@ public class VehicleGbMessageMptController extends BaseController implements Veh
         logger.info("管理后台用户[{}]分页查询车辆国标消息历史", SecurityUtils.getUsername());
         startPage();
         List<VehicleGbMessagePo> vehicleGbMessagePoList = vehicleGbMessageAppService.search(vehicleGbMessage.getVin(),
-                vehicleGbMessage.getCommandFlag(), getBeginTime(vehicleGbMessage), getEndTime(vehicleGbMessage));
+                vehicleGbMessage.getCommandFlag(), getBeginTime(vehicleGbMessage), getEndTime(vehicleGbMessage), null);
         List<VehicleGbMessageMpt> vehicleGbMessageMptList = VehicleGbMessageMptAssembler.INSTANCE.fromPoList(vehicleGbMessagePoList);
         return getDataTable(vehicleGbMessagePoList, vehicleGbMessageMptList);
     }

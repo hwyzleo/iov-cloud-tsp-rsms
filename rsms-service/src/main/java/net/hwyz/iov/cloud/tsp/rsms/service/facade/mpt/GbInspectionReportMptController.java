@@ -1,5 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.facade.mpt;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONObject;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,16 +13,20 @@ import net.hwyz.iov.cloud.framework.common.web.page.TableDataInfo;
 import net.hwyz.iov.cloud.framework.security.annotation.RequiresPermissions;
 import net.hwyz.iov.cloud.framework.security.util.SecurityUtils;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbInspectionReportMpt;
+import net.hwyz.iov.cloud.tsp.rsms.api.contract.GbInspectionReportResultMpt;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportScene;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportState;
 import net.hwyz.iov.cloud.tsp.rsms.api.contract.enums.GbInspectionReportType;
 import net.hwyz.iov.cloud.tsp.rsms.api.feign.mpt.GbInspectionReportMptApi;
 import net.hwyz.iov.cloud.tsp.rsms.service.application.service.GbInspectionReportAppService;
 import net.hwyz.iov.cloud.tsp.rsms.service.facade.assembler.GbInspectionReportMptAssembler;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionItemPo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.GbInspectionReportPo;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -141,6 +147,51 @@ public class GbInspectionReportMptController extends BaseController implements G
         logger.info("管理后台用户[{}]根据国标检测报告ID[{}]获取国标检测报告", SecurityUtils.getUsername(), gbInspectionReportId);
         GbInspectionReportPo gbInspectionReportPo = gbInspectionReportAppService.getGbInspectionReportById(gbInspectionReportId);
         return success(GbInspectionReportMptAssembler.INSTANCE.fromPo(gbInspectionReportPo));
+    }
+
+    /**
+     * 根据国标检测报告ID获取国标检测报告结果
+     *
+     * @param gbInspectionReportId 国标检测报告ID
+     * @return 国标检测报告结果
+     */
+    @RequiresPermissions("iov:rsms:gbInspectionReport:query")
+    @Override
+    @GetMapping(value = "/{gbInspectionReportId}/result")
+    public AjaxResult getResult(@PathVariable Long gbInspectionReportId) {
+        logger.info("管理后台用户[{}]根据国标检测报告ID[{}]获取国标检测报告结果", SecurityUtils.getUsername(), gbInspectionReportId);
+        GbInspectionReportResultMpt result = new GbInspectionReportResultMpt();
+        GbInspectionReportPo gbInspectionReportPo = gbInspectionReportAppService.getGbInspectionReportById(gbInspectionReportId);
+        BeanUtil.copyProperties(gbInspectionReportPo, result);
+        BigDecimal messageErrorPercentage = new BigDecimal(result.getMessageErrorCount())
+                .multiply(new BigDecimal(100))
+                .divide(new BigDecimal(result.getMessageCount()), 2, RoundingMode.HALF_UP);
+        result.setMessageErrorPercentage(messageErrorPercentage.doubleValue());
+        BigDecimal dataErrorPercentage = new BigDecimal(result.getDataErrorCount())
+                .multiply(new BigDecimal(100))
+                .divide(new BigDecimal(result.getDataCount()), 2, RoundingMode.HALF_UP);
+        result.setDataErrorPercentage(dataErrorPercentage.doubleValue());
+        JSONObject items = new JSONObject();
+        for (GbInspectionItemPo itemPo : gbInspectionReportPo.getItems()) {
+            if (!items.containsKey(itemPo.getItemCategory())) {
+                items.set(itemPo.getItemCategory(), new JSONObject());
+            }
+            JSONObject category = items.getJSONObject(itemPo.getItemCategory());
+            if (!category.containsKey(itemPo.getItemType())) {
+                category.set(itemPo.getItemType(), new JSONObject());
+            }
+            JSONObject type = category.getJSONObject(itemPo.getItemType());
+            if (!type.containsKey(itemPo.getItemCode())) {
+                type.set(itemPo.getItemCode(), new JSONObject());
+            }
+            JSONObject item = type.getJSONObject(itemPo.getItemCode());
+            item.set("totalVehicleCount", itemPo.getTotalVehicleCount());
+            item.set("errorVehicleCount", itemPo.getErrorVehicleCount());
+            item.set("totalDataCount", itemPo.getTotalDataCount());
+            item.set("errorDataCount", itemPo.getErrorDataCount());
+        }
+        result.setItems(items);
+        return success(result);
     }
 
     /**
