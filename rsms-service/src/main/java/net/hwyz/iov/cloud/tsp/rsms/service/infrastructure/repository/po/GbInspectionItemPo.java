@@ -102,5 +102,7 @@ public class GbInspectionItemPo extends BasePo {
         this.errorDataCount = 0L;
         this.totalVehicleCount = 0L;
         this.errorVehicleCount = 0L;
+        this.vehicleSet = Set.of();
+        this.errorVehicleSet = Set.of();
     }
 }
