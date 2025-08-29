@@ -89,7 +89,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
      */
     private Map<String, AbstractChecker> initVehicleChecker(String vin) {
         Map<String, AbstractChecker> vehicleCheckers = new HashMap<>();
-        vehicleCheckers.put("DEFAULT", new MatchValueChecker(vin, "DEFAULT", null, "DEFAULT", null));
+        vehicleCheckers.put("DEFAULT", new MatchValueChecker(vin, null, null, null, null));
         return vehicleCheckers;
     }
 
@@ -255,20 +255,20 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
         Map<String, GbInspectionItemPo> map = new HashMap<>();
         checkers.forEach((vin, vehicleCheckers) -> {
             vehicleCheckers.forEach((item, vehicleChecker) -> {
-                GbInspectionItemPo itemPo = map.get(item);
-                if (ObjUtil.isNull(itemPo)) {
-                    if (vehicleChecker.getCategory() == null || vehicleChecker.getItem() == null) {
-                        logger.warn("车辆检查器[{}][{}][{}]为空", vin, vehicleChecker.getCategory(), vehicleChecker.getItem());
+                // 过滤默认检查项
+                if (!"DEFAULT".equals(item)) {
+                    GbInspectionItemPo itemPo = map.get(item);
+                    if (ObjUtil.isNull(itemPo)) {
+                        itemPo = new GbInspectionItemPo(report.getId(), vehicleChecker.getCategory(), vehicleChecker.getType(), item);
                     }
-                    itemPo = new GbInspectionItemPo(report.getId(), vehicleChecker.getCategory(), item);
+                    itemPo.getVehicleSet().add(vin);
+                    itemPo.setTotalDataCount(itemPo.getTotalDataCount() + vehicleChecker.getCount());
+                    if (vehicleChecker.getErrorCount() > 0) {
+                        itemPo.getErrorVehicleSet().add(vin);
+                    }
+                    itemPo.setErrorDataCount(itemPo.getErrorDataCount() + vehicleChecker.getErrorCount());
+                    map.put(item, itemPo);
                 }
-                itemPo.getVehicleSet().add(vin);
-                itemPo.setTotalDataCount(itemPo.getTotalDataCount() + vehicleChecker.getCount());
-                if (vehicleChecker.getErrorCount() > 0) {
-                    itemPo.getErrorVehicleSet().add(vin);
-                }
-                itemPo.setErrorDataCount(itemPo.getErrorDataCount() + vehicleChecker.getErrorCount());
-                map.put(item, itemPo);
             });
         });
         map.forEach((key, item) -> {

@@ -96,9 +96,10 @@ public class GbInspectionItemPo extends BasePo {
      */
     private Set<String> errorVehicleSet;
 
-    public GbInspectionItemPo(Long reportId, String itemCategory, String itemCode) {
+    public GbInspectionItemPo(Long reportId, String itemCategory, String itemType, String itemCode) {
         this.reportId = reportId;
         this.itemCategory = itemCategory;
+        this.itemType = itemType;
         this.itemCode = itemCode;
         this.totalDataCount = 0L;
         this.errorDataCount = 0L;
