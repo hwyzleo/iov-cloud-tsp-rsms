@@ -40,6 +40,11 @@ public class GbInspectionReportResultMpt {
     private Integer reportType;
 
     /**
+     * 报告类型名称
+     */
+    private String reportTypeName;
+
+    /**
      * 车型或车架号
      */
     private String vehicle;

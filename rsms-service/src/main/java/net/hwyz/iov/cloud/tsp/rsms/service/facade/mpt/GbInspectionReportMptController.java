@@ -163,6 +163,7 @@ public class GbInspectionReportMptController extends BaseController implements G
         GbInspectionReportResultMpt result = new GbInspectionReportResultMpt();
         GbInspectionReportPo gbInspectionReportPo = gbInspectionReportAppService.getGbInspectionReportResultById(gbInspectionReportId);
         BeanUtil.copyProperties(gbInspectionReportPo, result, "items");
+        result.setReportTypeName(result.getReportType() == 1 ? "单车报告" : "车型报告");
         BigDecimal vehicleErrorPercentage = new BigDecimal(result.getVehicleErrorCount())
                 .multiply(new BigDecimal(100))
                 .divide(new BigDecimal(result.getVehicleCount()), 2, RoundingMode.HALF_UP);
