@@ -263,6 +263,7 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
                     itemPo.getErrorVehicleSet().add(vin);
                 }
                 itemPo.setErrorDataCount(itemPo.getErrorDataCount() + checker.getErrorCount());
+                map.put(item, itemPo);
             });
         });
         map.forEach((key, item) -> {
