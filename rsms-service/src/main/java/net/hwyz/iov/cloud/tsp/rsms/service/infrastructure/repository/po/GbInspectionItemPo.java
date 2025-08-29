@@ -4,13 +4,15 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serializable;
-import java.util.Set;
-
-import net.hwyz.iov.cloud.framework.mysql.po.BasePo;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import net.hwyz.iov.cloud.framework.mysql.po.BasePo;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>
@@ -102,7 +104,7 @@ public class GbInspectionItemPo extends BasePo {
         this.errorDataCount = 0L;
         this.totalVehicleCount = 0L;
         this.errorVehicleCount = 0L;
-        this.vehicleSet = Set.of();
-        this.errorVehicleSet = Set.of();
+        this.vehicleSet = new HashSet<>();
+        this.errorVehicleSet = new HashSet<>();
     }
 }
