@@ -48,7 +48,8 @@ public class ReportVehicleMptController extends BaseController implements Report
         logger.info("管理后台用户[{}]分页查询上报车辆", SecurityUtils.getUsername());
         startPage();
         List<ReportVehiclePo> reportVehiclePoList = reportVehicleAppService.search(reportVehicle.getVin(),
-                reportVehicle.getReportState(), reportVehicle.getOfflineDays(), getBeginTime(reportVehicle), getEndTime(reportVehicle));
+                reportVehicle.getReportState(), reportVehicle.getOfflineDays(), reportVehicle.getFrequentAlarmIn30Days(),
+                getBeginTime(reportVehicle), getEndTime(reportVehicle));
         List<ReportVehicleMpt> reportVehicleMptList = ReportVehicleMptAssembler.INSTANCE.fromPoList(reportVehiclePoList);
         reportVehicleMptList.forEach(reportVehicleMpt -> {
             cacheService.getVehicleTime(reportVehicleMpt.getVin()).ifPresent(reportVehicleMpt::setVehicleTime);
