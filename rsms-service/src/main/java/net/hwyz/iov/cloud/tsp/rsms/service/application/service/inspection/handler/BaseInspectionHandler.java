@@ -59,9 +59,6 @@ public abstract class BaseInspectionHandler implements InspectionHandler {
                 }
             }
             if (errorCount > 0) {
-                if (ObjUtil.isNull(report.getErrorMessages())) {
-                    report.setErrorMessages(new HashSet<>());
-                }
                 report.getErrorMessages().add(message);
             }
         });

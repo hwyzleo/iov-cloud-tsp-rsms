@@ -132,7 +132,12 @@ public class GbInspectionReportAppService {
         ConsistencyInspectionHandler consistencyInspectionHandler = ctx.getBean(ConsistencyInspectionHandler.class);
         TimelinessInspectionHandler timelinessInspectionHandler = ctx.getBean(TimelinessInspectionHandler.class);
         SummaryInspectionHandler summaryInspectionHandler = ctx.getBean(SummaryInspectionHandler.class);
-        gbInspectionReport.setItems(new ArrayList<>());
+        if (ObjUtil.isNull(gbInspectionReport.getItems())) {
+            gbInspectionReport.setItems(new ArrayList<>());
+        }
+        if (ObjUtil.isNull(gbInspectionReport.getErrorMessages())) {
+            gbInspectionReport.setErrorMessages(new HashSet<>());
+        }
         standardInspectionHandler.inspect(gbInspectionReport, gbMessages);
         integrityInspectionHandler.inspect(gbInspectionReport, gbMessages);
         accuracyInspectionHandler.inspect(gbInspectionReport, gbMessages);
