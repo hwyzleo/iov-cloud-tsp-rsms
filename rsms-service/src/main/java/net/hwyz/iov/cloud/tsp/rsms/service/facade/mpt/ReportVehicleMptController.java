@@ -49,7 +49,7 @@ public class ReportVehicleMptController extends BaseController implements Report
         startPage();
         List<ReportVehiclePo> reportVehiclePoList = reportVehicleAppService.search(reportVehicle.getVin(),
                 reportVehicle.getReportState(), reportVehicle.getOfflineDays(), reportVehicle.getFrequentAlarmIn30Days(),
-                getBeginTime(reportVehicle), getEndTime(reportVehicle));
+                reportVehicle.getHighDensityParking(), getBeginTime(reportVehicle), getEndTime(reportVehicle));
         List<ReportVehicleMpt> reportVehicleMptList = ReportVehicleMptAssembler.INSTANCE.fromPoList(reportVehiclePoList);
         reportVehicleMptList.forEach(reportVehicleMpt -> {
             cacheService.getVehicleTime(reportVehicleMpt.getVin()).ifPresent(reportVehicleMpt::setVehicleTime);

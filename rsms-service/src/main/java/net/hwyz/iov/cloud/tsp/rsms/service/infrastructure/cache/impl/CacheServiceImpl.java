@@ -4,8 +4,10 @@ import cn.hutool.core.util.ObjUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
-import org.springframework.data.geo.Point;
+import org.springframework.data.geo.*;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.domain.geo.Metrics;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -100,6 +102,45 @@ public class CacheServiceImpl implements CacheService {
             Point point = new Point(Double.parseDouble(longitude.toString()) / 1000000, Double.parseDouble(latitude.toString()) / 1000000);
             redisTemplate.opsForGeo().add(REDIS_KEY_VEHICLE_POSITION, point, vin);
         }
+    }
+
+    @Override
+    public List<String> getHighDensityParkingVehicles(int minVehicles) {
+        logger.debug("获取高密度停放车辆");
+        List<String> result = new ArrayList<>();
+        Set<String> allVehicles = redisTemplate.opsForSet().members(REDIS_KEY_VEHICLE_POSITION);
+        if (allVehicles == null || allVehicles.isEmpty()) {
+            return result;
+        }
+        return findClustersByFullScan(allVehicles, minVehicles);
+    }
+
+    private List<String> findClustersByFullScan(Set<String> allVehicles, int minVehicles) {
+        List<String> clusters = new ArrayList<>();
+        Set<String> processedVehicles = new HashSet<>();
+        for (String vin : allVehicles) {
+            if (processedVehicles.contains(vin)) {
+                continue;
+            }
+            List<Point> positions = redisTemplate.opsForGeo().position(REDIS_KEY_VEHICLE_POSITION, vin);
+            if (positions == null || positions.isEmpty() || positions.get(0) == null) {
+                continue;
+            }
+            Point position = positions.get(0);
+            Circle circle = new Circle(position, new Distance(500, Metrics.METERS));
+            GeoResults<RedisGeoCommands.GeoLocation<String>> nearbyResults = redisTemplate.opsForGeo().radius(REDIS_KEY_VEHICLE_POSITION, circle);
+            if (nearbyResults == null) {
+                continue;
+            }
+            List<String> nearbyVehicles = new ArrayList<>();
+            for (GeoResult<RedisGeoCommands.GeoLocation<String>> result : nearbyResults) {
+                nearbyVehicles.add(result.getContent().getName());
+            }
+            if (nearbyVehicles.size() >= minVehicles) {
+                processedVehicles.addAll(nearbyVehicles);
+            }
+        }
+        return clusters;
     }
 
     @Override

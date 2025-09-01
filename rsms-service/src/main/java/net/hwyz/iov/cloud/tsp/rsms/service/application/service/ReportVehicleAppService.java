@@ -47,12 +47,13 @@ public class ReportVehicleAppService {
      * @param reportState           车辆上报状态
      * @param offlineDays           离线天数
      * @param frequentAlarmIn30Days 是否30天内频繁报警
+     * @param highDensityParking    是否高密度停放车辆
      * @param beginTime             开始时间
      * @param endTime               结束时间
      * @return 上报车辆列表
      */
     public List<ReportVehiclePo> search(String vin, Integer reportState, Integer offlineDays, Boolean frequentAlarmIn30Days,
-                                        Date beginTime, Date endTime) {
+                                        Boolean highDensityParking, Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("vin", vin);
         map.put("reportState", reportState);
@@ -61,14 +62,21 @@ public class ReportVehicleAppService {
             if (vehicles.isEmpty()) {
                 vehicles.add("");
             }
-            map.put("vehicles", vehicles);
+            map.put("offlineVehicles", vehicles);
         }
         if (ObjUtil.isNotNull(frequentAlarmIn30Days) && frequentAlarmIn30Days) {
             List<String> vehicles = vehicleGbAlarmDao.selectFrequentAlarmVehicleIn30Days();
             if (vehicles.isEmpty()) {
                 vehicles.add("");
             }
-            map.put("vehicles", vehicles);
+            map.put("frequentAlarmVehicles", vehicles);
+        }
+        if (ObjUtil.isNotNull(highDensityParking) && highDensityParking) {
+            List<String> vehicles = cacheService.getHighDensityParkingVehicles(100);
+            if (vehicles.isEmpty()) {
+                vehicles.add("");
+            }
+            map.put("highDensityParkingVehicles", vehicles);
         }
         map.put("beginTime", beginTime);
         map.put("endTime", endTime);

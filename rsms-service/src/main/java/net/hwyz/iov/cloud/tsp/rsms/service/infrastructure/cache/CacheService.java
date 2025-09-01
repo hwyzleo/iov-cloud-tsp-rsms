@@ -51,6 +51,14 @@ public interface CacheService {
     void setVehicleStatus(String vin, Map<String, Object> vehicleStatus);
 
     /**
+     * 获取高密度停放车辆
+     *
+     * @param minVehicles 最小车辆数
+     * @return 高密度停放车辆
+     */
+    List<String> getHighDensityParkingVehicles(int minVehicles);
+
+    /**
      * 获取车辆更新时间
      *
      * @param vin 车架号
