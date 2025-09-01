@@ -108,7 +108,7 @@ public class CacheServiceImpl implements CacheService {
     public List<String> getHighDensityParkingVehicles(int minVehicles) {
         logger.debug("获取高密度停放车辆");
         List<String> result = new ArrayList<>();
-        Set<String> allVehicles = redisTemplate.opsForSet().members(REDIS_KEY_VEHICLE_POSITION);
+        Set<String> allVehicles = redisTemplate.boundZSetOps(REDIS_KEY_VEHICLE_POSITION).range(0, -1);
         if (allVehicles == null || allVehicles.isEmpty()) {
             return result;
         }
