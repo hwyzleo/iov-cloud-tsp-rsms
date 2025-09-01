@@ -4,6 +4,8 @@ import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.VehicleGbAlarmPo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 车辆国标报警 DAO
@@ -31,5 +33,12 @@ public interface VehicleGbAlarmDao extends BaseDao<VehicleGbAlarmPo, Long> {
      * @return 车辆国标报警
      */
     VehicleGbAlarmPo selectLastNotRestorationByVinAndAlarmFlag(String vin, Integer alarmFlag);
+
+    /**
+     * 查询车辆30天内频繁报警车辆
+     *
+     * @return 车辆vin列表
+     */
+    List<String> selectFrequentAlarmVehicleIn30Days();
 
 }

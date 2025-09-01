@@ -38,6 +38,16 @@ public class ReportVehicleMpt extends BaseRequest {
     private Integer offlineDays;
 
     /**
+     * 30天内是否发生频繁报警
+     */
+    private Boolean frequentAlarmIn30Days;
+
+    /**
+     * 是否高密度停放车辆
+     */
+    private Boolean highDensityParking;
+
+    /**
      * 上报状态
      */
     private Integer reportState;

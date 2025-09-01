@@ -200,6 +200,24 @@
         LIMIT 1
     </select>
 
+    <!-- 查询车辆30天内频繁报警车辆 -->
+    <select id="selectFrequentAlarmVehicleIn30Days" parameterType="java.util.Map" resultMap="baseResultMap">
+        SELECT DISTINCT t.vin
+        FROM tb_vehicle_gb_alarm t
+        WHERE t.row_valid = 1
+        AND t.alarm_level = 3
+        AND t.alarm_time >= DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)
+        AND (
+            SELECT COUNT(*)
+            FROM tb_vehicle_gb_alarm t2
+            WHERE t2.vin = t.vin
+            AND t2.row_valid = 1
+            AND t2.alarm_level = 3
+            AND t2.alarm_time >= DATE_SUB(t.alarm_time, INTERVAL 24 HOUR)
+            AND t2.alarm_time &lt;= t.alarm_time
+        ) > 1
+    </select>
+
     <!-- 根据Map对象统计记录数 -->
     <select id="countPoByMap" parameterType="java.util.Map" resultType="int">
         SELECT COUNT(*)

@@ -15,6 +15,7 @@ import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.cache.CacheService;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.msg.ClientPlatformCmdProducer;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.RegisteredVehicleDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.ReportVehicleDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao.VehicleGbAlarmDao;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.RegisteredVehiclePo;
 import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
 import org.springframework.context.event.EventListener;
@@ -35,25 +36,35 @@ public class ReportVehicleAppService {
 
     private final CacheService cacheService;
     private final ReportVehicleDao reportVehicleDao;
+    private final VehicleGbAlarmDao vehicleGbAlarmDao;
     private final RegisteredVehicleDao registeredVehicleDao;
     private final ClientPlatformCmdProducer clientPlatformCmdProducer;
 
     /**
      * 查询上报车辆
      *
-     * @param vin         车架号
-     * @param reportState 车辆上报状态
-     * @param offlineDays 离线天数
-     * @param beginTime   开始时间
-     * @param endTime     结束时间
+     * @param vin                   车架号
+     * @param reportState           车辆上报状态
+     * @param offlineDays           离线天数
+     * @param frequentAlarmIn30Days 是否30天内频繁报警
+     * @param beginTime             开始时间
+     * @param endTime               结束时间
      * @return 上报车辆列表
      */
-    public List<ReportVehiclePo> search(String vin, Integer reportState, Integer offlineDays, Date beginTime, Date endTime) {
+    public List<ReportVehiclePo> search(String vin, Integer reportState, Integer offlineDays, Boolean frequentAlarmIn30Days,
+                                        Date beginTime, Date endTime) {
         Map<String, Object> map = new HashMap<>();
         map.put("vin", vin);
         map.put("reportState", reportState);
         if (ObjUtil.isNotNull(offlineDays)) {
             List<String> vehicles = cacheService.getVehiclesByTimeRange(new Date(System.currentTimeMillis() - offlineDays * 24 * 60 * 60 * 1000));
+            if (vehicles.isEmpty()) {
+                vehicles.add("");
+            }
+            map.put("vehicles", vehicles);
+        }
+        if (ObjUtil.isNotNull(frequentAlarmIn30Days) && frequentAlarmIn30Days) {
+            List<String> vehicles = vehicleGbAlarmDao.selectFrequentAlarmVehicleIn30Days();
             if (vehicles.isEmpty()) {
                 vehicles.add("");
             }
