@@ -201,7 +201,7 @@
     </select>
 
     <!-- 查询车辆30天内频繁报警车辆 -->
-    <select id="selectFrequentAlarmVehicleIn30Days" parameterType="java.util.Map" resultMap="baseResultMap">
+    <select id="selectFrequentAlarmVehicleIn30Days" parameterType="java.util.Map" resultType="string">
         SELECT DISTINCT t.vin
         FROM tb_vehicle_gb_alarm t
         WHERE t.row_valid = 1
