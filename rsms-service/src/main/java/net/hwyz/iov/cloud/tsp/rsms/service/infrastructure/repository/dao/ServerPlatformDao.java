@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao;
 
-import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ServerPlatformPo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -22,13 +22,5 @@ public interface ServerPlatformDao extends BaseDao<ServerPlatformPo, Long> {
      * @return 服务端平台
      */
     ServerPlatformPo selectPoByCode(String code);
-
-    /**
-     * 批量物理删除服务端平台
-     *
-     * @param ids 服务端平台id数组
-     * @return 影响行数
-     */
-    int batchPhysicalDeletePo(Long[] ids);
 
 }

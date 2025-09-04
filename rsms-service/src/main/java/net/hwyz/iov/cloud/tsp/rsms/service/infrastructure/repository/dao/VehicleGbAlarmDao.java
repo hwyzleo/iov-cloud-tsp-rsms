@@ -18,14 +18,6 @@ import java.util.List;
 public interface VehicleGbAlarmDao extends BaseDao<VehicleGbAlarmPo, Long> {
 
     /**
-     * 批量物理删除车辆国标报警
-     *
-     * @param ids 车辆国标报警id数组
-     * @return 影响行数
-     */
-    int batchPhysicalDeletePo(Long[] ids);
-
-    /**
      * 根据车辆vin、报警标识查询车辆最后未恢复国标报警
      *
      * @param vin       车架号

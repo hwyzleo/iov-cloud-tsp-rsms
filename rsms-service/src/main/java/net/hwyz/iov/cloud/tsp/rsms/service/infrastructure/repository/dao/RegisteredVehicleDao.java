@@ -34,12 +34,4 @@ public interface RegisteredVehicleDao extends BaseDao<RegisteredVehiclePo, Long>
      */
     RegisteredVehiclePo selectPoByClientPlatformIdAndVin(Long clientPlatformId, String vin);
 
-    /**
-     * 批量物理删除已注册车辆
-     *
-     * @param ids 已注册车辆id数组
-     * @return 影响行数
-     */
-    int batchPhysicalDeletePo(Long[] ids);
-
 }

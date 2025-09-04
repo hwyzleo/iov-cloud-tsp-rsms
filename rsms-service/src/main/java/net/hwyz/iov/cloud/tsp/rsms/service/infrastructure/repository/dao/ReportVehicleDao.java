@@ -1,7 +1,7 @@
 package net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.dao;
 
-import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
 import net.hwyz.iov.cloud.framework.mysql.dao.BaseDao;
+import net.hwyz.iov.cloud.tsp.rsms.service.infrastructure.repository.po.ReportVehiclePo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -22,13 +22,5 @@ public interface ReportVehicleDao extends BaseDao<ReportVehiclePo, Long> {
      * @return 上报车辆
      */
     ReportVehiclePo selectPoByVin(String vin);
-
-    /**
-     * 批量物理删除
-     *
-     * @param ids id数组
-     * @return 影响行数
-     */
-    int batchPhysicalDeletePo(Long[] ids);
 
 }
